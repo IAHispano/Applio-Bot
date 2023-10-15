@@ -4,7 +4,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("model")
     .setNameLocalizations({
-      "es-ES": "model",
+      "es-ES": "modelo",
     })
 
     .setDescription("AI Hispano » Start the verification of your model.")

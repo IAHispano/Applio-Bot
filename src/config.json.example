@@ -3,5 +3,6 @@
   "clientId": "",
   "support_server": "",
   "bot_perms": "",
-  "moderatorRoleID": ""
+  "moderatorRoleID": "",
+  "allowedUserId": ""
 }

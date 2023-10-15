@@ -1,0 +1,27 @@
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Output of build tools
+dist/
+build/
+out/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Miscellaneous
+*.swp
+.DS_Store
+
+# Bot
+models/
+src/config.json

@@ -4,5 +4,6 @@
   "support_server": "",
   "bot_perms": "",
   "moderatorRoleID": "",
-  "allowedUserId": ""
+  "allowedUserId": "",
+  "prodia_token": ""
 }

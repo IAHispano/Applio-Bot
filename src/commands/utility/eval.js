@@ -4,7 +4,7 @@ const {
   AttachmentBuilder,
 } = require("discord.js");
 const client = require("../../bot.js");
-const allowedUserId = require("../../config.json");
+const { allowedUserId } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()

@@ -1,5 +1,5 @@
 const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
-const moderatorRoleID = require("../../config.json");
+const { moderatorRoleID } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()

@@ -21,7 +21,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
 
-      .setAuthor({name: user.tag, iconURL: user.displayAvatarURL()})
+      .setAuthor({name: user.tag, iconURL: user.displayAvatarURL({ dynamic: true })})
       .addFields(
         { name: "User", value: `<@${user.id}> (${user.id})`, inline: false },
         {

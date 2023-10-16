@@ -5,10 +5,10 @@ module.exports = {
   once: true,
   execute(client) {
     require("../classes/deploy.js");
-    /*client.user.setPresence({
+    client.user.setPresence({
       activities: [{ name: "applio.org", type: ActivityType.Watching }],
       status: "online",
-    });Ç*/
+    });
     console.log(`Starting the bot as ${client.user.tag}...`);
   },
 };

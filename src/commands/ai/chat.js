@@ -48,8 +48,7 @@ module.exports = {
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
       return await interaction.editReply({
         content: `There was an issue getting an AI response! This could be because long requests may be timed out.`,
         ephemeral: true,

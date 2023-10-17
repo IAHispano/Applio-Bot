@@ -68,9 +68,9 @@ module.exports = {
                 .setTimestamp();
               await interaction.followUp({ embeds: [embed] });
             })
-            .catch((err) => console.error(err));
+            .catch((error) => console.error(error));
         }, 5000);
       })
-      .catch((err) => console.error(err));
+      .catch((error) => console.error(error));
   },
 };

@@ -59,7 +59,7 @@ module.exports = {
           ),
         ],
       });
-    } catch (err) {
+    } catch (error) {
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()

@@ -1,4 +1,10 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+  EmbedBuilder,
+  SlashCommandBuilder,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+  ComponentType,
+} = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 
@@ -57,7 +63,7 @@ module.exports = {
       option
         .setName("model")
         .setDescription("Enter the name of the model you wish to search for.")
-        .setRequired(true),
+        .setRequired(true)
     )
     .setDMPermission(false),
 
@@ -65,7 +71,7 @@ module.exports = {
     const model = interaction.options.getString("model");
 
     if (!model) {
-      await interaction.reply("Please provide a model name.");
+      await interaction.reply("Please provide the model name.");
       return;
     }
 
@@ -99,39 +105,117 @@ module.exports = {
         return;
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle(`Models found with the search ${model}`)
+      const pageSize = 1;
+      const totalPages = results.length;
+      let currentPage = 1;
+
+      const displayPage = (page) => {
+        const startIdx = (page - 1) * pageSize;
+        const endIdx = Math.min(startIdx + pageSize, results.length);
+      
+        const embed = new EmbedBuilder()
         .setColor("#5865F2")
         .setFooter({
-          text: `Powered by Applio — ${results.length} models found`,
+          text: `Requested by ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL(),
         })
+        .setColor("#5865F2")
         .setTimestamp();
+      
+        for (let i = startIdx; i < endIdx; i++) {
+          const result = results[i];
+          if (!result) continue;
+      
+          const description = `
+              [**${result.name}**](${result.link})
+              <:dot:1134526388456669234> **Epochs:** ${result.epoch}
+              <:dot:1134526388456669234> **Technology:** ${result.type}
+              <:dot:1134526388456669234> **Algorithm:** ${result.algorithm}
+              <:dot:1134526388456669234> **Uploaded:** ${result.uploadDate}
+              <:dot:1134526388456669234> **Author:** [Haga clic para ver](https://discordapp.com/users/${result.owner})\n`;
+      
+          if (
+            result.attachments &&
+            result.attachments[0] &&
+            result.attachments[0].url
+          ) {
+            embed.setImage(result.attachments[0].url);
+          }
+          
+          embed.setTitle(result.name)
+          embed.setDescription(description);
+        }
+      
+        const row = new ActionRowBuilder();
+      
+        const options = results.slice(0, 25).map((result, index) => ({
+          label: `${result.name} [${index}]`,
+          value: `${result.name}-${result.owner}`, 
+          emoji: "<:dot:1134526388456669234>",
+        }));
+      
+        const menu = new StringSelectMenuBuilder()
+          .setCustomId("models")
+          .setPlaceholder("Select a model...")
+          .setOptions(options);
+          
+      
+        row.addComponents(menu);
+      
+        interaction.reply({
+          embeds: [embed],
+          components: [row],
+        });
+      };
+      
 
-      let description = "";
+      displayPage(currentPage);
 
-      for (let i = 0; i < Math.min(results.length, 5); i++) {
-        const result = results[i];
-        description += `
-[**${result.name}**](${result.link})
-<:dot:1134526388456669234> **Epochs:** ${result.epoch}
-<:dot:1134526388456669234> **Technology:** ${result.type}
-<:dot:1134526388456669234> **Algorithm:** ${result.algorithm}
-<:dot:1134526388456669234> **Uploaded:** ${result.uploadDate}
-<:dot:1134526388456669234> **Author:** [Click to view](https://discordapp.com/users/${result.owner})\n`;
-      }
+      let collector;
 
-      if (
-        results[0].attachments &&
-        results[0].attachments[0] &&
-        results[0].attachments[0].url
-      ) {
-        embed.setImage(results[0].attachments[0].url);
-      }
+      collector = interaction.channel.createMessageComponentCollector({
+        componentType: ComponentType.StringSelect,
+      });
 
-      embed.setDescription(description);
+      collector.on("collect", async (interaction) => {
+        const selectedResult = results.find(
+          (result) => `${result.name}-${result.owner}` === interaction.values[0]
+        );
 
-      await interaction.reply({
-        embeds: [embed],
+        if (selectedResult) {
+          const embed = new EmbedBuilder()
+            .setTitle(selectedResult.name)
+            .setColor("#5865F2")
+            .setFooter({
+              text: `Requested by ${interaction.user.tag}`,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setColor("#5865F2")
+            .setTimestamp();
+      
+
+          const description = `
+              [**${selectedResult.name}**](${selectedResult.link})
+              <:dot:1134526388456669234> **Epochs:** ${selectedResult.epoch}
+              <:dot:1134526388456669234> **Technology:** ${selectedResult.type}
+              <:dot:1134526388456669234> **Algorithm:** ${selectedResult.algorithm}
+              <:dot:1134526388456669234> **Uploaded:** ${selectedResult.uploadDate}
+              <:dot:1134526388456669234> **Author:** [Haga clic para ver](https://discordapp.com/users/${selectedResult.owner})\n`;
+
+          if (
+            selectedResult.attachments &&
+            selectedResult.attachments[0] &&
+            selectedResult.attachments[0].url
+          ) {
+            embed.setImage(selectedResult.attachments[0].url);
+          }
+
+          embed.setDescription(description);
+
+          interaction.update({
+            embeds: [embed],
+          });
+        }
       });
     });
   },

@@ -6,4 +6,6 @@
   "moderatorRoleID": "YOUR_MODERATOR_ROLE_ID",
   "allowedUserId": "ALLOWED_USER_ID",
   "prodia_token": "YOUR_PRODIA_TOKEN"
+  "bardToken": "YOUR_BARD_RAPIDAPI_KEY",
+  "bardPsid": "YOUR_BARD_PSID"
 }

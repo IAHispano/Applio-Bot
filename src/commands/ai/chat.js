@@ -1,49 +1,57 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const puppeteer = require("puppeteer")
+const { bardToken, bardPsid } = require("../../config.json");
+const axios = require("axios");
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("chat")
-        .setDescription(
-            "AI » Enjoy interacting with ChatGPT from Discord!"
-        )
-        .setDescriptionLocalizations({
-            "es-ES":
-                "AI » ¡Disfruta interactuando con ChatGPT desde Discord!",
+  data: new SlashCommandBuilder()
+    .setName("chat")
+    .setDescription("AI » Enjoy interacting with ChatGPT from Discord!")
+    .setDescriptionLocalizations({
+      "es-ES": "AI » ¡Disfruta interactuando con ChatGPT desde Discord!",
+    })
+    .addStringOption((o) =>
+      o
+        .setName("prompt")
+        .setDescription("The prompt that will be used for the text generation.")
+        .setRequired(true)
+    ),
+
+  async execute(interaction) {
+    const prompt = interaction.options.get("prompt").value;
+
+    await interaction.deferReply({ ephemeral: false });
+    let input = {
+      method: "GET",
+      url: "https://google-bard1.p.rapidapi.com/",
+      headers: {
+        text: prompt,
+        lang: "en",
+        psid: bardPsid,
+        "X-RapidAPI-Key": bardToken,
+        "X-RapidAPI-Host": "google-bard1.p.rapidapi.com",
+      },
+    };
+
+    try {
+      const output = await axios.request(input);
+
+      const embed = new EmbedBuilder()
+        .setTitle(prompt)
+        .setDescription(output.data.response)
+        .setFooter({
+          text: `Requested by ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL(),
         })
-        .addStringOption((o) =>
-            o
-                .setName("prompt")
-                .setDescription("The prompt that will be used for the text generation.")
-                .setRequired(true)
-        ),
+        .setColor("#5865F2")
+        .setTimestamp();
 
-    async execute(interaction) {
-        const prompt = interaction.options.get("prompt").value;
-
-        await interaction.reply({ text: "Loading your response..." })
-
-        const browser = await puppeteer.launch({ headless: true })
-        const page = await browser.newPage()
-        await page.goto("https://chat-app-f2d296.zapier.app/")
-
-        const textBoxSelector = 'textarea[aria-label="chatbot-user-prompt"]'
-        page.waitForSelector(textBoxSelector)
-        await page.type(textBoxSelector, prompt)
-        page.keyboard.press('Enter');
-
-        page.waitForSe1ector('[data-testid="final-bot-response"] p');
-
-        var value = await page.$$eval('[data-testid="final-bot-response"]', async (elements) => {
-            return elements.map((element) => element.textContent)
-        })
-
-        setTimeout(async () => {
-            if (value.lenght == 0) return interaction.editReply("Error")
-        }, 30000)
-
-        await browser.close();
-        value.shift();
-        await interaction.editReply(value)
+      await interaction.editReply({ embeds: [embed] });
+    } catch (e) {
+      console.log(e);
+      return await interaction.editReply({
+        content: `There was an issue getting an AI response! This could be because long requests may be timed out.`,
+        ephemeral: true,
+      });
     }
+  },
 };

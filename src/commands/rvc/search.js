@@ -101,7 +101,7 @@ module.exports = {
           .setFooter({
             text: `Powered by Applio — Make sure you spelled it correctly!`,
           });
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed], ephemeral: true });
         return;
       }
 

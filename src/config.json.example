@@ -2,7 +2,7 @@
   "token": "YOUR_BOT_TOKEN_HERE",
   "clientId": "YOUR_BOT_CLIENT_ID_HERE",
   "support_server": "YOUR_SUPPORT_SERVER_INVITE_LINK",
-  "bot_perms": "YOUR_BOT_PERMISSIONS_HERE",
+  "bot_perms": "1376674704454",
   "moderatorRoleID": "YOUR_MODERATOR_ROLE_ID",
   "allowedUserId": "ALLOWED_USER_ID",
   "prodia_token": "YOUR_PRODIA_TOKEN"

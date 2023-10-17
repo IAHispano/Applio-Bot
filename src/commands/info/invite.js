@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, Colors } = require("discord.js");
-const { bot_invite, bot_perms } = require("../../config.json");
+const { clientId, bot_perms } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -19,7 +19,7 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setTitle("Applio — Invite")
       .setDescription(
-        `[Click on this message to invite the bot to your server!](https://discord.com/api/oauth2/authorize?client_id=${bot_invite}&permissions=${bot_perms}&scope=bot)`,
+        `[Click on this message to invite the bot to your server!](https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot)`,
       )
       .setColor(Colors.White)
       .setTimestamp();

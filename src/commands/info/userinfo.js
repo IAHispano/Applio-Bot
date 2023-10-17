@@ -11,9 +11,10 @@ module.exports = {
       option
         .setName("user")
         .setDescription(
-          "Specify the user you want to get the avatar from (if you want yours, don't put anything)."
-        )
-    ),
+          "Specify the user you want to get the avatar from (if you want yours, don't put anything).",
+        ),
+    )
+    .setDMPermission(false),
 
   async execute(interaction) {
     const user = interaction.options.getUser("user") || interaction.user;
@@ -21,7 +22,10 @@ module.exports = {
 
     const embed = new EmbedBuilder()
 
-      .setAuthor({name: user.tag, iconURL: user.displayAvatarURL({ dynamic: true })})
+      .setAuthor({
+        name: user.tag,
+        iconURL: user.displayAvatarURL({ dynamic: true }),
+      })
       .addFields(
         { name: "User", value: `<@${user.id}> (${user.id})`, inline: false },
         {
@@ -38,7 +42,6 @@ module.exports = {
           value: `<t:${Math.floor(member.joinedAt / 1000)}:R>`,
           inline: true,
         },
-     
       )
 
       .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 4096 }))

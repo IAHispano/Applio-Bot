@@ -11,7 +11,8 @@ module.exports = {
     .setDescription("INFO » Join the Applio support server.")
     .setDescriptionLocalizations({
       "es-ES": "INFO » Únete al servidor de soporte de Applio.",
-    }),
+    })
+    .setDMPermission(false),
   async execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle("Applio — Support server")

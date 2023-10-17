@@ -5,11 +5,10 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("imagine")
     .setNameLocalizations({
-      "es-ES":
-        "imagina",
+      "es-ES": "imagina",
     })
     .setDescription(
-      "AI » Generates an image with AI based on the description you provide."
+      "AI » Generates an image with AI based on the description you provide.",
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -19,8 +18,9 @@ module.exports = {
       o
         .setName("prompt")
         .setDescription("The description of the image you want to generate.")
-        .setRequired(true)
-    ),
+        .setRequired(true),
+    )
+    .setDMPermission(false),
 
   async execute(interaction) {
     await interaction.deferReply();

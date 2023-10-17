@@ -13,18 +13,19 @@ module.exports = {
     .setDescriptionLocalizations({
       "es-ES": "UTILITY » Evalua un código.",
     })
+    .setDMPermission(false)
     .addStringOption((option) =>
       option
         .setName("code")
         .setDescription("The code to be executed.")
-        .setRequired(true)
+        .setRequired(true),
     ),
   async execute(interaction) {
     await interaction.deferReply();
 
     if (interaction.user.id !== allowedUserId) {
       return await interaction.editReply(
-        "You do not have permission to use this command."
+        "You do not have permission to use this command.",
       );
     }
 
@@ -41,7 +42,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle("Code executed")
             .setDescription(
-              `Successfully executed the code, no errors were found.`
+              `Successfully executed the code, no errors were found.`,
             )
             .setColor("Green"),
         ],
@@ -50,11 +51,11 @@ module.exports = {
             Buffer.from(
               `${executedEvalValue}`.replace(
                 new RegExp(`${client.token}`, "g"),
-                '"[CLIENT TOKEN HIDDEN]"'
+                '"[CLIENT TOKEN HIDDEN]"',
               ),
-              "utf-8"
+              "utf-8",
             ),
-            { name: "output.javascript" }
+            { name: "output.javascript" },
           ),
         ],
       });

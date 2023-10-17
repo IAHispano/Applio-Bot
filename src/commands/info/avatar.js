@@ -12,17 +12,21 @@ module.exports = {
       option
         .setName("user")
         .setDescription(
-          "Specify the user you want to get the avatar from (if you want yours, don't put anything)."
-        )
-    ),
+          "Specify the user you want to get the avatar from (if you want yours, don't put anything).",
+        ),
+    )
+    .setDMPermission(false),
 
   async execute(interaction) {
     const user = interaction.options.getUser("user") || interaction.user;
     const embed = new EmbedBuilder()
       .setColor("#5865F2")
       .setTitle(`${user.tag}'s avatar`)
-      .setImage(user.displayAvatarURL({ dynamic: true, size: 4096}))
-      .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL()})
+      .setImage(user.displayAvatarURL({ dynamic: true, size: 4096 }))
+      .setFooter({
+        text: `Requested by ${interaction.user.tag}`,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
       .setTimestamp();
 
     await interaction.reply({

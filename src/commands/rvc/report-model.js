@@ -27,7 +27,8 @@ module.exports = {
           "Enter the reason why you believe there has been a problem with the model.",
         )
         .setRequired(true),
-    ),
+    )
+    .setDMPermission(false),
   async execute(interaction) {
     const model = interaction.options?.get("model").value;
     const reason = interaction.options?.get("reason").value;

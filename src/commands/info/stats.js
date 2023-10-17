@@ -4,22 +4,23 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("stats")
     .setNameLocalizations({
-        "es-ES": "estadísticas",
-      })
+      "es-ES": "estadísticas",
+    })
 
     .setDescription("INFO » Get statistics about Applio.")
     .setDescriptionLocalizations({
-        "es-ES": "INFO » Obtén estadísticas sobre Applio.",
-      }),
+      "es-ES": "INFO » Obtén estadísticas sobre Applio.",
+    })
+    .setDMPermission(false),
   async execute(interaction) {
     const totalMembers = await interaction.client.guilds.cache.reduce(
       (acc, guild) => acc + guild.memberCount,
-      0
+      0,
     );
     const cpuUsage = process.cpuUsage().user / process.cpuUsage().system;
 
     const usedMemoryMB = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
-      2
+      2,
     );
 
     const embed = new EmbedBuilder()
@@ -41,15 +42,15 @@ module.exports = {
           inline: true,
         },
         {
-            name: "Commands",
-            value: `${interaction.client.commands.size}`,
-            inline: true,
+          name: "Commands",
+          value: `${interaction.client.commands.size}`,
+          inline: true,
         },
         {
           name: "Created",
           value: `<t:${parseInt(
             interaction.client.user.createdTimestamp / 1000,
-            10
+            10,
           )}:R>`,
           inline: true,
         },
@@ -57,15 +58,15 @@ module.exports = {
           name: "Uptime",
           value: `<t:${parseInt(
             interaction.client.readyTimestamp / 1000,
-            10
+            10,
           )}:R>`,
           inline: true,
         },
         {
-            name: "Version",
-            value: `${require("../../../package.json").version}`,
-            inline: true,
-          },
+          name: "Version",
+          value: `${require("../../../package.json").version}`,
+          inline: true,
+        },
         {
           name: "RAM Usage",
           value: `${usedMemoryMB} MB`,
@@ -75,7 +76,7 @@ module.exports = {
           name: "CPU Usage",
           value: `${cpuUsage.toFixed(2)}%`,
           inline: true,
-        }
+        },
       )
       .setFooter({
         text: `Requested by ${interaction.user.tag}`,

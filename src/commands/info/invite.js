@@ -14,7 +14,8 @@ module.exports = {
     .setDescriptionLocalizations({
       "es-ES":
         "INFO » Consigue la invitación para tener el bot de Applio en tu servidor.",
-    }),
+    })
+    .setDMPermission(false),
   async execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle("Applio — Invite")

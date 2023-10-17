@@ -13,8 +13,9 @@ module.exports = {
       o
         .setName("prompt")
         .setDescription("The prompt that will be used for the text generation.")
-        .setRequired(true)
-    ),
+        .setRequired(true),
+    )
+    .setDMPermission(false),
 
   async execute(interaction) {
     const prompt = interaction.options.get("prompt").value;

@@ -58,7 +58,8 @@ module.exports = {
         .setName("model")
         .setDescription("Enter the name of the model you wish to search for.")
         .setRequired(true),
-    ),
+    )
+    .setDMPermission(false),
 
   async execute(interaction) {
     const model = interaction.options.getString("model");

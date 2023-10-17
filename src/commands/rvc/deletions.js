@@ -11,7 +11,8 @@ module.exports = {
     .setDescriptionLocalizations({
       "es-ES":
         "RVC » Solicita la eliminación de un modelo de la base de datos.",
-    }),
+    })
+    .setDMPermission(false),
   async execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle("Applio — Deletions")

@@ -10,7 +10,8 @@ module.exports = {
     .setDescription("INFO » Get help with the bot commands.")
     .setDescriptionLocalizations({
       "es-ES": "INFO » Obten ayuda sobre los comandos del bot.",
-    }),
+    })
+    .setDMPermission(false),
   async execute(interaction) {
     const embed_principal = new EmbedBuilder()
       .setTitle("🚀 Help")

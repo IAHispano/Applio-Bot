@@ -46,7 +46,8 @@ module.exports = {
         .setName("proof")
         .setDescription("Proof of sanction")
         .setRequired(false),
-    ),
+    )
+    .setDMPermission(false),
   async execute(interaction) {
     const usuario = interaction.options.getMember("user");
     const motivo = interaction.options.get("reason");

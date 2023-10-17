@@ -21,7 +21,8 @@ module.exports = {
           "Enter the name of the 5 models you have published (separated by commas).",
         )
         .setRequired(true),
-    ),
+    )
+    .setDMPermission(false),
   async execute(interaction) {
     const models = interaction.options?.get("models")?.value;
     const autor = interaction.user.username;

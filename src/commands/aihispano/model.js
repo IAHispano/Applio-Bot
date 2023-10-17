@@ -117,7 +117,8 @@ module.exports = {
           { name: "🎷 Instrument", value: "🎷 Instrument" },
         )
         .setRequired(true),
-    ),
+    )
+    .setDMPermission(false),
 
   async execute(interaction) {
     let algoritmo = interaction.options?.get("algorithm")?.value;

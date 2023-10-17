@@ -14,11 +14,25 @@ module.exports = {
     .setDMPermission(false),
   async execute(interaction) {
     const embed_principal = new EmbedBuilder()
-      .setTitle("🚀 Help")
-      .setColor("#FFFFFF")
+      .setTitle("Help")
+      .setDescription(
+        "Applio is a bot that has a lot of features, such as moderation, fun, utility, and more."
+      )
+      .addFields(
+        {
+          name: "Support",
+          value: "https://discord.gg/IAHispano",
+        },
+        {
+          name: "Invite",
+          value: "https://bot.applio.org",
+        }
+      )
       .setFooter({
-        text: "Thank you for using our bot! If you have more questions, feel free to ask.",
+        text: `Requested by ${interaction.user.tag}`,
+        iconURL: interaction.user.displayAvatarURL(),
       })
+      .setColor("#5865F2")
       .setTimestamp();
 
     await interaction.reply({

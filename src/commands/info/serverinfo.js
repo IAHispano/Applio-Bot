@@ -3,9 +3,9 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("serverinfo")
-    .setDescription("INFO » View information about the current server.")
+    .setDescription("Info » View information about the current server.")
     .setDescriptionLocalizations({
-      "es-ES": "INFO » Obtén información sobre el servidor actual.",
+      "es-ES": "Info » Obtén información sobre el servidor actual.",
     })
     .setDMPermission(false),
   async execute(interaction) {

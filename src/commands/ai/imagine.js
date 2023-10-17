@@ -14,8 +14,8 @@ module.exports = {
       "es-ES":
         "AI » Genera una imagen con IA basada en la descripción que proporciones.",
     })
-    .addStringOption((o) =>
-      o
+    .addStringOption((option) =>
+      option
         .setName("prompt")
         .setDescription("The description of the image you want to generate.")
         .setRequired(true),

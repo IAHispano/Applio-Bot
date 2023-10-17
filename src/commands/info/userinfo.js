@@ -3,9 +3,9 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("userinfo")
-    .setDescription("INFO » Get info about a user or yourself.")
+    .setDescription("Info » Get info about a user or yourself.")
     .setDescriptionLocalizations({
-      "es-ES": "INFO » Obtén información sobre un usuario o sobre ti mismo.",
+      "es-ES": "Info » Obtén información sobre un usuario o sobre ti mismo.",
     })
     .addUserOption((option) =>
       option

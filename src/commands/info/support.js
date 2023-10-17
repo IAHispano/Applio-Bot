@@ -8,9 +8,9 @@ module.exports = {
       "es-ES": "soporte",
     })
 
-    .setDescription("INFO » Join the Applio support server.")
+    .setDescription("Info » Join the Applio support server.")
     .setDescriptionLocalizations({
-      "es-ES": "INFO » Únete al servidor de soporte de Applio.",
+      "es-ES": "Info » Únete al servidor de soporte de Applio.",
     })
     .setDMPermission(false),
   async execute(interaction) {

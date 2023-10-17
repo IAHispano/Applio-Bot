@@ -14,8 +14,8 @@ module.exports = {
       "es-ES":
         "AI Hispano » Inicia la verificación para obtener el rol 'Model Maker'.",
     })
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("models")
         .setDescription(
           "Enter the name of the 5 models you have published (separated by commas).",

@@ -7,9 +7,9 @@ module.exports = {
       "es-ES": "ayuda",
     })
 
-    .setDescription("INFO » Get help with the bot commands.")
+    .setDescription("Info » Get help with the bot commands.")
     .setDescriptionLocalizations({
-      "es-ES": "INFO » Obten ayuda sobre los comandos del bot.",
+      "es-ES": "Info » Obten ayuda sobre los comandos del bot.",
     })
     .setDMPermission(false),
   async execute(interaction) {

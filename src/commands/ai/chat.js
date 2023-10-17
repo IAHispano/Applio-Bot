@@ -9,11 +9,12 @@ module.exports = {
     .setDescriptionLocalizations({
       "es-ES": "AI » ¡Disfruta interactuando con ChatGPT desde Discord!",
     })
-    .addStringOption((o) =>
-      o
+    .addStringOption((option) =>
+      option
         .setName("prompt")
         .setDescription("The prompt that will be used for the text generation.")
-        .setRequired(true),
+        .setRequired(true)
+        .setMaxLength(256),
     )
     .setDMPermission(false),
 

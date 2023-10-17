@@ -9,9 +9,9 @@ const { allowedUserId } = require("../../config.json");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("eval")
-    .setDescription("UTILITY » Eval a code.")
+    .setDescription("Utility » Eval a code.")
     .setDescriptionLocalizations({
-      "es-ES": "UTILITY » Evalua un código.",
+      "es-ES": "Utility » Evalua un código.",
     })
     .setDMPermission(false)
     .addStringOption((option) =>

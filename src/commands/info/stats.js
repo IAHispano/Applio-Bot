@@ -7,9 +7,9 @@ module.exports = {
       "es-ES": "estadísticas",
     })
 
-    .setDescription("INFO » Get statistics about Applio.")
+    .setDescription("Info » Get statistics about Applio.")
     .setDescriptionLocalizations({
-      "es-ES": "INFO » Obtén estadísticas sobre Applio.",
+      "es-ES": "Info » Obtén estadísticas sobre Applio.",
     })
     .setDMPermission(false),
   async execute(interaction) {

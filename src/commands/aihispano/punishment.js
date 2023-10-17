@@ -15,20 +15,20 @@ module.exports = {
       "es-ES":
         "AI Hispano » Aplicar una sanción a un usuario (Sólo moderadores).",
     })
-    .addUserOption((op) =>
-      op
+    .addUserOption((option) =>
+      option
         .setName("user")
         .setDescription("The user to be penalized.")
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("reason")
         .setDescription("Reason for the sanction.")
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("time")
         .addChoices(
           { name: "1 minute", value: "1 minute" },
@@ -41,8 +41,8 @@ module.exports = {
         .setDescription("Time to sanction the user.")
         .setRequired(true),
     )
-    .addAttachmentOption((op) =>
-      op
+    .addAttachmentOption((option) =>
+      option
         .setName("proof")
         .setDescription("Proof of sanction")
         .setRequired(false),

@@ -14,14 +14,14 @@ module.exports = {
       "es-ES":
         "RVC » Informe de un modelo si cree que ha habido algún problema con él para que pueda ser revisado.",
     })
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("model")
         .setDescription("Enter the name of the model that has a problem.")
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("reason")
         .setDescription(
           "Enter the reason why you believe there has been a problem with the model.",

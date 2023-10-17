@@ -11,20 +11,20 @@ module.exports = {
     .setDescriptionLocalizations({
       "es-ES": "AI Hispano » Comience la verificación de su modelo.",
     })
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("name")
         .setDescription("Indicate the name of the model you wish to upload.")
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("link")
         .setDescription("Indicate the link of the model you wish to upload.")
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("epochs")
         .setDescription(
           "Indicate the number of epochs of the model you want to upload.",
@@ -32,8 +32,8 @@ module.exports = {
         .setRequired(true),
     )
 
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("technology")
         .setDescription(
           "Select the technology where you have created the model.",
@@ -50,8 +50,8 @@ module.exports = {
         )
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("algorithm")
         .setDescription("Select the algorithm to extract the tone.")
         .addChoices(
@@ -73,22 +73,22 @@ module.exports = {
         )
         .setRequired(true),
     )
-    .addAttachmentOption((op) =>
-      op
+    .addAttachmentOption((option) =>
+      option
         .setName("image")
         .setDescription(
           "Select the image of the model (in rectangular format and of good quality).",
         )
         .setRequired(true),
     )
-    .addAttachmentOption((op) =>
-      op
+    .addAttachmentOption((option) =>
+      option
         .setName("audio")
         .setDescription("Upload a sample audio of the model.")
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("language")
         .setDescription("Select the language of the model.")
         .addChoices(
@@ -100,8 +100,8 @@ module.exports = {
         )
         .setRequired(true),
     )
-    .addStringOption((op) =>
-      op
+    .addStringOption((option) =>
+      option
         .setName("tags")
         .setDescription(
           "Selecciona la etiqueta que mejor describa a tu modelo.",

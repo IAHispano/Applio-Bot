@@ -8,22 +8,22 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("afk")
     .setDescription(
-      `UTILIY » Set yourself as AFK on the server and prevent anyone from mentioning you.`,
+      `Utility » Set yourself as AFK on the server and prevent anyone from mentioning you.`,
     )
     .setDescriptionLocalizations({
       "es-ES":
-        "UTILIY » Establécete como AFK en el servidor y evita que nadie te mencione.",
+        "Utility » Establécete como AFK en el servidor y evita que nadie te mencione.",
     })
     .setDMPermission(false)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("start")
         .setDescription(
-          "UTILIY » Set yourself as AFK on the server and prevent anyone from mentioning you.",
+          "Utility » Set yourself as AFK on the server and prevent anyone from mentioning you.",
         )
         .setDescriptionLocalizations({
           "es-ES":
-            "UTILIY » Establécete como AFK en el servidor y evita que nadie te mencione.",
+            "Utility » Establécete como AFK en el servidor y evita que nadie te mencione.",
         })
         .addStringOption((option) =>
           option
@@ -36,22 +36,22 @@ module.exports = {
       subcommand
         .setName("end")
         .setDescription(
-          "UTILIY » Stop being AFK on the server and re-enable mentions.",
+          "Utility » Stop being AFK on the server and re-enable mentions.",
         )
         .setDescriptionLocalizations({
           "es-ES":
-            "UTILIY » Deja de estar AFK en el servidor y vuelve a activar las menciones.",
+            "Utility » Deja de estar AFK en el servidor y vuelve a activar las menciones.",
         }),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("force-remove")
         .setDescription(
-          "UTILIY » Remove the AFK status to another user (Moderators only).",
+          "Utility » Remove the AFK status to another user (Moderators only).",
         )
         .setDescriptionLocalizations({
           "es-ES":
-            "UTILIY » Quitar el estado AFK a otro usuario (Sólo moderadores).",
+            "Utility » Quitar el estado AFK a otro usuario (Sólo moderadores).",
         })
 
         .addUserOption((option) =>
@@ -65,11 +65,11 @@ module.exports = {
       subcommand
         .setName("info")
         .setDescription(
-          "UTILIY » Get all the info on who is AFK on the server (Moderators only).",
+          "Utility » Get all the info on who is AFK on the server (Moderators only).",
         )
         .setDescriptionLocalizations({
           "es-ES":
-            "UTILIY » Obtén toda la información sobre quién está AFK en el servidor (Sólo moderadores).",
+            "Utility » Obtén toda la información sobre quién está AFK en el servidor (Sólo moderadores).",
         }),
     ),
   async execute(interaction) {

@@ -9,11 +9,11 @@ module.exports = {
     })
 
     .setDescription(
-      "INFO » Get the invitation to have the Applio bot on your server.",
+      "Info » Get the invitation to have the Applio bot on your server.",
     )
     .setDescriptionLocalizations({
       "es-ES":
-        "INFO » Consigue la invitación para tener el bot de Applio en tu servidor.",
+        "Info » Consigue la invitación para tener el bot de Applio en tu servidor.",
     })
     .setDMPermission(false),
   async execute(interaction) {

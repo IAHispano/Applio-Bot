@@ -4,9 +4,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("avatar")
 
-    .setDescription("INFO » Get the avatar of a user or yourself.")
+    .setDescription("Info » Get the avatar of a user or yourself.")
     .setDescriptionLocalizations({
-      "es-ES": "INFO » Obtén el avatar de un usuario o de ti mismo.",
+      "es-ES": "Info » Obtén el avatar de un usuario o de ti mismo.",
     })
     .addUserOption((option) =>
       option

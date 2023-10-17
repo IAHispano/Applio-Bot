@@ -4,11 +4,11 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("ping")
     .setDescription(
-      "UTILITY » Get advanced information about Discord and Bot latency.",
+      "Utility » Get advanced information about Discord and Bot latency.",
     )
     .setDescriptionLocalizations({
       "es-ES":
-        "UTILITY » Obtén información avanzada sobre la latencia de Discord y Bot.",
+        "Utility » Obtén información avanzada sobre la latencia de Discord y Bot.",
     })
     .setDMPermission(false),
   async execute(interaction) {

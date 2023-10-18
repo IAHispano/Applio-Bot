@@ -8,7 +8,7 @@ module.exports = {
 
     const command = interaction.client.commands.get(interaction.commandName);
 
-    if (command.devOnly && interaction.user.id !== "29292") {
+    if (command.devOnly && interaction.user.id !== devs) {
       return interaction.reply({
           embeds: [
               new EmbedBuilder()

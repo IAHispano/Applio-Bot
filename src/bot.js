@@ -1,12 +1,12 @@
-const fs = require("node:fs");
-const path = require("node:path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { token } = require("./config.json");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+module.exports = client;
 
-require('./classes/registerCommands.js');
-require('./classes/registerEvents.js');
-    
+require('./deployment/registerCommands.js');
+require('./deployment/registerEvents.js'); 
 
-client.login(token);
+client.login(token).catch(() => {
+    console.log('[ERROR] Could not log into the bot, check your token and try again.');
+});

@@ -35,13 +35,11 @@ const rest = new REST().setToken(token);
 
 (async () => {
   try {
-    // Publica los comandos globales
     const globalData = await rest.put(Routes.applicationCommands(clientId), {
       body: globalCommands,
     });
     console.log(`Successfully published ${globalData.length} global commands.`);
 
-    // Publica los comandos específicos del servidor en el servidor 1096877223765606521
     const guildData = await rest.put(
       Routes.applicationGuildCommands(clientId, "1096877223765606521"),
       {

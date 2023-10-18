@@ -4,7 +4,7 @@ module.exports = {
   name: Events.ClientReady,
   once: true,
   execute(client) {
-    require("../classes/deploy.js");
+    require("../deployment/deployCommands.js");
     client.user.setPresence({
       activities: [{ name: "applio.org", type: ActivityType.Watching }],
       status: "online",

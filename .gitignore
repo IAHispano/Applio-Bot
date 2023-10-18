@@ -26,3 +26,4 @@ out/
 # Bot
 models/
 src/config.json
+json.sqlite

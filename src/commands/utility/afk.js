@@ -240,13 +240,13 @@ module.exports = {
           let keywords = await rule.triggerMetadata.keywordFilter;
           keywords = keywords.filter((words) => words !== `<@1>`);
           const embed = new EmbedBuilder()
-            .setColor("#5865F2")
+            .setColor("Blurple")
             .setTitle(`AFK Users`)
             .setFooter({
               text: `Requested by ${interaction.user.tag}`,
               iconURL: interaction.user.displayAvatarURL(),
             })
-            .setColor("#5865F2")
+            .setColor("Blurple")
             .setTimestamp();
           const loop = keywords.length;
           if (loop === 0) {

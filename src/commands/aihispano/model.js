@@ -150,7 +150,7 @@ module.exports = {
         )
         .setImage(imagenURL || audioURL)
 
-        .setColor("#5865F2")
+        .setColor("Blurple")
         .setFooter({ text: "Thank you for submitting your model!" })
         .setTimestamp();
       await interaction.reply({ embeds: [embed_kits] });
@@ -158,7 +158,7 @@ module.exports = {
         .setDescription(
           "<:Check:1139726214114844682> Your model has been successfully submitted! Make sure all the details are correct so that a helper/moderator can review it and upload it soon. Thank you! \n\nIf the image or audio has not been sent correctly, don't forget to attach it manually!",
         )
-        .setColor(Colors.Green);
+        .setColor("Green");
       await interaction.followUp({ embeds: [successEmbed] });
     }
 
@@ -168,7 +168,7 @@ module.exports = {
         `\`\`\`${nombre} (${tecnología} [${algoritmo}] - ${epochs} Epochs)\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n > **Audio:** [Click here to download the audio sample!](${audioURL})\n`,
       )
       .setImage(imagenURL || audioURL)
-      .setColor("#5865F2")
+      .setColor("Blurple")
       .setFooter({ text: "Thank you for submitting your model!" })
       .setTimestamp();
 
@@ -178,7 +178,7 @@ module.exports = {
       .setDescription(
         "<:Check:1139726214114844682> Your model has been successfully submitted! Make sure all the details are correct so that a helper/moderator can review it and upload it soon. Thank you! \n\nIf the image or audio has not been sent correctly, don't forget to attach it manually!",
       )
-      .setColor(Colors.Green);
+      .setColor("Green");
     await interaction.followUp({ embeds: [successEmbed] });
   },
 };

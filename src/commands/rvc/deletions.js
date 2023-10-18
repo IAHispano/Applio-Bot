@@ -19,7 +19,7 @@ module.exports = {
       .setDescription(
         `Join the support server and let us know which model you want to remove and it will be removed without any problem!\n\n[Support Server](https://discord.gg/IAHispano)`,
       )
-      .setColor(Colors.White)
+      .setColor("White")
       .setTimestamp();
 
     return interaction.reply({

@@ -19,7 +19,7 @@ module.exports = {
       .setDescription(
         `Join the official Applio server to get support and find out all the latest news!\n\n[Support Server](${support_server})`,
       )
-      .setColor(Colors.White)
+      .setColor("White")
       .setTimestamp();
 
     return interaction.reply({

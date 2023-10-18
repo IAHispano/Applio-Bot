@@ -72,7 +72,7 @@ module.exports = {
           { name: "Time", value: `${tiempo?.value}`, inline: true },
         )
         .setImage(pruebaImg)
-        .setColor("#5865F2")
+        .setColor("Blurple")
         .setTimestamp();
 
       let timeoutMilliseconds = 0;
@@ -106,7 +106,7 @@ module.exports = {
         .setDescription(
           `Punishment awarded to user ${usuario} for ${tiempo?.value}.`,
         )
-        .setColor("#5865F2")
+        .setColor("Blurple")
         .setTimestamp();
 
       return interaction.reply({

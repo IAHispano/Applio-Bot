@@ -31,7 +31,7 @@ module.exports = {
       .setTitle("New application by " + autor)
       .addFields({ name: "**Models**", value: `${models}`, inline: true })
       .setDescription(`Application sent by ${interaction.user}`)
-      .setColor("#5865F2")
+      .setColor("Blurple")
       .setTimestamp();
 
     const channel = interaction.guild?.channels.cache.get(
@@ -40,7 +40,7 @@ module.exports = {
 
     const embed_exito = new EmbedBuilder()
       .setDescription(`Application successfully submitted!`)
-      .setColor("#5865F2")
+      .setColor("Blurple")
       .setTimestamp();
 
     await interaction

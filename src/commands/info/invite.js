@@ -22,7 +22,7 @@ module.exports = {
       .setDescription(
         `[Click on this message to invite the bot to your server!](https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot)`,
       )
-      .setColor(Colors.White)
+      .setColor("White")
       .setTimestamp();
 
     return interaction.reply({

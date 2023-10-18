@@ -97,7 +97,7 @@ module.exports = {
       if (results.length === 0) {
         const embed = new EmbedBuilder()
           .setDescription(`No results found for the search ${model}...`)
-          .setColor("#5865F2")
+          .setColor("Blurple")
           .setFooter({
             text: `Powered by Applio — Make sure you spelled it correctly!`,
           });
@@ -114,12 +114,12 @@ module.exports = {
         const endIdx = Math.min(startIdx + pageSize, results.length);
       
         const embed = new EmbedBuilder()
-        .setColor("#5865F2")
+        .setColor("Blurple")
         .setFooter({
           text: `Requested by ${interaction.user.tag}`,
           iconURL: interaction.user.displayAvatarURL(),
         })
-        .setColor("#5865F2")
+        .setColor("Blurple")
         .setTimestamp();
       
         for (let i = startIdx; i < endIdx; i++) {
@@ -185,12 +185,12 @@ module.exports = {
         if (selectedResult) {
           const embed = new EmbedBuilder()
             .setTitle(selectedResult.name)
-            .setColor("#5865F2")
+            .setColor("Blurple")
             .setFooter({
               text: `Requested by ${interaction.user.tag}`,
               iconURL: interaction.user.displayAvatarURL(),
             })
-            .setColor("#5865F2")
+            .setColor("Blurple")
             .setTimestamp();
       
 

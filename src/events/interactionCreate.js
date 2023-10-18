@@ -30,29 +30,33 @@ module.exports = {
     try {
       await command.execute(interaction, client);
     } catch (error) {
-      const channel = client.channels.cache.get(logsChannelId);
+      try {
+        const channel = client.channels.cache.get(logsChannelId);
 
-      const embed = new EmbedBuilder()
-        .setColor("#FF0000")
-        .setTimestamp()
-        .setTitle("Command Execution Error")
-        .setDescription("An error occurred while executing the command.")
-        .addFields(
-          {
-            name: "Command",
-            value: `\`\`\`${interaction.commandName}\`\`\``,
-          },
-          {
-            name: "Executed by",
-            value: `\`\`\`${interaction.user.username}\`\`\``,
-          },
-          { name: "Error stack", value: `\`\`\`${error.stack}\`\`\`` },
-          { name: "Error message", value: `\`\`\`${error.message}\`\`\`` }
-        );
+        const embed = new EmbedBuilder()
+          .setColor("Red")
+          .setTimestamp()
+          .setTitle("Command Execution Error")
+          .setDescription("An error occurred while executing the command.")
+          .addFields(
+            {
+              name: "Command",
+              value: `\`\`\`${interaction.commandName}\`\`\``,
+            },
+            {
+              name: "Executed by",
+              value: `\`\`\`${interaction.user.username}\`\`\``,
+            },
+            { name: "Error stack", value: `\`\`\`${error.stack}\`\`\`` },
+            { name: "Error message", value: `\`\`\`${error.message}\`\`\`` }
+          );
 
-      const message = await channel.send({
-        embeds: [embed],
-      });
+        const message = await channel.send({
+          embeds: [embed],
+        });
+      } catch (error) {
+        console.error(error);
+      }
 
       await interaction.reply({
         content:

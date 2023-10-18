@@ -40,7 +40,7 @@ module.exports = {
         text: `Requested by ${interaction.user.tag}`,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setColor("#5865F2")
+      .setColor("Blurple")
       .setTimestamp()
       .addFields(
         {

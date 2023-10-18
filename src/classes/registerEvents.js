@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const client = require("../bot.js");
 
-const eventsPath = path.join(__dirname, "events");
+const eventsPath = path.join(__dirname, "../events");
 const eventFiles = fs
   .readdirSync(eventsPath)
   .filter((file) => file.endsWith(".js"));

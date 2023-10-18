@@ -1,4 +1,5 @@
-const { Events } = require("discord.js");
+const { Events, EmbedBuilder } = require("discord.js");
+const { devs } = require("../config.json")
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -6,6 +7,17 @@ module.exports = {
     if (!interaction.isChatInputCommand()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);
+
+    if (command.devOnly && interaction.user.id !== "29292") {
+      return interaction.reply({
+          embeds: [
+              new EmbedBuilder()
+                  .setColor("Red")
+                  .setDescription('This command is for Develepors only')
+          ],
+          ephemeral: true
+      })
+  }
 
     if (!command) {
       console.error(

@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder } = require("discord.js");
-const { devs } = require("../config.json")
+const { devs } = require("../config.json");
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -10,18 +10,18 @@ module.exports = {
 
     if (command.devOnly && interaction.user.id !== devs) {
       return interaction.reply({
-          embeds: [
-              new EmbedBuilder()
-                  .setColor("Red")
-                  .setDescription('This command is for Develepors only')
-          ],
-          ephemeral: true
-      })
-  }
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("You are not allowed to use this command."),
+        ],
+        ephemeral: true,
+      });
+    }
 
     if (!command) {
       console.error(
-        `No command matching ${interaction.commandName} was found.`,
+        `No command matching ${interaction.commandName} was found.`
       );
       return;
     }

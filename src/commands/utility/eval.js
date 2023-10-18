@@ -4,7 +4,6 @@ const {
   AttachmentBuilder,
 } = require("discord.js");
 const client = require("../../bot.js");
-const { allowedUserId } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,14 +19,9 @@ module.exports = {
         .setDescription("The code to be executed.")
         .setRequired(true),
     ),
+    devOnly: true,
   async execute(interaction) {
     await interaction.deferReply();
-
-    if (interaction.user.id !== allowedUserId) {
-      return await interaction.editReply(
-        "You do not have permission to use this command.",
-      );
-    }
 
     const code = interaction.options.get("code").value;
 
@@ -68,7 +62,7 @@ module.exports = {
             .setColor("Red"),
         ],
         files: [
-          new AttachmentBuilder(Buffer.from(`${err}`, "utf-8"), {
+          new AttachmentBuilder(Buffer.from(`${error}`, "utf-8"), {
             name: "output.txt",
           }),
         ],

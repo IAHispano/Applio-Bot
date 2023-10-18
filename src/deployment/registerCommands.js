@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const { Collection } = require('discord.js');
 const client = require('../bot.js');
 
-// Register commands
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, '../commands');
 const commandFolders = fs.readdirSync(foldersPath);

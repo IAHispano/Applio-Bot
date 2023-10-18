@@ -6,6 +6,7 @@
   "bot_perms": "1376674704454",
   "moderatorRoleID": "YOUR_MODERATOR_ROLE_ID",
   "allowedUserId": "ALLOWED_USER_ID",
+  "chatGPT_url" : "CHATGPT_URL_HERE",
   "prodia_token": "YOUR_PRODIA_TOKEN",
   "bardToken": "YOUR_BARD_RAPIDAPI_KEY",
   "bardPsid": "YOUR_BARD_PSID"

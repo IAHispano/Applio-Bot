@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { bardToken, bardPsid } = require("../../config.json");
 const axios = require("axios");
+const { chatGPT_url } = require("../../config.json");
+
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -17,43 +18,40 @@ module.exports = {
         .setMaxLength(256)
     )
     .setDMPermission(false),
-  devOnly: true,
 
   async execute(interaction) {
-    const prompt = interaction.options.get("prompt").value;
+    await interaction.deferReply();
 
-    await interaction.deferReply({ ephemeral: false });
-    let input = {
-      method: "GET",
-      url: "https://google-bard1.p.rapidapi.com/",
-      headers: {
-        text: prompt,
-        lang: "en",
-        psid: bardPsid,
-        "X-RapidAPI-Key": bardToken,
-        "X-RapidAPI-Host": "google-bard1.p.rapidapi.com",
-      },
-    };
+    const message = interaction.options.get("prompt").value;
+    const apiUrl = `${chatGPT_url}/api/chat?q=hi${encodeURIComponent(message)}`;
 
     try {
-      const output = await axios.request(input);
+        
+        const response = await axios.get(apiUrl);
 
-      const embed = new EmbedBuilder()
-        .setTitle(prompt)
-        .setDescription(output.data.response)
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setColor("Blurple")
-        .setTimestamp();
+        
+        if (response.status === 200) {
+            const chatData = response.data.chat; 
 
-      await interaction.editReply({ embeds: [embed] });
+            
+            const embed = new EmbedBuilder()
+                .setTitle(message)
+                .setDescription(chatData)
+                .setFooter({
+                    text: `Requested by ${interaction.user.tag}`,
+                    iconURL: interaction.user.displayAvatarURL(),
+                })
+                .setColor("Blurple")
+                .setTimestamp();
+
+  
+            await interaction.followUp({ embeds: [embed] });
+        } else {
+            await interaction.followUp('An error occurred while fetching chat data.');
+        }
     } catch (error) {
-      return await interaction.editReply({
-        content: `There was an issue getting an AI response! This could be because long requests may be timed out.`,
-        ephemeral: true,
-      });
+        console.error(error);
+        await interaction.followUp('An error occurred while processing your request.');
     }
-  },
+},
 };

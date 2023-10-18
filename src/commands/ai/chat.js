@@ -14,9 +14,10 @@ module.exports = {
         .setName("prompt")
         .setDescription("The prompt that will be used for the text generation.")
         .setRequired(true)
-        .setMaxLength(256),
+        .setMaxLength(256)
     )
     .setDMPermission(false),
+  devOnly: true,
 
   async execute(interaction) {
     const prompt = interaction.options.get("prompt").value;

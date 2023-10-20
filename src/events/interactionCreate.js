@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder } = require("discord.js");
-const { devs, logsChannelId } = require("../config.json");
+const { devs, logsChannelId, clientId, bot_perms } = require("../config.json");
 const client = require("../bot.js");
 
 module.exports = {
@@ -59,8 +59,7 @@ module.exports = {
       }
 
       await interaction.reply({
-        content:
-          "There was an error while executing this command. I have sent your crash report to the support server. If this persists, please contact the developer by making a support request.",
+        content: `There was an error while executing this command. I have sent your crash report to the support server. If this persists, please contact the developer by making a support request.\nCheck that the bot has the necessary permissions to execute the command, if you are not sure [re-invite it from this link!](https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot)`,
         ephemeral: true,
       });
     }

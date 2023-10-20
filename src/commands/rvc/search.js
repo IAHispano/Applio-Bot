@@ -97,7 +97,7 @@ module.exports = {
       if (results.length === 0) {
         const embed = new EmbedBuilder()
           .setDescription(`No results found for the search ${model}...`)
-          .setColor("Blurple")
+          .setColor("#5865F2")
           .setFooter({
             text: `Powered by Applio — Make sure you spelled it correctly!`,
           });
@@ -112,28 +112,52 @@ module.exports = {
       const displayPage = (page) => {
         const startIdx = (page - 1) * pageSize;
         const endIdx = Math.min(startIdx + pageSize, results.length);
-      
+
         const embed = new EmbedBuilder()
-        .setColor("Blurple")
-        .setFooter({
-          text: `Requested by ${interaction.user.tag}`,
-          iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setColor("Blurple")
-        .setTimestamp();
-      
+          .setColor("#5865F2")
+          .setFooter({
+            text: `Requested by ${interaction.user.tag}`,
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setColor("#5865F2")
+          .setTimestamp();
+
         for (let i = startIdx; i < endIdx; i++) {
           const result = results[i];
           if (!result) continue;
-      
-          const description = `
-              [**${result.name}**](${result.link})
-              <:dot:1134526388456669234> **Epochs:** ${result.epoch}
-              <:dot:1134526388456669234> **Technology:** ${result.type}
-              <:dot:1134526388456669234> **Algorithm:** ${result.algorithm}
-              <:dot:1134526388456669234> **Uploaded:** ${result.uploadDate}
-              <:dot:1134526388456669234> **Author:** [Haga clic para ver](https://discordapp.com/users/${result.owner})\n`;
-      
+
+          const fields = [
+            {
+              name: "Epochs",
+              value: `${result.epoch}`,
+              inline: true,
+            },
+            {
+              name: "Technology",
+              value: `${result.type}`,
+              inline: true,
+            },
+            {
+              name: "Algorithm",
+              value: `${result.algorithm}`,
+              inline: true,
+            },
+            {
+              name: "Uploaded",
+              value: `${result.uploadDate}`,
+              inline: true,
+            },
+            {
+              name: "Author",
+              value: `[Click to view](https://discordapp.com/users/${result.owner})`,
+              inline: true,
+            },
+            {
+              name: "Download",
+              value: `[Click to download](${result.link})`,
+              inline: true,
+            },
+          ];
           if (
             result.attachments &&
             result.attachments[0] &&
@@ -141,33 +165,31 @@ module.exports = {
           ) {
             embed.setImage(result.attachments[0].url);
           }
-          
-          embed.setTitle(result.name)
-          embed.setDescription(description);
+
+          embed.setTitle(result.name);
+          embed.addFields(fields);
         }
-      
+
         const row = new ActionRowBuilder();
-      
+
         const options = results.slice(0, 25).map((result, index) => ({
           label: `${result.name} [${index}]`,
-          value: `${result.name}-${result.owner}`, 
+          value: `${result.name}-${result.owner}`,
           emoji: "<:dot:1134526388456669234>",
         }));
-      
+
         const menu = new StringSelectMenuBuilder()
           .setCustomId("models")
-          .setPlaceholder("Select a model...")
+          .setPlaceholder(`🔎 ${results.length} models found...`)
           .setOptions(options);
-          
-      
+
         row.addComponents(menu);
-      
+
         interaction.reply({
           embeds: [embed],
           components: [row],
         });
       };
-      
 
       displayPage(currentPage);
 
@@ -185,22 +207,46 @@ module.exports = {
         if (selectedResult) {
           const embed = new EmbedBuilder()
             .setTitle(selectedResult.name)
-            .setColor("Blurple")
+            .setColor("#5865F2")
             .setFooter({
               text: `Requested by ${interaction.user.tag}`,
               iconURL: interaction.user.displayAvatarURL(),
             })
-            .setColor("Blurple")
+            .setColor("#5865F2")
             .setTimestamp();
-      
 
-          const description = `
-              [**${selectedResult.name}**](${selectedResult.link})
-              <:dot:1134526388456669234> **Epochs:** ${selectedResult.epoch}
-              <:dot:1134526388456669234> **Technology:** ${selectedResult.type}
-              <:dot:1134526388456669234> **Algorithm:** ${selectedResult.algorithm}
-              <:dot:1134526388456669234> **Uploaded:** ${selectedResult.uploadDate}
-              <:dot:1134526388456669234> **Author:** [Haga clic para ver](https://discordapp.com/users/${selectedResult.owner})\n`;
+          const fields = [
+            {
+              name: "Epochs",
+              value: `${selectedResult.epoch}`,
+              inline: true,
+            },
+            {
+              name: "Technology",
+              value: `${selectedResult.type}`,
+              inline: true,
+            },
+            {
+              name: "Algorithm",
+              value: `${selectedResult.algorithm}`,
+              inline: true,
+            },
+            {
+              name: "Uploaded",
+              value: `${selectedResult.uploadDate}`,
+              inline: true,
+            },
+            {
+              name: "Author",
+              value: `[Click to view](https://discordapp.com/users/${selectedResult.owner})`,
+              inline: true,
+            },
+            {
+              name: "Link",
+              value: `[Click to download](${selectedResult.link})`,
+              inline: true,
+            },
+          ];
 
           if (
             selectedResult.attachments &&
@@ -210,7 +256,7 @@ module.exports = {
             embed.setImage(selectedResult.attachments[0].url);
           }
 
-          embed.setDescription(description);
+          embed.addFields(fields);
 
           interaction.update({
             embeds: [embed],

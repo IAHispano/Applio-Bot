@@ -14,7 +14,7 @@ module.exports = {
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription("You are not allowed to use this command."),
+            .setDescription("Currently the use of this command is restricted, it may be in maintenance or experimental phases."),
         ],
         ephemeral: true,
       });

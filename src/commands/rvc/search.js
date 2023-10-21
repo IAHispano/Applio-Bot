@@ -4,7 +4,10 @@ const {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ComponentType,
+  ButtonBuilder,
+  ButtonStyle,
 } = require("discord.js");
+const { clientId, bot_perms } = require("../../config.json");
 const fs = require("fs");
 const path = require("path");
 
@@ -109,9 +112,19 @@ module.exports = {
       const totalPages = results.length;
       let currentPage = 1;
 
+      const options = results.slice(0, 25).map((result, index) => ({
+        label: `${result.name} [${index}]`,
+        value: `${result.name}-${result.owner}`,
+        emoji: "<:dot:1134526388456669234>",
+      }));
+
       const displayPage = (page) => {
         const startIdx = (page - 1) * pageSize;
         const endIdx = Math.min(startIdx + pageSize, results.length);
+
+        const downloadButton = new ButtonBuilder()
+          .setLabel("📤 Download")
+          .setStyle(ButtonStyle.Link);
 
         const embed = new EmbedBuilder()
           .setColor("#5865F2")
@@ -166,28 +179,36 @@ module.exports = {
             embed.setImage(result.attachments[0].url);
           }
 
+          downloadButton.setURL(result.link);
+
           embed.setTitle(result.name);
           embed.addFields(fields);
         }
 
-        const row = new ActionRowBuilder();
+  
 
-        const options = results.slice(0, 25).map((result, index) => ({
-          label: `${result.name} [${index}]`,
-          value: `${result.name}-${result.owner}`,
-          emoji: "<:dot:1134526388456669234>",
-        }));
+        const botInviteButton = new ButtonBuilder()
+          .setLabel("🤖 Bot Invite")
+          .setURL(
+            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+          )
+          .setStyle(ButtonStyle.Link);
 
         const menu = new StringSelectMenuBuilder()
           .setCustomId("models")
           .setPlaceholder(`🔎 ${results.length} models found...`)
           .setOptions(options);
 
-        row.addComponents(menu);
+        const row_menu = new ActionRowBuilder().addComponents(menu);
+
+        const row_buttons = new ActionRowBuilder().addComponents(
+          downloadButton,
+          botInviteButton
+        );
 
         interaction.reply({
           embeds: [embed],
-          components: [row],
+          components: [row_menu, row_buttons],
         });
       };
 
@@ -205,6 +226,10 @@ module.exports = {
         );
 
         if (selectedResult) {
+          const downloadButton = new ButtonBuilder()
+            .setLabel("📤 Download")
+            .setStyle(ButtonStyle.Link);
+
           const embed = new EmbedBuilder()
             .setTitle(selectedResult.name)
             .setColor("#5865F2")
@@ -256,10 +281,30 @@ module.exports = {
             embed.setImage(selectedResult.attachments[0].url);
           }
 
+          downloadButton.setURL(selectedResult.link);
           embed.addFields(fields);
+
+          const botInviteButton = new ButtonBuilder()
+            .setLabel("🤖 Bot Invite")
+            .setURL(
+              `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+            )
+            .setStyle(ButtonStyle.Link);
+          const row_buttons = new ActionRowBuilder().addComponents(
+            downloadButton,
+            botInviteButton
+          );
+
+          const menu = new StringSelectMenuBuilder()
+            .setCustomId("models")
+            .setPlaceholder(`🔎 ${results.length} models found...`)
+            .setOptions(options);
+
+          const row_menu = new ActionRowBuilder().addComponents(menu);
 
           interaction.update({
             embeds: [embed],
+            components: [row_menu, row_buttons],
           });
         }
       });

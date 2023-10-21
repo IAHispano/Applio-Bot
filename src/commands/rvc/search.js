@@ -185,8 +185,6 @@ module.exports = {
           embed.addFields(fields);
         }
 
-  
-
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
@@ -198,6 +196,10 @@ module.exports = {
           .setCustomId("models")
           .setPlaceholder(`🔎 ${results.length} models found...`)
           .setOptions(options);
+
+        if (results.length === 1) {
+          menu.setDisabled(true);
+        }
 
         const row_menu = new ActionRowBuilder().addComponents(menu);
 

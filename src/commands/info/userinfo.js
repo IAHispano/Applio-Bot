@@ -10,9 +10,16 @@ module.exports = {
     .addUserOption((option) =>
       option
         .setName("user")
+        .setNameLocalizations({
+          "es-ES": "usuario",
+        })
         .setDescription(
-          "Specify the user you want to get the avatar from (if you want yours, don't put anything).",
-        ),
+          "Specify the user you want to get the avatar from (if you want yours, don't put anything)."
+        )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Especifica el usuario del que quieres obtener el avatar (si quieres el tuyo, no pongas nada).",
+        })
     )
     .setDMPermission(false),
 
@@ -41,7 +48,7 @@ module.exports = {
           name: "Joined server",
           value: `<t:${Math.floor(member.joinedAt / 1000)}:R>`,
           inline: true,
-        },
+        }
       )
 
       .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 4096 }))

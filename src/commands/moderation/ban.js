@@ -15,13 +15,26 @@ module.exports = {
     .addUserOption((option) =>
       option
         .setName("user")
+
+        .setNameLocalizations({
+          "es-ES": "usuario",
+        })
         .setDescription("Select the user to ban.")
+        .setDescriptionLocalizations({
+          "es-ES": "Selecciona el usuario a banear.",
+        })
         .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("reason")
+        .setNameLocalizations({
+          "es-ES": "razón",
+        })
         .setDescription("Reason for the ban of this user.")
+        .setDescriptionLocalizations({
+          "es-ES": "Razón por la que se banea a este usuario.",
+        })
         .setMaxLength(512)
     ),
 

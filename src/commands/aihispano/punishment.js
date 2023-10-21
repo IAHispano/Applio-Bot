@@ -18,18 +18,33 @@ module.exports = {
     .addUserOption((option) =>
       option
         .setName("user")
+        .setNameLocalizations({
+          "es-ES": "usuario",
+        })
         .setDescription("The user to be penalized.")
+        .setDescriptionLocalizations({
+          "es-ES": "El usuario a sancionar.",
+        })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("reason")
+        .setNameLocalizations({
+          "es-ES": "razón",
+        })
         .setDescription("Reason for the sanction.")
+        .setDescriptionLocalizations({
+          "es-ES": "Razón de la sanción.",
+        })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("time")
+        .setNameLocalizations({
+          "es-ES": "tiempo",
+        })
         .addChoices(
           { name: "1 minute", value: "1 minute" },
           { name: "5 minutes", value: "5 minutes" },
@@ -39,12 +54,21 @@ module.exports = {
           { name: "1 week", value: "1 week" },
         )
         .setDescription("Time to sanction the user.")
+        .setDescriptionLocalizations({
+          "es-ES": "Tiempo de sanción del usuario.",
+        })
         .setRequired(true),
     )
     .addAttachmentOption((option) =>
       option
         .setName("proof")
-        .setDescription("Proof of sanction")
+        .setNameLocalizations({
+          "es-ES": "prueba",
+        })
+        .setDescription("Proof of sanction.")
+        .setDescriptionLocalizations({
+          "es-ES": "Prueba de la sanción.",
+        })
         .setRequired(false),
     )
     .setDMPermission(false),

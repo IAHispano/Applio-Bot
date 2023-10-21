@@ -14,6 +14,10 @@ module.exports = {
       option
         .setName("prompt")
         .setDescription("The prompt that will be used for the text generation.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "El prompt que se usará para la generación de texto.",
+        })
         .setRequired(true)
         .setMaxLength(256)
     )

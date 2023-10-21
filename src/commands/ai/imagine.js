@@ -8,7 +8,7 @@ module.exports = {
       "es-ES": "imagina",
     })
     .setDescription(
-      "AI » Generates an image with AI based on the description you provide.",
+      "AI » Generates an image with AI based on the description you provide."
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -18,7 +18,10 @@ module.exports = {
       option
         .setName("prompt")
         .setDescription("The description of the image you want to generate.")
-        .setRequired(true),
+        .setDescriptionLocalizations({
+          "es-ES": "La descripción de la imagen que quieres generar.",
+        })
+        .setRequired(true)
     )
     .setDMPermission(false),
 

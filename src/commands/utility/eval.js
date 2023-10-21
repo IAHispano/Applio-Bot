@@ -17,7 +17,13 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("code")
+        .setNameLocalizations({
+          "es-ES": "código",
+        })
         .setDescription("The code to be executed.")
+        .setDescriptionLocalizations({
+          "es-ES": "El código a ejecutar.",
+        })
         .setRequired(true)
     ),
   devOnly: true,

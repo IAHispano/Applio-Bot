@@ -18,6 +18,9 @@ module.exports = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("start")
+        .setNameLocalizations({
+          "es-ES": "iniciar",
+        })
         .setDescription(
           "Utility » Set yourself as AFK on the server and prevent anyone from mentioning you."
         )
@@ -28,13 +31,22 @@ module.exports = {
         .addStringOption((option) =>
           option
             .setName("reason")
+            .setNameLocalizations({
+              "es-ES": "razón",
+            })
             .setRequired(false)
             .setDescription(`Give the reason why you want to be AFK.`)
+            .setDescriptionLocalizations({
+              "es-ES": "Especifica la razón por la que quieres estar AFK.",
+            })
         )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("end")
+        .setNameLocalizations({
+          "es-ES": "finalizar",
+        })
         .setDescription(
           "Utility » Stop being AFK on the server and re-enable mentions."
         )
@@ -46,6 +58,9 @@ module.exports = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("force-remove")
+        .setNameLocalizations({
+          "es-ES": "forzar-remover",
+        })
         .setDescription(
           "Utility » Remove the AFK status to another user (Moderators only)."
         )
@@ -57,8 +72,14 @@ module.exports = {
         .addUserOption((option) =>
           option
             .setName("user")
+            .setNameLocalizations({
+              "es-ES": "usuario",
+            })
             .setRequired(true)
             .setDescription(`The user to remove from AFK.`)
+            .setDescriptionLocalizations({
+              "es-ES": "El usuario al que quitar el estado AFK.",
+            })
         )
     )
     .addSubcommand((subcommand) =>
@@ -111,7 +132,7 @@ module.exports = {
               )
             ) {
               return interaction.reply(
-                `You are already AFK, to end it try </afk end:1163547908327604309>`
+                `You are already AFK, to end it try </afk end:1163566324530819096>`
               );
             }
             const keywords = await rule.triggerMetadata.keywordFilter;
@@ -155,7 +176,7 @@ module.exports = {
             )
           ) {
             return interaction.reply(
-              `You are not AFK, to start it try </afk start:1163547908327604309>`
+              `You are not AFK, to start it try </afk start:1163566324530819096>`
             );
           }
 

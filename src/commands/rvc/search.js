@@ -65,7 +65,14 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("model")
+        .setNameLocalizations({
+          "es-ES": "modelo",
+        })
         .setDescription("Enter the name of the model you wish to search for.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Ingrese el nombre del modelo que desea buscar.",
+        })
         .setRequired(true)
     )
     .setDMPermission(false),

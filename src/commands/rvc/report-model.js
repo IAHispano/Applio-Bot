@@ -17,15 +17,28 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("model")
+        .setNameLocalizations({
+          "es-ES": "modelo",
+        })
         .setDescription("Enter the name of the model that has a problem.")
+        .setDescriptionLocalizations({
+          "es-ES": "Ingrese el nombre del modelo que tiene un problema.",
+        })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("reason")
+        .setNameLocalizations({
+          "es-ES": "razón",
+        })
         .setDescription(
           "Enter the reason why you believe there has been a problem with the model.",
         )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Ingrese la razón por la que cree que ha habido un problema con el modelo.",
+        })
         .setRequired(true),
     )
     .setDMPermission(false),

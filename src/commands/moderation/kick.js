@@ -3,6 +3,9 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("kick")
+    .setNameLocalizations({
+      "es-ES": "expulsar",
+    })
     .setDescription(
       "Moderation » Kick a user from the server (Moderators only)."
     )
@@ -15,13 +18,26 @@ module.exports = {
     .addUserOption((option) =>
       option
         .setName("user")
+
+        .setNameLocalizations({
+          "es-ES": "usuario",
+        })
         .setDescription("Select the user to kick.")
+        .setDescriptionLocalizations({
+          "es-ES": "Selecciona el usuario a expulsar.",
+        })
         .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("reason")
+        .setNameLocalizations({
+          "es-ES": "razón",
+        })
         .setDescription("Reason for the kick of this user.")
+        .setDescriptionLocalizations({
+          "es-ES": "Razón por la que se expulsa a este usuario.",
+        })
         .setMaxLength(512)
     ),
 

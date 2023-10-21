@@ -17,9 +17,16 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("models")
+        .setNameLocalizations({
+          "es-ES": "modelos",
+        })
         .setDescription(
           "Enter the name of the 5 models you have published (separated by commas).",
         )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Ingrese el nombre de los 5 modelos que ha publicado (separados por comas).",
+        })
         .setRequired(true),
     )
     .setDMPermission(false),

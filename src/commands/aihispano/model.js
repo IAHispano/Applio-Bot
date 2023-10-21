@@ -14,30 +14,56 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("name")
+        .setNameLocalizations({
+          "es-ES": "nombre",
+        })
         .setDescription("Indicate the name of the model you wish to upload.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Indique el nombre del modelo que desea publicar.",
+        })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("link")
+        .setNameLocalizations({
+          "es-ES": "enlace",
+        })
         .setDescription("Indicate the link of the model you wish to upload.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Indique el enlace del modelo que desea publicar.",
+        })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("epochs")
+        
         .setDescription(
           "Indicate the number of epochs of the model you want to upload.",
         )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Indique el número de epochs del modelo que desea publicar.",
+        })
         .setRequired(true),
     )
 
     .addStringOption((option) =>
       option
         .setName("technology")
+        .setNameLocalizations({
+          "es-ES": "tecnología",
+        })
         .setDescription(
           "Select the technology where you have created the model.",
         )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Seleccione la tecnología donde ha creado el modelo.",
+        })
         .addChoices(
           {
             name: "Kits.AI",
@@ -53,7 +79,14 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("algorithm")
+        .setNameLocalizations({
+          "es-ES": "algoritmo",
+        })
         .setDescription("Select the algorithm to extract the tone.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Seleccione el algoritmo para extraer el tono.",
+        })
         .addChoices(
           {
             name: "Harvest",
@@ -76,21 +109,39 @@ module.exports = {
     .addAttachmentOption((option) =>
       option
         .setName("image")
+        .setNameLocalizations({
+          "es-ES": "imagen",
+        })
         .setDescription(
           "Select the image of the model (in rectangular format and of good quality).",
         )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Seleccione la imagen del modelo (en formato rectangular y de buena calidad).",
+        })
         .setRequired(true),
     )
     .addAttachmentOption((option) =>
       option
         .setName("audio")
         .setDescription("Upload a sample audio of the model.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Sube una muestra de audio del modelo.",
+        })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("language")
+        .setNameLocalizations({
+          "es-ES": "idioma",
+        })
         .setDescription("Select the language of the model.")
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Seleccione el idioma del modelo.",
+        })
         .addChoices(
           { name: "🇪🇸 Spanish (Spain)", value: "🇪🇸 Spanish (Spain)" },
           { name: "🇲🇽 Spanish (Latin)", value: "🇲🇽 Spanish (Latin)" },
@@ -103,9 +154,16 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("tags")
+        .setNameLocalizations({
+          "es-ES": "etiquetas",
+        })
         .setDescription(
-          "Selecciona la etiqueta que mejor describa a tu modelo.",
+          "Select the tag that best describes your model.",
         )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Selecciona la etiqueta que mejor describa a tu modelo.",
+        })
         .addChoices(
           { name: "😂 Meme", value: "😂 Meme" },
           { name: "🎤 Rapper", value: "🎤 Rapper" },

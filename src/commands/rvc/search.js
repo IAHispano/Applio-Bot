@@ -24,23 +24,23 @@ function searchSimilarities(searchedName, data) {
           epoch:
             item.context.Epoch !== undefined && item.context.Epoch !== null
               ? item.context.Epoch
-              : "Not specified",
+              : "N/A",
           algorithm:
             item.context.Algorithm !== undefined &&
             item.context.Algorithm !== null
               ? item.context.Algorithm
-              : "Not specified",
+              : "N/A",
           type:
             item.context.Type !== undefined && item.context.Type !== null
               ? item.context.Type
-              : "Not specified",
+              : "N/A",
           uploadDate: item.upload
             ? new Date(item.upload).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "2-digit",
               })
-            : "Not specified",
+            : "N/A",
           attachments: item.attachments,
         });
       }
@@ -112,8 +112,8 @@ module.exports = {
       const totalPages = results.length;
       let currentPage = 1;
 
-      const options = results.slice(0, 25).map((result, index) => ({
-        label: `${result.name} [${index}]`,
+      const options = results.slice(0, 25).map((result) => ({
+        label: `${result.name} (${result.algorithm} - ${result.epoch} Epochs)`,
         value: `${result.name}-${result.owner}`,
         emoji: "<:dot:1134526388456669234>",
       }));

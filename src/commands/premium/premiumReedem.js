@@ -1,11 +1,12 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const moment = require("moment");
-const Code = require("../../schemas/premiumCode.js");
-const User = require("../../schemas/premiumUser.js");
+const Code = require("../../schemas/premium/premiumCode.js");
+const User = require("../../schemas/premium/premiumUser.js");
 const soycanvas = require("soycanvas");
 
 module.exports = {
   data: new SlashCommandBuilder()
+    .setDMPermission(false)
     .setName("premium-redeem")
     .setDescription("Redeem your Premium Code.")
     .setDescriptionLocalizations({
@@ -21,7 +22,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Introduce tu código Premium.",
         })
-        .setRequired(true),
+        .setRequired(true)
     ),
 
   async execute(interaction) {
@@ -35,7 +36,7 @@ module.exports = {
 
       if (user && user.isPremium) {
         const embed = new EmbedBuilder()
-          .setColor("Burple")
+          .setColor("Blurple")
           .setDescription(`You are already a premium user.`);
         return interaction.editReply({ embeds: [embed], ephemeral: true });
       }
@@ -82,7 +83,7 @@ module.exports = {
             iconURL: interaction.client.user.displayAvatarURL(),
           })
           .setDescription(
-            `🎉 Congratulations ${interaction.user}, you've successfully redeemed a premium code with the following details!`,
+            `🎉 Congratulations ${interaction.user}, you've successfully redeemed a premium code with the following details!`
           )
           .setThumbnail(interaction.user.displayAvatarURL())
           .setColor("Blurple")
@@ -115,7 +116,7 @@ module.exports = {
         const embed = new EmbedBuilder()
           .setColor("Red")
           .setDescription(
-            `The provided code was invalid, please use a valid one.`,
+            `The provided code was invalid, please use a valid one.`
           );
 
         await interaction.editReply({ embeds: [embed], ephemeral: true });

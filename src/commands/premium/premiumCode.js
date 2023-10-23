@@ -1,9 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const voucher_codes = require("voucher-code-generator");
-const CodeSchema = require("../../schemas/premiumCode.js");
+const CodeSchema = require("../../schemas/premium/premiumCode.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
+    .setDMPermission(false)
     .setName("premium-code")
     .setDescription("Generate a new premium code.")
     .setDescriptionLocalizations({
@@ -23,8 +24,8 @@ module.exports = {
           { name: "Weekly", value: "weekly" },
           { name: "Monthly", value: "monthly" },
           { name: "Yearly", value: "yearly" },
-          { name: "Life Time", value: "lifetime" },
-        ),
+          { name: "Life Time", value: "lifetime" }
+        )
     ),
   devOnly: true,
 

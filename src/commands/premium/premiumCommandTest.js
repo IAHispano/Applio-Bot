@@ -1,8 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const User = require("../../schemas/premiumUser.js");
+const User = require("../../schemas/premium/premiumUser.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
+    .setDMPermission(false)
     .setName("premium-check")
     .setDescription("Check if you have Premium.")
     .setDescriptionLocalizations({
@@ -14,7 +15,7 @@ module.exports = {
     interaction.reply({
       embeds: [
         new EmbedBuilder()
-          .setColor("Burple")
+          .setColor("Blurple")
           .setDescription(`You are a premium user.`),
       ],
       ephemeral: true,

@@ -1,6 +1,6 @@
 const { Events, EmbedBuilder } = require("discord.js");
 const { devs, logsChannelId, clientId, bot_perms } = require("../config.json");
-const User = require("../schemas/premiumUser.js");
+const User = require("../schemas/premium/premiumUser.js");
 const client = require("../bot.js");
 
 module.exports = {

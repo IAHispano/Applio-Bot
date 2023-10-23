@@ -5,10 +5,10 @@ const CodeSchema = require("../../schemas/premium/premiumCode.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setDMPermission(false)
-    .setName("premium-code")
-    .setDescription("Generate a new premium code.")
+    .setName("premium-codes")
+    .setDescription("Generate new premium codes.")
     .setDescriptionLocalizations({
-      "es-ES": "Genera un nuevo código premium.",
+      "es-ES": "Genera nuevos códigos premium.",
     })
     .addStringOption((option) =>
       option
@@ -26,31 +26,84 @@ module.exports = {
           { name: "Yearly", value: "yearly" },
           { name: "Life Time", value: "lifetime" }
         )
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName("count")
+        .setDescription("Number of codes to generate.")
+        .setDescriptionLocalizations({
+          "es-ES": "Número de códigos a generar.",
+        })
+        .setRequired(true)
+    )
+    .addUserOption((option) =>
+      option
+        .setName("user")
+        .setNameLocalizations({
+          "es-ES": "usuario",
+        })
+        .setDescription("The user to give a code.")
+        .setDescriptionLocalizations({
+          "es-ES": "El usuario a regalar un código.",
+        })
+        .setRequired(false)
     ),
   devOnly: true,
 
   async execute(interaction) {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     const plan = interaction.options.getString("plan");
-    const codePremium = voucher_codes.generate({ pattern: "####-####-####" });
-    const code = codePremium.toString().toUpperCase();
-    const findCode = await CodeSchema.findOne({ code: code });
+    const user = interaction.options.getUser("user");
+    const count = interaction.options.getInteger("count");
+    const generatedCodes = [];
 
-    if (!findCode) {
-      CodeSchema.create({ code: code, plan: plan });
+    for (let i = 0; i < count; i++) {
+      const codePremium = voucher_codes.generate({ pattern: "####-####-####" });
+      const code = codePremium.toString().toUpperCase();
+      const findCode = await CodeSchema.findOne({ code: code });
+
+      if (!findCode) {
+        CodeSchema.create({ code: code, plan: plan });
+        generatedCodes.push(code);
+      }
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`New Premium Code!`)
-      .setDescription(code)
+      .setTitle(`New Premium Codes!`)
+      .setDescription(generatedCodes.join("\n"))
       .addFields({
         name: `Plan Type`,
-        value: `${plan.capitalize()}`,
+        value: `${plan.charAt(0).toUpperCase() + plan.slice(1)}`,
         inline: true,
       })
       .setColor("Blurple");
 
-    await interaction.editReply({ embeds: [embed] });
+    if (!user) {
+      return interaction.editReply({ embeds: [embed], ephemeral: true });
+    } else {
+      try {
+        user.send({ embeds: [embed] });
+        return interaction.editReply({
+          embeds: [
+            {
+              color: "Blurple",
+              description: `The codes have been sent to ${user}.`,
+            },
+          ],
+          ephemeral: true,
+        });
+      } catch (error) {
+        return interaction.editReply({
+          embeds: [
+            {
+              color: "Blurple",
+              description: `I can't send the codes to ${user}.`,
+            },
+          ],
+          ephemeral: true,
+        });
+      }
+    }
   },
 };

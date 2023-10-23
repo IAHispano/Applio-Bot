@@ -38,7 +38,7 @@ module.exports = {
         const embed = new EmbedBuilder()
           .setColor("Blurple")
           .setDescription(`You are already a premium user.`);
-        return interaction.editReply({ embeds: [embed], ephemeral: true });
+        return interaction.editReply({ embeds: [embed] });
       }
 
       if (code) {
@@ -96,7 +96,7 @@ module.exports = {
             },
             {
               name: `Plan Type`,
-              value: `${plan.toUpperCase()}`,
+              value: `${plan.charAt(0).toUpperCase() + plan.slice(1)}`,
               inline: true,
             },
             {
@@ -111,7 +111,7 @@ module.exports = {
             },
           ]);
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
       } else {
         const embed = new EmbedBuilder()
           .setColor("Red")

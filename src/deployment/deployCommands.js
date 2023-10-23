@@ -38,7 +38,7 @@ const rest = new REST().setToken(token);
     const globalData = await rest.put(Routes.applicationCommands(clientId), {
       body: globalCommands,
     });
-    console.log(`Successfully published ${globalData.length} global commands.`);
+    console.log(`[COMMAND] Successfully published ${globalData.length} global commands.`);
 
     const guildData = await rest.put(
       Routes.applicationGuildCommands(clientId, "1096877223765606521"),
@@ -47,7 +47,7 @@ const rest = new REST().setToken(token);
       },
     );
     console.log(
-      `Successfully published ${guildData.length} commands in AI Hispano.`,
+      `[COMMAND] Successfully published ${guildData.length} commands in AI Hispano.`,
     );
   } catch (error) {
     console.error(error);

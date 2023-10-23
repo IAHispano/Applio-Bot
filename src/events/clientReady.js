@@ -1,5 +1,7 @@
 const { Events, ActivityType, EmbedBuilder } = require("discord.js");
-const { logsChannelId } = require("../config.json");
+const mongoose = require("mongoose");
+const { logsChannelId, mongodbURL } = require("../config.json");
+const cron = require("node-cron");
 
 module.exports = {
   name: Events.ClientReady,
@@ -12,6 +14,42 @@ module.exports = {
     });
 
     try {
+      cron.schedule("*/60 * * * * *", async () => {
+        const users = await User.find({ isPremium: true });
+
+        if (!users || !users.length) return;
+
+        await users.forEach(async (user) => {
+          if (Date.now() >= user.expiresAt) {
+            user.isPremium = false;
+            user.PremID = null;
+            user.redeemedAt = null;
+            user.expiresAt = null;
+            user.plan = null;
+            user.save();
+            const embed = new EmbedBuilder()
+              .setAuthor({
+                name: `Premium Subscription!`,
+                iconURL: client.user.displayAvatarURL(),
+              })
+              .setDescription(
+                `Hey <@${user.Id}>. Your Premium subscription is over.`
+              )
+              .setColor("#ff0000")
+              .setTimestamp();
+              try {
+                client.users.fetch(user.Id).then((user) => {
+                  user.send({ embeds: [embed] });
+                });
+              } catch (error) {
+                console.log(`[ERROR] ${error}`);
+              }
+   
+            console.log(`[DEBUG] Premium Expired for (${user.Id})`);
+          }
+        });
+      });
+
       const channel = client.channels.cache.get(logsChannelId);
 
       const totalMembers = await client.guilds.cache.reduce(
@@ -61,6 +99,16 @@ module.exports = {
       console.log(error);
     }
 
-    console.log(`Starting the bot as ${client.user.tag}...`);
+    console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
+
+    if (!mongodbURL) return console.log("[DATABASE] No MongoDB URL provided.");
+    await mongoose.connect(mongodbURL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    if (mongoose.connect) {
+      console.log("[DATABASE] Successfully connected to MongoDB.");
+    }
   },
 };

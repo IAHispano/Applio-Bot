@@ -1,5 +1,6 @@
 const { Events, EmbedBuilder } = require("discord.js");
 const { devs, logsChannelId, clientId, bot_perms } = require("../config.json");
+const User = require("../schemas/premiumUser.js");
 const client = require("../bot.js");
 
 module.exports = {
@@ -9,12 +10,28 @@ module.exports = {
 
     const command = interaction.client.commands.get(interaction.commandName);
 
+    const user = await User.findOne({ Id: interaction.user.id });
+    if (command.premiumOnly && (!user || !user.isPremium)) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(
+              "This command is only available to premium users. You can get premium by redeeming a code with `/premium-redeem`."
+            ),
+        ],
+        ephemeral: true,
+      });
+    }
+
     if (command.devOnly && interaction.user.id !== devs) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription("Currently the use of this command is restricted, it may be in maintenance or experimental phases."),
+            .setDescription(
+              "Currently the use of this command is restricted, it may be in maintenance or experimental phases."
+            ),
         ],
         ephemeral: true,
       });

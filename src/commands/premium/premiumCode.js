@@ -5,11 +5,17 @@ const CodeSchema = require("../../schemas/premiumCode.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("premium-code")
-    .setDescription("Generate premium user code")
+    .setDescription("Generate a new premium code.")
+    .setDescriptionLocalizations({
+      "es-ES": "Genera un nuevo código premium.",
+    })
     .addStringOption((option) =>
       option
         .setName("plan")
-        .setDescription("Select your plan")
+        .setDescription("Select your plan.")
+        .setDescriptionLocalizations({
+          "es-ES": "Selecciona tu plan.",
+        })
         .setRequired(true)
         .addChoices(
           { name: "Minutely", value: "minutely" },

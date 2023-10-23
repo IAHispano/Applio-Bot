@@ -4,7 +4,10 @@ const User = require("../../schemas/premiumUser.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("premium-check")
-    .setDescription("Check if you have Premium"),
+    .setDescription("Check if you have Premium.")
+    .setDescriptionLocalizations({
+      "es-ES": "Comprueba si tienes Premium.",
+    }),
 
   onlyPremium: true,
   async execute(interaction) {

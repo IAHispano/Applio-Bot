@@ -7,11 +7,20 @@ const soycanvas = require("soycanvas");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("premium-redeem")
-    .setDescription("Redeem your Premium Code")
+    .setDescription("Redeem your Premium Code.")
+    .setDescriptionLocalizations({
+      "es-ES": "Canjea tu código Premium.",
+    })
     .addStringOption((option) =>
       option
         .setName("code")
-        .setDescription("Introduce your Premium Code")
+        .setNameLocalizations({
+          "es-ES": "código",
+        })
+        .setDescription("Introduce your Premium Code.")
+        .setDescriptionLocalizations({
+          "es-ES": "Introduce tu código Premium.",
+        })
         .setRequired(true),
     ),
 

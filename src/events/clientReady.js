@@ -33,7 +33,7 @@ module.exports = {
                 iconURL: client.user.displayAvatarURL(),
               })
               .setDescription(
-                `Hey <@${user.Id}>. Your Premium subscription is over.`,
+                `Hey <@${user.Id}>. Your Premium subscription is over.`
               )
               .setColor("#ff0000")
               .setTimestamp();
@@ -54,7 +54,7 @@ module.exports = {
 
       const totalMembers = await client.guilds.cache.reduce(
         (acc, guild) => acc + guild.memberCount,
-        0,
+        0
       );
 
       const embed = new EmbedBuilder()
@@ -88,7 +88,7 @@ module.exports = {
             name: "Total Commands",
             value: client.commands.size.toString(),
             inline: true,
-          },
+          }
         )
         .setDescription("The bot has successfully started.");
 
@@ -101,14 +101,21 @@ module.exports = {
 
     console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
 
-    if (!mongodbURL) return console.log("[DATABASE] No MongoDB URL provided.");
-    await mongoose.connect(mongodbURL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    try {
+      if (!mongodbURL)
+        return console.log("[DATABASE] No MongoDB URL provided.");
+      await mongoose.connect(mongodbURL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    } catch (error) {
+      console.log(`[DATABASE] ${error}`);
+    }
 
     if (mongoose.connect) {
       console.log("[DATABASE] Successfully connected to MongoDB.");
+    } else {
+      console.log("[DATABASE] Error connecting to MongoDB.");
     }
   },
 };

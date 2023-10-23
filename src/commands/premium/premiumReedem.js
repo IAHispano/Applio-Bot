@@ -12,7 +12,7 @@ module.exports = {
       option
         .setName("code")
         .setDescription("Introduce your Premium Code")
-        .setRequired(true)
+        .setRequired(true),
     ),
 
   async execute(interaction) {
@@ -73,7 +73,7 @@ module.exports = {
             iconURL: interaction.client.user.displayAvatarURL(),
           })
           .setDescription(
-            `🎉 Congratulations ${interaction.user}, you've successfully redeemed a premium code with the following details!`
+            `🎉 Congratulations ${interaction.user}, you've successfully redeemed a premium code with the following details!`,
           )
           .setThumbnail(interaction.user.displayAvatarURL())
           .setColor("Blurple")
@@ -106,13 +106,12 @@ module.exports = {
         const embed = new EmbedBuilder()
           .setColor("Red")
           .setDescription(
-            `The provided code was invalid, please use a valid one.`
+            `The provided code was invalid, please use a valid one.`,
           );
 
         await interaction.editReply({ embeds: [embed], ephemeral: true });
       }
     } catch (error) {
-        
       console.error(error);
     }
   },

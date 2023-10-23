@@ -70,10 +70,9 @@ module.exports = {
         })
         .setDescription("Enter the name of the model you wish to search for.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Ingrese el nombre del modelo que desea buscar.",
+          "es-ES": "Ingrese el nombre del modelo que desea buscar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 
@@ -195,7 +194,7 @@ module.exports = {
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
           )
           .setStyle(ButtonStyle.Link);
 
@@ -212,7 +211,7 @@ module.exports = {
 
         const row_buttons = new ActionRowBuilder().addComponents(
           downloadButton,
-          botInviteButton
+          botInviteButton,
         );
 
         interaction.reply({
@@ -231,7 +230,8 @@ module.exports = {
 
       collector.on("collect", async (interaction) => {
         const selectedResult = results.find(
-          (result) => `${result.name}-${result.owner}` === interaction.values[0]
+          (result) =>
+            `${result.name}-${result.owner}` === interaction.values[0],
         );
 
         if (selectedResult) {
@@ -296,12 +296,12 @@ module.exports = {
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+              `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(
             downloadButton,
-            botInviteButton
+            botInviteButton,
           );
 
           const menu = new StringSelectMenuBuilder()

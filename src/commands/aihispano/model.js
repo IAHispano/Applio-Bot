@@ -19,8 +19,7 @@ module.exports = {
         })
         .setDescription("Indicate the name of the model you wish to upload.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Indique el nombre del modelo que desea publicar.",
+          "es-ES": "Indique el nombre del modelo que desea publicar.",
         })
         .setRequired(true),
     )
@@ -32,21 +31,19 @@ module.exports = {
         })
         .setDescription("Indicate the link of the model you wish to upload.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Indique el enlace del modelo que desea publicar.",
+          "es-ES": "Indique el enlace del modelo que desea publicar.",
         })
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("epochs")
-        
+
         .setDescription(
           "Indicate the number of epochs of the model you want to upload.",
         )
         .setDescriptionLocalizations({
-          "es-ES":
-            "Indique el número de epochs del modelo que desea publicar.",
+          "es-ES": "Indique el número de epochs del modelo que desea publicar.",
         })
         .setRequired(true),
     )
@@ -61,8 +58,7 @@ module.exports = {
           "Select the technology where you have created the model.",
         )
         .setDescriptionLocalizations({
-          "es-ES":
-            "Seleccione la tecnología donde ha creado el modelo.",
+          "es-ES": "Seleccione la tecnología donde ha creado el modelo.",
         })
         .addChoices(
           {
@@ -84,8 +80,7 @@ module.exports = {
         })
         .setDescription("Select the algorithm to extract the tone.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Seleccione el algoritmo para extraer el tono.",
+          "es-ES": "Seleccione el algoritmo para extraer el tono.",
         })
         .addChoices(
           {
@@ -126,8 +121,7 @@ module.exports = {
         .setName("audio")
         .setDescription("Upload a sample audio of the model.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Sube una muestra de audio del modelo.",
+          "es-ES": "Sube una muestra de audio del modelo.",
         })
         .setRequired(true),
     )
@@ -139,8 +133,7 @@ module.exports = {
         })
         .setDescription("Select the language of the model.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Seleccione el idioma del modelo.",
+          "es-ES": "Seleccione el idioma del modelo.",
         })
         .addChoices(
           { name: "🇪🇸 Spanish (Spain)", value: "🇪🇸 Spanish (Spain)" },
@@ -157,12 +150,9 @@ module.exports = {
         .setNameLocalizations({
           "es-ES": "etiquetas",
         })
-        .setDescription(
-          "Select the tag that best describes your model.",
-        )
+        .setDescription("Select the tag that best describes your model.")
         .setDescriptionLocalizations({
-          "es-ES":
-            "Selecciona la etiqueta que mejor describa a tu modelo.",
+          "es-ES": "Selecciona la etiqueta que mejor describa a tu modelo.",
         })
         .addChoices(
           { name: "😂 Meme", value: "😂 Meme" },

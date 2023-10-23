@@ -1,4 +1,10 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+} = require("discord.js");
 const { clientId, bot_perms } = require("../../config.json");
 
 module.exports = {
@@ -16,12 +22,12 @@ module.exports = {
     const commands = interaction.client.commands;
 
     const groupedCommands = {
-      "AI": [],
+      AI: [],
       "AI Hispano": [],
-      "Info": [],
-      "Moderation": [],
-      "RVC": [],
-      "Utility": [],
+      Info: [],
+      Moderation: [],
+      RVC: [],
+      Utility: [],
     };
 
     commands.forEach((command) => {
@@ -43,19 +49,24 @@ module.exports = {
 
     const helpMessage = new EmbedBuilder()
       .setTitle("Help")
-      .setDescription("Applio is a bot that has a lot of features, such as moderation, fun, utility, and more.");
+      .setDescription(
+        "Applio is a bot that has a lot of features, such as moderation, fun, utility, and more.",
+      );
 
     const categories = Object.keys(groupedCommands);
 
     categories.forEach((category) => {
       if (groupedCommands[category].length > 0) {
         const commandList = groupedCommands[category]
-          .map((command) => `- **/${command.data.name}**: ${command.data.description}`)
+          .map(
+            (command) =>
+              `- **/${command.data.name}**: ${command.data.description}`,
+          )
           .join("\n");
         helpMessage.addFields({
           name: category,
           value: commandList,
-        })
+        });
       }
     });
 
@@ -69,7 +80,9 @@ module.exports = {
 
     const botInviteButton = new ButtonBuilder()
       .setLabel("Bot Invite")
-      .setURL(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`)
+      .setURL(
+        `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
+      )
       .setStyle(ButtonStyle.Link);
 
     const supportServerButton = new ButtonBuilder()
@@ -77,7 +90,10 @@ module.exports = {
       .setURL("https://discord.gg/IAHispano")
       .setStyle(ButtonStyle.Link);
 
-    const row = new ActionRowBuilder().addComponents(botInviteButton, supportServerButton);
+    const row = new ActionRowBuilder().addComponents(
+      botInviteButton,
+      supportServerButton,
+    );
 
     await interaction.reply({
       embeds: [helpMessage],

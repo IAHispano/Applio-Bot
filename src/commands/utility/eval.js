@@ -24,7 +24,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "El código a ejecutar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     ),
   devOnly: true,
   async execute(interaction) {
@@ -43,7 +43,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle("Code executed")
             .setDescription(
-              `Successfully executed the code, no errors were found.`
+              `Successfully executed the code, no errors were found.`,
             )
             .setColor("Green"),
         ],
@@ -52,11 +52,11 @@ module.exports = {
             Buffer.from(
               `${executedEvalValue}`.replace(
                 new RegExp(`${client.token}`, "g"),
-                '"[CLIENT TOKEN HIDDEN]"'
+                '"[CLIENT TOKEN HIDDEN]"',
               ),
-              "utf-8"
+              "utf-8",
             ),
-            { name: "output.javascript" }
+            { name: "output.javascript" },
           ),
         ],
       });

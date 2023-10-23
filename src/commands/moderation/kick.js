@@ -7,7 +7,7 @@ module.exports = {
       "es-ES": "expulsar",
     })
     .setDescription(
-      "Moderation » Kick a user from the server (Moderators only)."
+      "Moderation » Kick a user from the server (Moderators only).",
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -26,7 +26,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Selecciona el usuario a expulsar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -38,7 +38,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Razón por la que se expulsa a este usuario.",
         })
-        .setMaxLength(512)
+        .setMaxLength(512),
     ),
 
   async execute(interaction) {

@@ -33,18 +33,18 @@ module.exports = {
                 iconURL: client.user.displayAvatarURL(),
               })
               .setDescription(
-                `Hey <@${user.Id}>. Your Premium subscription is over.`
+                `Hey <@${user.Id}>. Your Premium subscription is over.`,
               )
               .setColor("#ff0000")
               .setTimestamp();
-              try {
-                client.users.fetch(user.Id).then((user) => {
-                  user.send({ embeds: [embed] });
-                });
-              } catch (error) {
-                console.log(`[ERROR] ${error}`);
-              }
-   
+            try {
+              client.users.fetch(user.Id).then((user) => {
+                user.send({ embeds: [embed] });
+              });
+            } catch (error) {
+              console.log(`[ERROR] ${error}`);
+            }
+
             console.log(`[DEBUG] Premium Expired for (${user.Id})`);
           }
         });
@@ -54,7 +54,7 @@ module.exports = {
 
       const totalMembers = await client.guilds.cache.reduce(
         (acc, guild) => acc + guild.memberCount,
-        0
+        0,
       );
 
       const embed = new EmbedBuilder()
@@ -88,7 +88,7 @@ module.exports = {
             name: "Total Commands",
             value: client.commands.size.toString(),
             inline: true,
-          }
+          },
         )
         .setDescription("The bot has successfully started.");
 

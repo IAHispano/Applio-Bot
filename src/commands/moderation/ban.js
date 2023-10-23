@@ -4,7 +4,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("ban")
     .setDescription(
-      "Moderation » Ban a user from the server (Moderators only)."
+      "Moderation » Ban a user from the server (Moderators only).",
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -23,7 +23,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Selecciona el usuario a banear.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -35,7 +35,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Razón por la que se banea a este usuario.",
         })
-        .setMaxLength(512)
+        .setMaxLength(512),
     ),
 
   async execute(interaction) {

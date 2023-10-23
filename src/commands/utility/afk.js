@@ -8,7 +8,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("afk")
     .setDescription(
-      `Utility » Set yourself as AFK on the server and prevent anyone from mentioning you.`
+      `Utility » Set yourself as AFK on the server and prevent anyone from mentioning you.`,
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -22,7 +22,7 @@ module.exports = {
           "es-ES": "iniciar",
         })
         .setDescription(
-          "Utility » Set yourself as AFK on the server and prevent anyone from mentioning you."
+          "Utility » Set yourself as AFK on the server and prevent anyone from mentioning you.",
         )
         .setDescriptionLocalizations({
           "es-ES":
@@ -38,8 +38,8 @@ module.exports = {
             .setDescription(`Give the reason why you want to be AFK.`)
             .setDescriptionLocalizations({
               "es-ES": "Especifica la razón por la que quieres estar AFK.",
-            })
-        )
+            }),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -48,12 +48,12 @@ module.exports = {
           "es-ES": "finalizar",
         })
         .setDescription(
-          "Utility » Stop being AFK on the server and re-enable mentions."
+          "Utility » Stop being AFK on the server and re-enable mentions.",
         )
         .setDescriptionLocalizations({
           "es-ES":
             "Utility » Deja de estar AFK en el servidor y vuelve a activar las menciones.",
-        })
+        }),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -62,7 +62,7 @@ module.exports = {
           "es-ES": "forzar-remover",
         })
         .setDescription(
-          "Utility » Remove the AFK status to another user (Moderators only)."
+          "Utility » Remove the AFK status to another user (Moderators only).",
         )
         .setDescriptionLocalizations({
           "es-ES":
@@ -79,25 +79,25 @@ module.exports = {
             .setDescription(`The user to remove from AFK.`)
             .setDescriptionLocalizations({
               "es-ES": "El usuario al que quitar el estado AFK.",
-            })
-        )
+            }),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("info")
         .setDescription(
-          "Utility » Get all the info on who is AFK on the server (Moderators only)."
+          "Utility » Get all the info on who is AFK on the server (Moderators only).",
         )
         .setDescriptionLocalizations({
           "es-ES":
             "Utility » Obtén toda la información sobre quién está AFK en el servidor (Sólo moderadores).",
-        })
+        }),
     ),
   async execute(interaction) {
     const command = interaction.options.getSubcommand();
     await interaction.guild.autoModerationRules.fetch();
     const rule = await interaction.guild.autoModerationRules.cache.find(
-      (x) => x.name === "AFK mention block"
+      (x) => x.name === "AFK mention block",
     );
     switch (command) {
       case "start":
@@ -128,11 +128,11 @@ module.exports = {
           } else {
             if (
               rule.triggerMetadata.keywordFilter.includes(
-                `<@${interaction.user.id}>`
+                `<@${interaction.user.id}>`,
               )
             ) {
               return interaction.reply(
-                `You are already AFK, to end it try </afk end:1163566324530819096>`
+                `You are already AFK, to end it try </afk end:1163566324530819096>`,
               );
             }
             const keywords = await rule.triggerMetadata.keywordFilter;
@@ -153,11 +153,11 @@ module.exports = {
               await interaction.member.setNickname(name);
             }
             await interaction.reply(
-              `**${interaction.user.username}** is now AFK: ${reason}`
+              `**${interaction.user.username}** is now AFK: ${reason}`,
             );
           } catch (error) {
             await interaction.reply(
-              `**${interaction.user.username}** is now AFK: ${reason}`
+              `**${interaction.user.username}** is now AFK: ${reason}`,
             );
             interaction.followUp({
               content: `Unable to change your nickname, it seems it don't have the right permissions do to do.`,
@@ -172,17 +172,17 @@ module.exports = {
           if (
             !rule ||
             !rule.triggerMetadata.keywordFilter.includes(
-              `<@${interaction.user.id}>`
+              `<@${interaction.user.id}>`,
             )
           ) {
             return interaction.reply(
-              `You are not AFK, to start it try </afk start:1163566324530819096>`
+              `You are not AFK, to start it try </afk start:1163566324530819096>`,
             );
           }
 
           let keywords = await rule.triggerMetadata.keywordFilter;
           keywords = keywords.filter(
-            (words) => words !== `<@${interaction.user.id}>`
+            (words) => words !== `<@${interaction.user.id}>`,
           );
           rule.edit({
             triggerMetadata: {
@@ -198,7 +198,7 @@ module.exports = {
             await interaction.member.setNickname(newname);
           }
           await interaction.reply(
-            `${interaction.member} welcome back, the pings are back on!`
+            `${interaction.member} welcome back, the pings are back on!`,
           );
         }
         break;
@@ -207,7 +207,7 @@ module.exports = {
         {
           if (
             !interaction.member.permissions.has(
-              PermissionsBitField.Flags.ModerateMembers
+              PermissionsBitField.Flags.ModerateMembers,
             )
           ) {
             return interaction.reply({
@@ -237,14 +237,14 @@ module.exports = {
             await member.setNickname(newname);
           }
           interaction.reply(
-            `The user ${user} has succesfully been force removed from AFK status`
+            `The user ${user} has succesfully been force removed from AFK status`,
           );
         }
         break;
       case "info":
         if (
           !interaction.member.permissions.has(
-            PermissionsBitField.Flags.ModerateMembers
+            PermissionsBitField.Flags.ModerateMembers,
           )
         ) {
           return interaction.reply({
@@ -254,7 +254,7 @@ module.exports = {
         } else {
           if (!rule) {
             return interaction.channel.send(
-              `It seems like no one has ever been AFK in this server`
+              `It seems like no one has ever been AFK in this server`,
             );
           }
 

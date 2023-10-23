@@ -10,7 +10,7 @@ module.exports = {
       "es-ES": "Comprueba si tienes Premium.",
     }),
 
-  onlyPremium: true,
+  premiumOnly: true,
   async execute(interaction) {
     interaction.reply({
       embeds: [

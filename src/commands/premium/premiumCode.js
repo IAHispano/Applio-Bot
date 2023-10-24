@@ -87,7 +87,6 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             {
-              color: "Blurple",
               description: `The codes have been sent to ${user}.`,
             },
           ],
@@ -97,7 +96,6 @@ module.exports = {
         return interaction.editReply({
           embeds: [
             {
-              color: "Blurple",
               description: `I can't send the codes to ${user}.`,
             },
           ],

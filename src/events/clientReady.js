@@ -50,7 +50,7 @@ module.exports = {
         });
       });
 
-      const channel = client.channels.cache.get(logsChannelId);
+      const channel = client.channels.cache.get(logsChannelID);
 
       const totalMembers = await client.guilds.cache.reduce(
         (acc, guild) => acc + guild.memberCount,

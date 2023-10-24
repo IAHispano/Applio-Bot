@@ -1,13 +1,16 @@
 {
-  "token": "YOUR_BOT_TOKEN_HERE",
-  "clientId": "YOUR_BOT_CLIENT_ID_HERE",
-  "devs": "YOUR_DEVS_IDS_HERE",
-  "support_server": "YOUR_SUPPORT_SERVER_INVITE_LINK",
-  "bot_perms": "1376674704454",
-  "moderatorRoleID": "YOUR_MODERATOR_ROLE_ID",
-  "allowedUserId": "ALLOWED_USER_ID",
-  "chatGPT_url" : "CHATGPT_URL_HERE",
-  "prodia_token": "YOUR_PRODIA_TOKEN",
-  "bardToken": "YOUR_BARD_RAPIDAPI_KEY",
-  "bardPsid": "YOUR_BARD_PSID"
+  "token": "X",
+  "clientId": "X",
+  
+  "devsID": "X",
+  "moderatorRoleID": "X",
+  "logsChannelID": "X",
+  
+  "bot_perms": "1376674433127",
+  "support_server": "X",
+
+  "prodia_token": "X",
+  "chatGPT_url": "X",
+
+  "mongodbURL": "X"
 }

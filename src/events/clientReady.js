@@ -1,6 +1,6 @@
 const { Events, ActivityType, EmbedBuilder } = require("discord.js");
 const mongoose = require("mongoose");
-const { logsChannelId, mongodbURL } = require("../config.json");
+const { logsChannelID, mongodbURL } = require("../config.json");
 const cron = require("node-cron");
 
 module.exports = {

@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder } = require("discord.js");
-const { devs, logsChannelId, clientId, bot_perms } = require("../config.json");
+const { devsID, logsChannelID, clientId, bot_perms } = require("../config.json");
 const User = require("../schemas/premium/premiumUser.js");
 const client = require("../bot.js");
 
@@ -24,7 +24,7 @@ module.exports = {
       });
     }
 
-    if (command.devOnly && interaction.user.id !== devs) {
+    if (command.devOnly && interaction.user.id !== devsID) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -48,7 +48,7 @@ module.exports = {
       await command.execute(interaction, client);
     } catch (error) {
       try {
-        const channel = client.channels.cache.get(logsChannelId);
+        const channel = client.channels.cache.get(logsChannelID);
 
         const embed = new EmbedBuilder()
           .setColor("Red")

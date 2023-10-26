@@ -118,9 +118,9 @@ module.exports = {
       const pageSize = 1;
       let currentPage = 1;
 
-      const options = results.slice(0, 25).map((result) => ({
+      const options = results.slice(0, 25).map((result, index) => ({
         label: `${result.name} (${result.epoch} Epochs)`,
-        value: `${result.id}-${result.uploadDate}`,
+        value: `${index + 1}-${result.id}-${result.uploadDate}`,
         description: `${result.type} · ${result.uploadDate}`,
         emoji: "<:dot:1134526388456669234>",
       }));
@@ -170,11 +170,6 @@ module.exports = {
             {
               name: "Author",
               value: `[Click to view](https://discordapp.com/users/${result.owner})`,
-              inline: true,
-            },
-            {
-              name: "Download",
-              value: `[Click to download](${result.link})`,
               inline: true,
             },
           ];
@@ -237,7 +232,9 @@ module.exports = {
       collector.on("collect", async (interaction) => {
         const selectedResult = results.find(
           (result) =>
-            `${result.id}-${result.uploadDate}` === interaction.values[0]
+            `${results.indexOf(result) + 1}-${result.id}-${
+              result.uploadDate
+            }` === interaction.values[0]
         );
 
         if (selectedResult) {
@@ -281,11 +278,6 @@ module.exports = {
               value: `[Click to view](https://discordapp.com/users/${selectedResult.owner})`,
               inline: true,
             },
-            {
-              name: "Link",
-              value: `[Click to download](${selectedResult.link})`,
-              inline: true,
-            },
           ];
 
           if (
@@ -296,7 +288,12 @@ module.exports = {
             embed.setImage(selectedResult.attachments[0].url);
           }
 
-          downloadButton.setURL(selectedResult.link);
+          if (typeof selectedResult.link === "string" && selectedResult.link) {
+            downloadButton.setURL(selectedResult.link);
+          } else {
+            downloadButton.setDisabled(true);
+            downloadButton.setURL("https://applio.org");
+          }
           embed.addFields(fields);
 
           const botInviteButton = new ButtonBuilder()

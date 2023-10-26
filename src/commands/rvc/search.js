@@ -19,8 +19,9 @@ function searchSimilarities(searchedName, data) {
       if (name.toLowerCase().includes(searchedName.toLowerCase())) {
         results.push({
           name: name,
+          id: item.id,
           owner: item.owner,
-          link: item.links[0].Link,
+          link: item.context.Link,
           epoch:
             item.context.Epoch !== undefined && item.context.Epoch !== null
               ? item.context.Epoch
@@ -115,12 +116,12 @@ module.exports = {
       }
 
       const pageSize = 1;
-      const totalPages = results.length;
       let currentPage = 1;
 
       const options = results.slice(0, 25).map((result) => ({
-        label: `${result.name} (${result.algorithm} - ${result.epoch} Epochs)`,
-        value: `${result.name}-${result.owner}`,
+        label: `${result.name} (${result.epoch} Epochs)`,
+        value: `${result.id}-${result.uploadDate}`,
+        description: `${result.type} · ${result.uploadDate}`,
         emoji: "<:dot:1134526388456669234>",
       }));
 
@@ -230,7 +231,7 @@ module.exports = {
 
       collector.on("collect", async (interaction) => {
         const selectedResult = results.find(
-          (result) => `${result.name}-${result.owner}` === interaction.values[0]
+          (result) => `${result.id}-${result.uploadDate}` === interaction.values[0]
         );
 
         if (selectedResult) {

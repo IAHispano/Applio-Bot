@@ -186,7 +186,12 @@ module.exports = {
             embed.setImage(result.attachments[0].url);
           }
 
-          downloadButton.setURL(result.link);
+          if (typeof result.link === "string" && result.link) {
+            downloadButton.setURL(result.link);
+          } else {
+            downloadButton.setDisabled(true);
+            downloadButton.setURL("https://applio.org");
+          }
 
           embed.setTitle(result.name);
           embed.addFields(fields);
@@ -231,7 +236,8 @@ module.exports = {
 
       collector.on("collect", async (interaction) => {
         const selectedResult = results.find(
-          (result) => `${result.id}-${result.uploadDate}` === interaction.values[0]
+          (result) =>
+            `${result.id}-${result.uploadDate}` === interaction.values[0]
         );
 
         if (selectedResult) {

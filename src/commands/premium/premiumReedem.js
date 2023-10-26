@@ -8,9 +8,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setDMPermission(false)
     .setName("premium-redeem")
-    .setDescription("Redeem your Premium Code.")
+    .setDescription("Premium » Redeem your premium code.")
     .setDescriptionLocalizations({
-      "es-ES": "Canjea tu código Premium.",
+      "es-ES": "Premium » Canjea tu código Premium.",
     })
     .addStringOption((option) =>
       option

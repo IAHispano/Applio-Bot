@@ -9,9 +9,9 @@ const client = require("../../bot.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("eval")
-    .setDescription("Utility » Eval a code.")
+    .setDescription("Utility » Eval a code (Developers only).")
     .setDescriptionLocalizations({
-      "es-ES": "Utility » Evalua un código.",
+      "es-ES": "Utility » Evalua un código (Sólo desarrolladores).",
     })
     .setDMPermission(false)
     .addStringOption((option) =>

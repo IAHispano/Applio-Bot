@@ -6,9 +6,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setDMPermission(false)
     .setName("premium-codes")
-    .setDescription("Generate new premium codes.")
+    .setDescription("Premium » Generate new premium codes (Developers only).")
     .setDescriptionLocalizations({
-      "es-ES": "Genera nuevos códigos premium.",
+      "es-ES": "Premium » Genera nuevos códigos premium (Sólo desarrolladores).",
     })
     .addStringOption((option) =>
       option

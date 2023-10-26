@@ -5,9 +5,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setDMPermission(false)
     .setName("premium-check")
-    .setDescription("Check if you have Premium.")
+    .setDescription("Premium » Check if you have premium.")
     .setDescriptionLocalizations({
-      "es-ES": "Comprueba si tienes Premium.",
+      "es-ES": "Premium » Comprueba si tienes premium.",
     }),
 
   premiumOnly: true,

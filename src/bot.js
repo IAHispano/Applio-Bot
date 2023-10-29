@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const { token } = require("./config.json");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
 module.exports = client;
 
 require("./deployment/registerCommands.js");

@@ -41,14 +41,16 @@ module.exports = {
     }
     const embed = new EmbedBuilder()
       .setTitle("Audit Log Setup")
-      .setDescription(`The Audit Log has been setup in ${channel}!\n\n**Note:** If you delete the channel, the audit log system will be deleted!`)
+      .setDescription(
+        `The Audit Log has been setup in ${channel}!\n\n**Note:** If you delete the channel, the audit log system will be deleted!`,
+      )
       .setColor("Blurple")
       .setThumbnail(guild.iconURL({ dynamic: true, size: 4096 }))
       .setFooter({
         text: `Requested by ${interaction.user.tag}`,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setTimestamp()
+      .setTimestamp();
 
     await Schema.create({
       Guild: guild.id,

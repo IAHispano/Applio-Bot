@@ -1,16 +1,13 @@
 {
-  "token": "X",
-  "clientId": "X",
+  "token": "",
+  "clientId": "",
   
-  "devsID": "X",
-  "moderatorRoleID": "X",
-  "logsChannelID": "X",
+  "devsID": "",
+  "moderatorRoleID": "",
+  "logsChannelID": "",
   
   "bot_perms": "1376674433127",
-  "support_server": "X",
+  "support_server": "",
 
-  "prodia_token": "X",
-  "chatGPT_url": "X",
-
-  "mongodbURL": "X"
+  "mongodbURL": "",
 }

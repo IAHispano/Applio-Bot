@@ -34,7 +34,7 @@ module.exports = {
         text: `Requested by ${interaction.user.tag}`,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setTimestamp()
+      .setTimestamp();
 
     await Schema.deleteMany({
       Guild: guild.id,

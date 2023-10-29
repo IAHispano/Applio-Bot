@@ -11,12 +11,15 @@ module.exports = {
   async execute(interaction) {
     const guild = interaction.guild;
     const icon = guild.iconURL({ dynamic: true }) || "No icon";
-    const maxRolesToShow = 30;
 
-    const roles = guild.roles.cache
+    const maxRolesToShow = 30;
+    let roles = guild.roles.cache
       .map((role) => `<@&${role.id}>`)
       .slice(0, maxRolesToShow)
+      .reverse()
       .join(", ");
+
+    if (guild.roles.cache.size > maxRolesToShow) roles += "...";
 
     const rolesField = roles.length <= 1024 ? roles : roles.substring(0, 1021);
 
@@ -53,8 +56,8 @@ module.exports = {
           inline: true,
         },
         {
-          name: "Roles",
-          value: rolesField + "...",
+          name: `Roles (${guild.roles.cache.size})`,
+          value: rolesField,
         },
       )
       .setImage(guild.bannerURL({ dynamic: true, size: 4096 }))

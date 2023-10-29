@@ -20,7 +20,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "El usuario al que quieres eliminar premium.",
         })
-        .setRequired(true)
+        .setRequired(true),
     ),
   devOnly: true,
   async execute(interaction) {

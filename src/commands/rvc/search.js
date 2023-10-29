@@ -73,7 +73,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Ingrese el nombre del modelo que desea buscar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 
@@ -195,7 +195,7 @@ module.exports = {
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
           )
           .setStyle(ButtonStyle.Link);
 
@@ -212,7 +212,7 @@ module.exports = {
 
         const row_buttons = new ActionRowBuilder().addComponents(
           downloadButton,
-          botInviteButton
+          botInviteButton,
         );
 
         interaction.reply({
@@ -234,7 +234,7 @@ module.exports = {
           (result) =>
             `${results.indexOf(result) + 1}-${result.id}-${
               result.uploadDate
-            }` === interaction.values[0]
+            }` === interaction.values[0],
         );
 
         if (selectedResult) {
@@ -299,12 +299,12 @@ module.exports = {
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+              `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(
             downloadButton,
-            botInviteButton
+            botInviteButton,
           );
 
           const menu = new StringSelectMenuBuilder()

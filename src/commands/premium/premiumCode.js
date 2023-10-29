@@ -8,7 +8,8 @@ module.exports = {
     .setName("premium-codes")
     .setDescription("Premium » Generate new premium codes (Developers only).")
     .setDescriptionLocalizations({
-      "es-ES": "Premium » Genera nuevos códigos premium (Sólo desarrolladores).",
+      "es-ES":
+        "Premium » Genera nuevos códigos premium (Sólo desarrolladores).",
     })
     .addStringOption((option) =>
       option
@@ -24,8 +25,8 @@ module.exports = {
           { name: "Weekly", value: "weekly" },
           { name: "Monthly", value: "monthly" },
           { name: "Yearly", value: "yearly" },
-          { name: "Life Time", value: "lifetime" }
-        )
+          { name: "Life Time", value: "lifetime" },
+        ),
     )
     .addIntegerOption((option) =>
       option
@@ -34,7 +35,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Número de códigos a generar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addUserOption((option) =>
       option
@@ -46,7 +47,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "El usuario a regalar un código.",
         })
-        .setRequired(false)
+        .setRequired(false),
     ),
   devOnly: true,
 

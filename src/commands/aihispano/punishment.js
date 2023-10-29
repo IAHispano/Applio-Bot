@@ -74,9 +74,9 @@ module.exports = {
     .setDMPermission(false),
   async execute(interaction) {
     const usuario = interaction.options.getMember("user");
-    const motivo = interaction.options.get("reason");
-    const tiempo = interaction.options.get("time");
-    const prueba = interaction.options?.get("proof");
+    const motivo = interaction.options.getString("reason");
+    const tiempo = interaction.options.getString("time");
+    const prueba = interaction.options.getString("proof");
     const canal = interaction.guild.channels.cache.get("1117398602239705118");
 
     const pruebaImg = prueba?.attachment?.url ? prueba.attachment.url : null;
@@ -92,8 +92,8 @@ module.exports = {
             value: `${interaction.member?.user}`,
             inline: true,
           },
-          { name: "Reason", value: `${motivo?.value}`, inline: true },
-          { name: "Time", value: `${tiempo?.value}`, inline: true },
+          { name: "Reason", value: `${motivo}`, inline: true },
+          { name: "Time", value: `${tiempo}`, inline: true },
         )
         .setImage(pruebaImg)
         .setColor("Blurple")
@@ -101,7 +101,7 @@ module.exports = {
 
       let timeoutMilliseconds = 0;
 
-      switch (tiempo?.value) {
+      switch (tiempo) {
         case "1 minute":
           timeoutMilliseconds = 1 * 60 * 1000;
           break;
@@ -122,13 +122,13 @@ module.exports = {
           break;
       }
 
-      await usuario.timeout(timeoutMilliseconds, motivo?.value);
+      await usuario.timeout(timeoutMilliseconds, motivo);
 
       canal.send({ embeds: [embedSancion] });
 
       const embed = new EmbedBuilder()
         .setDescription(
-          `Punishment awarded to user ${usuario} for ${tiempo?.value}.`,
+          `Punishment awarded to user ${usuario} for ${tiempo}.`,
         )
         .setColor("Blurple")
         .setTimestamp();

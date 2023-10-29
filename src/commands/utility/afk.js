@@ -102,7 +102,7 @@ module.exports = {
         (x) => x.name === "AFK mention block",
       );
       if (subcommand === "start") {
-        const reason = interaction.options.get("reason")?.value ?? "I'm AFK :)";
+        const reason = interaction.options.getString("reason") ?? "I'm AFK :)";
 
         if (!rule) {
           const keywords = [`<@1>`, `<@${interaction.user.id}>`];

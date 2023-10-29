@@ -169,20 +169,20 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
-    let algoritmo = interaction.options?.get("algorithm")?.value;
-    const tecnología = interaction.options?.get("technology")?.value;
-    const idioma = interaction.options?.get("language")?.value;
-    const etiquetas = interaction.options?.get("tags")?.value;
-    const epochs = interaction.options?.get("epochs")?.value;
-    const nombre = interaction.options?.get("name")?.value;
-    const enlace = interaction.options?.get("link")?.value;
-    const imagen = interaction.options?.get("image");
+    let algoritmo = interaction.options.getString("algorithm");
+    const tecnología = interaction.options.getString("technology");
+    const idioma = interaction.options.getString("language");
+    const etiquetas = interaction.options.getString("tags");
+    const epochs = interaction.options.getString("epochs");
+    const nombre = interaction.options.getString("name");
+    const enlace = interaction.options.getString("link");
+    const imagen = interaction.options.get("image");
     const imagenURL = imagen?.attachment?.url
       ? imagen.attachment.url
       : null ||
         "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.pngx";
 
-    const audio = interaction.options?.get("audio");
+    const audio = interaction.options.get("audio");
     const audioURL = audio?.attachment?.url ? audio.attachment.url : null;
 
     const autor_id = interaction.user.id;

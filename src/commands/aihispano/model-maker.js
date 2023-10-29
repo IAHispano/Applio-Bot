@@ -31,7 +31,7 @@ module.exports = {
     )
     .setDMPermission(false),
   async execute(interaction) {
-    const models = interaction.options?.get("models")?.value;
+    const models = interaction.options.getString("models");
     const autor = interaction.user.username;
 
     const embed = new EmbedBuilder()

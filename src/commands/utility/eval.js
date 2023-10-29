@@ -30,7 +30,7 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
 
-    const code = interaction.options.get("code").value;
+    const code = interaction.options.getString("code");
 
     try {
       let executedEvalValue = eval(code);

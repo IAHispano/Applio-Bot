@@ -5,7 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("blacklist")
     .setDescription(
-      "Utility » Blacklist or remove users from the bot's blacklist (Developers only).",
+      "Utility » Blacklist or remove users from the bot's blacklist (Developers only)."
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -31,7 +31,7 @@ module.exports = {
             .setDescriptionLocalizations({
               "es-ES": "El usuario que quieres añadir a la blacklist.",
             })
-            .setRequired(true),
+            .setRequired(true)
         )
         .addStringOption((option) =>
           option
@@ -39,22 +39,34 @@ module.exports = {
             .setNameLocalizations({
               "es-ES": "razón",
             })
-            .setDescription("Reason for blacklisting")
+            .setDescription("Reason for blacklisting.")
             .setDescriptionLocalizations({
-              "es-ES": "Razón por la que se añade a la blacklist",
-            }),
-        ),
+              "es-ES": "Razón por la que se añade a la blacklist.",
+            })
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("remove")
-        .setDescription("Remove a user from the blacklist")
+        .setNameLocalizations({
+          "es-ES": "eliminar",
+        })
+        .setDescription("Remove a user from the blacklist.")
+        .setDescriptionLocalizations({
+          "es-ES": "Elimina un usuario de la blacklist.",
+        })
         .addUserOption((option) =>
           option
             .setName("user")
-            .setDescription("The user to be removed from the blacklist")
-            .setRequired(true),
-        ),
+            .setNameLocalizations({
+              "es-ES": "usuario",
+            })
+            .setDescription("The user to be removed from the blacklist.")
+            .setDescriptionLocalizations({
+              "es-ES": "El usuario que quieres eliminar de la blacklist.",
+            })
+            .setRequired(true)
+        )
     )
     .setDMPermission(false),
   devOnly: true,
@@ -66,22 +78,22 @@ module.exports = {
       const reason = interaction.options.getString("reason") || "No reason";
 
       try {
-        const existingEntry = await Blacklist.findOne({ userId: user.id });
+        const existingEntry = await Blacklist.findOne({ Id: user.id });
 
         if (existingEntry) {
           await interaction.reply(`${user.username} is already blacklisted.`);
         } else {
-          const newEntry = new Blacklist({ userId: user.id, reason });
+          const newEntry = new Blacklist({ Id: user.id, reason });
           await newEntry.save();
 
           await interaction.reply(
-            `${user.username} has been blacklisted. Reason: ${reason}`,
+            `${user.username} has been blacklisted. Reason: ${reason}`
           );
         }
       } catch (error) {
         console.error("Error occurred while adding user to blacklist:", error);
         await interaction.reply(
-          "An error occurred while adding the user to the blacklist.",
+          "An error occurred while adding the user to the blacklist."
         );
       }
     } else if (subcommand === "remove") {
@@ -89,12 +101,12 @@ module.exports = {
 
       try {
         const removedEntry = await Blacklist.findOneAndDelete({
-          userId: user.id,
+          Id: user.id,
         });
 
         if (removedEntry) {
           await interaction.reply(
-            `${user.username} has been removed from the blacklist.`,
+            `${user.username} has been removed from the blacklist.`
           );
         } else {
           await interaction.reply(`${user.username} is not blacklisted.`);
@@ -102,10 +114,10 @@ module.exports = {
       } catch (error) {
         console.error(
           "Error occurred while removing user from blacklist:",
-          error,
+          error
         );
         await interaction.reply(
-          "An error occurred while removing the user from the blacklist.",
+          "An error occurred while removing the user from the blacklist."
         );
       }
     }

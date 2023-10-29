@@ -1,4 +1,10 @@
-const { Events, EmbedBuilder } = require("discord.js");
+const {
+  Events,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
 const {
   devsID,
   logsChannelID,
@@ -6,6 +12,7 @@ const {
   bot_perms,
 } = require("../config.json");
 const User = require("../schemas/premium/premiumUser.js");
+const Blacklist = require("../schemas/moderation/blackList.js");
 const client = require("../bot.js");
 
 module.exports = {
@@ -22,7 +29,7 @@ module.exports = {
           new EmbedBuilder()
             .setColor("Red")
             .setDescription(
-              "This command is only available to premium users. You can get premium by redeeming a code with `/premium-redeem`.",
+              "This command is only available to premium users. You can get premium by redeeming a code with `/premium-redeem`."
             ),
         ],
         ephemeral: true,
@@ -35,8 +42,32 @@ module.exports = {
           new EmbedBuilder()
             .setColor("Red")
             .setDescription(
-              "Currently the use of this command is restricted, it may be in maintenance or experimental phases.",
+              "Currently the use of this command is restricted, it may be in maintenance or experimental phases."
             ),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    const blacklistedUser = await Blacklist.findOne({
+      Id: interaction.user.id,
+    });
+    if (blacklistedUser) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(
+              "You are blacklisted from using Applio. If you think this is a mistake, please contact the developer."
+            ),
+        ],
+        components: [
+          new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setLabel("🛠️ Appeal")
+              .setURL("https://discord.gg/IAHispano")
+              .setStyle(ButtonStyle.Link)
+          ),
         ],
         ephemeral: true,
       });
@@ -44,7 +75,7 @@ module.exports = {
 
     if (!command) {
       console.error(
-        `No command matching ${interaction.commandName} was found.`,
+        `No command matching ${interaction.commandName} was found.`
       );
       return;
     }
@@ -70,7 +101,7 @@ module.exports = {
               value: `\`\`\`${interaction.user.username}\`\`\``,
             },
             { name: "Error stack", value: `\`\`\`${error.stack}\`\`\`` },
-            { name: "Error message", value: `\`\`\`${error.message}\`\`\`` },
+            { name: "Error message", value: `\`\`\`${error.message}\`\`\`` }
           );
 
         await channel
@@ -79,8 +110,8 @@ module.exports = {
           })
           .then(
             console.log(
-              `An error occurred while executing ${interaction.commandName}:\n${error.stack}`,
-            ),
+              `An error occurred while executing ${interaction.commandName}:\n${error.stack}`
+            )
           );
       } catch (error) {
         console.error(error);

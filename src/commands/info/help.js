@@ -47,10 +47,16 @@ module.exports = {
       }
     });
 
+    Object.keys(groupedCommands).forEach((category) => {
+      groupedCommands[category] = groupedCommands[category].filter(
+        (command) => !command.devOnly
+      );
+    });
+
     const helpMessage = new EmbedBuilder()
       .setTitle("Help")
       .setDescription(
-        "Applio is a bot that has a lot of features, such as moderation, fun, utility, and more.",
+        "Applio is a bot that has a lot of features, such as moderation, fun, utility, and more."
       );
 
     const categories = Object.keys(groupedCommands);
@@ -60,7 +66,7 @@ module.exports = {
         const commandList = groupedCommands[category]
           .map(
             (command) =>
-              `- **/${command.data.name}**: ${command.data.description}`,
+              `- **/${command.data.name}**: ${command.data.description}`
           )
           .join("\n");
         helpMessage.addFields({
@@ -81,7 +87,7 @@ module.exports = {
     const botInviteButton = new ButtonBuilder()
       .setLabel("Bot Invite")
       .setURL(
-        `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
+        `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
       )
       .setStyle(ButtonStyle.Link);
 
@@ -92,7 +98,7 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(
       botInviteButton,
-      supportServerButton,
+      supportServerButton
     );
 
     await interaction.reply({

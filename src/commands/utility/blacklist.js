@@ -17,9 +17,9 @@ module.exports = {
         .setNameLocalizations({
           "es-ES": "añadir",
         })
-        .setDescription("Blacklist a user.")
+        .setDescription("Utility » Blacklist a user.")
         .setDescriptionLocalizations({
-          "es-ES": "Añade un usuario a la blacklist.",
+          "es-ES": "Utility » Añade un usuario a la blacklist.",
         })
         .addUserOption((option) =>
           option
@@ -51,9 +51,9 @@ module.exports = {
         .setNameLocalizations({
           "es-ES": "eliminar",
         })
-        .setDescription("Remove a user from the blacklist.")
+        .setDescription("Utility » Remove a user from the blacklist.")
         .setDescriptionLocalizations({
-          "es-ES": "Elimina un usuario de la blacklist.",
+          "es-ES": "Utility » Elimina un usuario de la blacklist.",
         })
         .addUserOption((option) =>
           option

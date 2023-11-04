@@ -11,16 +11,33 @@ const { clientId, bot_perms } = require("../../config.json");
 const fs = require("fs");
 const path = require("path");
 
+async function loadData(directory) {
+  const files = fs.readdirSync(directory);
+  const data = [];
+
+  for (const file of files) {
+    if (path.extname(file) === ".json") {
+      const content = fs.readFileSync(path.join(directory, file), "utf8");
+      data.push(JSON.parse(content));
+    }
+  }
+
+  return data;
+}
+
 function searchSimilarities(searchedName, data) {
   const results = [];
-  data.forEach((item) => {
+  searchedName = searchedName.toLowerCase(); // Convert to lowercase for case-insensitive search
+
+  for (const item of data) {
     if (item.context && item.context.Name) {
-      const name = item.context.Name;
-      if (name.toLowerCase().includes(searchedName.toLowerCase())) {
+      const name = item.context.Name.toLowerCase();
+      if (name.includes(searchedName)) {
         results.push({
-          name: name,
+          name: item.context.Name,
           id: item.id,
-          owner: item.owner,
+          owner_id: item.owner,
+          owner_username: item.owner_username ? item.owner_username : "N/A",
           link: item.context.Link,
           epoch:
             item.context.Epoch !== undefined && item.context.Epoch !== null
@@ -46,7 +63,7 @@ function searchSimilarities(searchedName, data) {
         });
       }
     }
-  });
+  }
 
   return results;
 }
@@ -73,67 +90,165 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Ingrese el nombre del modelo que desea buscar.",
         })
-        .setRequired(true),
+        .setRequired(true)
     )
     .setDMPermission(false),
 
   async execute(interaction) {
     const model = interaction.options.getString("model");
+    const loadingMessage = await interaction.reply({
+      content: "🔎 Loading models...",
+    });
 
-    if (!model) {
-      await interaction.reply("Please provide the model name.");
+    const data = await loadData("models");
+    const results = searchSimilarities(model, data);
+
+    if (results.length === 0) {
+      const embed = new EmbedBuilder()
+        .setDescription(`No results found for the search ${model}...`)
+        .setColor("#5865F2")
+        .setFooter({
+          text: `Powered by Applio — Make sure you spelled it correctly!`,
+        });
+      await loadingMessage.edit({
+        embeds: [embed],
+        content: null,
+      });
       return;
     }
 
-    const directory = "./models";
+    const pageSize = 1;
+    let currentPage = 1;
 
-    fs.readdir(directory, async (err, files) => {
-      if (err) {
-        console.error("Error reading the directory:", err);
-        return;
-      }
+    const options = results.slice(0, 25).map((result, index) => ({
+      label: `${result.name} (${result.epoch} Epochs)`,
+      value: `${index + 1}-${result.id}-${result.uploadDate}`,
+      description: `${result.type} · ${result.uploadDate}`,
+      emoji: "<:dot:1134526388456669234>",
+    }));
 
-      const data = [];
+    const displayPage = (page) => {
+      const startIdx = (page - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, results.length);
 
-      files.forEach((file) => {
-        if (path.extname(file) === ".json") {
-          const content = fs.readFileSync(path.join(directory, file), "utf8");
-          data.push(JSON.parse(content));
-        }
-      });
+      const downloadButton = new ButtonBuilder()
+        .setLabel("📤 Download")
+        .setStyle(ButtonStyle.Link);
 
-      const results = searchSimilarities(model, data);
+      const embed = new EmbedBuilder()
 
-      if (results.length === 0) {
-        const embed = new EmbedBuilder()
-          .setDescription(`No results found for the search ${model}...`)
-          .setColor("#5865F2")
-          .setFooter({
-            text: `Powered by Applio — Make sure you spelled it correctly!`,
+        .setColor("#5865F2")
+        .setFooter({
+          text: `Requested by ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL(),
+        })
+        .setColor("#5865F2")
+        .setTimestamp();
+
+      for (let i = startIdx; i < endIdx; i++) {
+        const result = results[i];
+        if (!result) continue;
+
+        embed.setDescription(`
+        **Owner:** ${result.owner_username}
+        **Uploaded:** ${result.uploadDate}
+        `);
+
+        const fields = [
+          {
+            name: "Epochs",
+            value: `${result.epoch}`,
+            inline: true,
+          },
+          {
+            name: "Technology",
+            value: `${result.type}`,
+            inline: true,
+          },
+          {
+            name: "Algorithm",
+            value: `${result.algorithm}`,
+            inline: true,
+          },
+        ];
+
+        if (result.link.includes("kits.ai")) {
+          embed.addFields({
+            name: "Information",
+            value: `This model can be found on the Kits.AI platform, visit their page for more information.`,
           });
-        await interaction.reply({ embeds: [embed], ephemeral: true });
-        return;
+        } else {
+          embed.addFields(fields);
+        }
+        if (
+          result.attachments &&
+          result.attachments[0] &&
+          result.attachments[0].url
+        ) {
+          embed.setImage(result.attachments[0].url);
+        }
+
+        if (typeof result.link === "string" && result.link) {
+          downloadButton.setURL(result.link);
+        } else {
+          downloadButton.setDisabled(true);
+          downloadButton.setURL("https://applio.org");
+        }
+        embed.setTitle(result.name);
       }
 
-      const pageSize = 1;
-      let currentPage = 1;
+      const botInviteButton = new ButtonBuilder()
+        .setLabel("🤖 Bot Invite")
+        .setURL(
+          `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+        )
+        .setStyle(ButtonStyle.Link);
 
-      const options = results.slice(0, 25).map((result, index) => ({
-        label: `${result.name} (${result.epoch} Epochs)`,
-        value: `${index + 1}-${result.id}-${result.uploadDate}`,
-        description: `${result.type} · ${result.uploadDate}`,
-        emoji: "<:dot:1134526388456669234>",
-      }));
+      const menu = new StringSelectMenuBuilder()
+        .setCustomId("models")
+        .setPlaceholder(`🔎 ${results.length} models found...`)
+        .setOptions(options);
 
-      const displayPage = (page) => {
-        const startIdx = (page - 1) * pageSize;
-        const endIdx = Math.min(startIdx + pageSize, results.length);
+      if (results.length === 1) {
+        menu.setDisabled(true);
+      }
 
+      const row_menu = new ActionRowBuilder().addComponents(menu);
+
+      const row_buttons = new ActionRowBuilder().addComponents(
+        downloadButton,
+        botInviteButton
+      );
+
+      loadingMessage.edit({
+        content: `I have found ${results.length} results for the search ${model}...`,
+        embeds: [embed],
+        components: [row_menu, row_buttons],
+      });
+    };
+
+    displayPage(currentPage);
+
+    let collector;
+
+    collector = interaction.channel.createMessageComponentCollector({
+      componentType: ComponentType.StringSelect,
+    });
+
+    collector.on("collect", async (interaction) => {
+      const selectedResult = results.find(
+        (result) =>
+          `${results.indexOf(result) + 1}-${result.id}-${result.uploadDate}` ===
+          interaction.values[0]
+      );
+
+      if (selectedResult) {
         const downloadButton = new ButtonBuilder()
           .setLabel("📤 Download")
           .setStyle(ButtonStyle.Link);
 
         const embed = new EmbedBuilder()
+          .setTitle(selectedResult.name)
           .setColor("#5865F2")
           .setFooter({
             text: `Requested by ${interaction.user.tag}`,
@@ -142,184 +257,76 @@ module.exports = {
           .setColor("#5865F2")
           .setTimestamp();
 
-        for (let i = startIdx; i < endIdx; i++) {
-          const result = results[i];
-          if (!result) continue;
+        embed.setDescription(`
+          **Owner:** ${selectedResult.owner_username}
+          **Uploaded:** ${selectedResult.uploadDate}
+          `);
 
-          const fields = [
-            {
-              name: "Epochs",
-              value: `${result.epoch}`,
-              inline: true,
-            },
-            {
-              name: "Technology",
-              value: `${result.type}`,
-              inline: true,
-            },
-            {
-              name: "Algorithm",
-              value: `${result.algorithm}`,
-              inline: true,
-            },
-            {
-              name: "Uploaded",
-              value: `${result.uploadDate}`,
-              inline: true,
-            },
-            {
-              name: "Author",
-              value: `[Click to view](https://discordapp.com/users/${result.owner})`,
-              inline: true,
-            },
-          ];
-          if (
-            result.attachments &&
-            result.attachments[0] &&
-            result.attachments[0].url
-          ) {
-            embed.setImage(result.attachments[0].url);
-          }
+        const fields = [
+          {
+            name: "Epochs",
+            value: `${selectedResult.epoch}`,
+            inline: true,
+          },
+          {
+            name: "Technology",
+            value: `${selectedResult.type}`,
+            inline: true,
+          },
+          {
+            name: "Algorithm",
+            value: `${selectedResult.algorithm}`,
+            inline: true,
+          },
+        ];
 
-          if (typeof result.link === "string" && result.link) {
-            downloadButton.setURL(result.link);
-          } else {
-            downloadButton.setDisabled(true);
-            downloadButton.setURL("https://applio.org");
-          }
-
-          embed.setTitle(result.name);
+        if (selectedResult.link.includes("kits.ai")) {
+          embed.addFields({
+            name: "Information",
+            value: `This model can be found on the Kits.AI platform, visit their page for more information.`,
+          });
+        } else {
           embed.addFields(fields);
+        }
+
+        if (
+          selectedResult.attachments &&
+          selectedResult.attachments[0] &&
+          selectedResult.attachments[0].url
+        ) {
+          embed.setImage(selectedResult.attachments[0].url);
+        }
+
+        if (typeof selectedResult.link === "string" && selectedResult.link) {
+          downloadButton.setURL(selectedResult.link);
+        } else {
+          downloadButton.setDisabled(true);
+          downloadButton.setURL("https://applio.org");
         }
 
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
+            `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
           )
           .setStyle(ButtonStyle.Link);
+        const row_buttons = new ActionRowBuilder().addComponents(
+          downloadButton,
+          botInviteButton
+        );
 
         const menu = new StringSelectMenuBuilder()
           .setCustomId("models")
           .setPlaceholder(`🔎 ${results.length} models found...`)
           .setOptions(options);
 
-        if (results.length === 1) {
-          menu.setDisabled(true);
-        }
-
         const row_menu = new ActionRowBuilder().addComponents(menu);
 
-        const row_buttons = new ActionRowBuilder().addComponents(
-          downloadButton,
-          botInviteButton,
-        );
-
-        interaction.reply({
+        interaction.update({
           embeds: [embed],
           components: [row_menu, row_buttons],
         });
-      };
-
-      displayPage(currentPage);
-
-      let collector;
-
-      collector = interaction.channel.createMessageComponentCollector({
-        componentType: ComponentType.StringSelect,
-      });
-
-      collector.on("collect", async (interaction) => {
-        const selectedResult = results.find(
-          (result) =>
-            `${results.indexOf(result) + 1}-${result.id}-${
-              result.uploadDate
-            }` === interaction.values[0],
-        );
-
-        if (selectedResult) {
-          const downloadButton = new ButtonBuilder()
-            .setLabel("📤 Download")
-            .setStyle(ButtonStyle.Link);
-
-          const embed = new EmbedBuilder()
-            .setTitle(selectedResult.name)
-            .setColor("#5865F2")
-            .setFooter({
-              text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
-            })
-            .setColor("#5865F2")
-            .setTimestamp();
-
-          const fields = [
-            {
-              name: "Epochs",
-              value: `${selectedResult.epoch}`,
-              inline: true,
-            },
-            {
-              name: "Technology",
-              value: `${selectedResult.type}`,
-              inline: true,
-            },
-            {
-              name: "Algorithm",
-              value: `${selectedResult.algorithm}`,
-              inline: true,
-            },
-            {
-              name: "Uploaded",
-              value: `${selectedResult.uploadDate}`,
-              inline: true,
-            },
-            {
-              name: "Author",
-              value: `[Click to view](https://discordapp.com/users/${selectedResult.owner})`,
-              inline: true,
-            },
-          ];
-
-          if (
-            selectedResult.attachments &&
-            selectedResult.attachments[0] &&
-            selectedResult.attachments[0].url
-          ) {
-            embed.setImage(selectedResult.attachments[0].url);
-          }
-
-          if (typeof selectedResult.link === "string" && selectedResult.link) {
-            downloadButton.setURL(selectedResult.link);
-          } else {
-            downloadButton.setDisabled(true);
-            downloadButton.setURL("https://applio.org");
-          }
-          embed.addFields(fields);
-
-          const botInviteButton = new ButtonBuilder()
-            .setLabel("🤖 Bot Invite")
-            .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`,
-            )
-            .setStyle(ButtonStyle.Link);
-          const row_buttons = new ActionRowBuilder().addComponents(
-            downloadButton,
-            botInviteButton,
-          );
-
-          const menu = new StringSelectMenuBuilder()
-            .setCustomId("models")
-            .setPlaceholder(`🔎 ${results.length} models found...`)
-            .setOptions(options);
-
-          const row_menu = new ActionRowBuilder().addComponents(menu);
-
-          interaction.update({
-            embeds: [embed],
-            components: [row_menu, row_buttons],
-          });
-        }
-      });
+      }
     });
   },
 };

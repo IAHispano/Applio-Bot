@@ -27,7 +27,7 @@ async function loadData(directory) {
 
 function searchSimilarities(searchedName, data) {
   const results = [];
-  searchedName = searchedName.toLowerCase(); // Convert to lowercase for case-insensitive search
+  searchedName = searchedName.toLowerCase();
 
   for (const item of data) {
     if (item.context && item.context.Name) {
@@ -149,10 +149,7 @@ module.exports = {
         const result = results[i];
         if (!result) continue;
 
-        embed.setDescription(`
-        **Owner:** ${result.owner_username}
-        **Uploaded:** ${result.uploadDate}
-        `);
+        embed.setDescription(`**Owner:** ${result.owner_username}\n**Uploaded:** ${result.uploadDate}`);
 
         const fields = [
           {
@@ -257,10 +254,7 @@ module.exports = {
           .setColor("#5865F2")
           .setTimestamp();
 
-        embed.setDescription(`
-          **Owner:** ${selectedResult.owner_username}
-          **Uploaded:** ${selectedResult.uploadDate}
-          `);
+        embed.setDescription(`**Owner:** ${selectedResult.owner_username}\n**Uploaded:** ${selectedResult.uploadDate}`);
 
         const fields = [
           {

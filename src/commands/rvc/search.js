@@ -73,9 +73,9 @@ module.exports = {
       let currentPage = 1;
 
       const options = data.slice(0, 25).map((result, index) => ({
-        label: `${result.name} (${result.epochs} Epochs)`,
+        label: `${result.name}`,
         value: `${index + 1}-${result.id}-${result.created_at}`,
-        description: `${result.type} · ${result.created_at}`,
+        description: `${result.type} · ${result.epochs} Epochs · ${result.algorithm}`,
         emoji: "<:dot:1134526388456669234>",
       }));
 
@@ -100,12 +100,14 @@ module.exports = {
           const result = data[i];
           if (!result) continue;
 
+          const uploadedTimestamp = Date.parse(result.created_at) / 1000;
+          const uploadedText = isNaN(uploadedTimestamp)
+            ? "N/A"
+            : `<t:${Math.floor(uploadedTimestamp)}:R>`;
+
           embed.setDescription(
-            `**Owner:** ${result.author_username}\n**Uploaded:** <t:${
-              Math.floor(Date.parse(result.created_at) / 1000)
-            }:R>`
+            `**Owner:** ${result.author_username}\n**Uploaded:** ${uploadedText}`
           );
-          
 
           const fields = [
             {
@@ -134,12 +136,10 @@ module.exports = {
             embed.addFields(fields);
           }
 
-          if (
-            result.attachments &&
-            result.attachments[0] &&
-            result.attachments[0].url
-          ) {
-            embed.setImage(result.attachments[0].url);
+          if (result.image_url) {
+            embed.setImage(result.image_url);
+          } else {
+            embed.setImage(null);
           }
 
           if (typeof result.link === "string" && result.link) {
@@ -211,11 +211,14 @@ module.exports = {
             .setColor("#5865F2")
             .setTimestamp();
 
+          const uploadedTimestamp =
+            Date.parse(selectedResult.created_at) / 1000;
+          const uploadedText = isNaN(uploadedTimestamp)
+            ? "N/A"
+            : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
           embed.setDescription(
-            `**Owner:** ${selectedResult.author_username}\n**Uploaded:** <t:${
-              Math.floor(Date.parse(selectedResult.created_at) / 1000)
-            }:R>`
+            `**Owner:** ${selectedResult.author_username}\n**Uploaded:** ${uploadedText}`
           );
 
           const fields = [
@@ -245,12 +248,10 @@ module.exports = {
             embed.addFields(fields);
           }
 
-          if (
-            selectedResult.attachments &&
-            selectedResult.attachments[0] &&
-            selectedResult.attachments[0].url
-          ) {
-            embed.setImage(selectedResult.attachments[0].url);
+          if (selectedResult.image_url) {
+            embed.setImage(selectedResult.image_url);
+          } else {
+            embed.setImage(null);
           }
 
           if (typeof selectedResult.link === "string" && selectedResult.link) {

@@ -33,10 +33,24 @@ module.exports = {
         })
         .setRequired(true)
     )
+    .addStringOption((option) =>
+      option
+        .setName("technology")
+        .setDescription("Select the technology of the model.")
+        .setDescriptionLocalizations({
+          "es-ES": "Selecciona la tecnología del modelo.",
+        })
+        .setRequired(false)
+        .addChoices(
+          { name: "RVC", value: "rvc" },
+          { name: "Kits.AI", value: "kits.ai" }
+        )
+    )
     .setDMPermission(false),
 
   async execute(interaction) {
     const model = interaction.options.getString("model");
+    const technology = interaction.options.getString("technology");
     if (model.length <= 3) {
       const embed = new EmbedBuilder()
         .setDescription("Please enter a model name with at least 4 characters.")
@@ -50,24 +64,15 @@ module.exports = {
     });
 
     try {
-      const response = await axios.get(
-        `https://api.applio.org/key=${applio_api_key}/models/search=${model}`
-      );
-      const data = response.data;
+      let url;
 
-      if (data.length === 0) {
-        const embed = new EmbedBuilder()
-          .setDescription(`No results found for the search ${model}...`)
-          .setColor("#5865F2")
-          .setFooter({
-            text: `Powered by Applio — Make sure you spelled it correctly!`,
-          });
-        await loadingMessage.edit({
-          embeds: [embed],
-          content: null,
-        });
-        return;
+      if (!technology) {
+        url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}`;
+      } else {
+        url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=${technology}`;
       }
+      const response = await axios.get(url);
+      const data = response.data;
 
       const pageSize = 1;
       let currentPage = 1;
@@ -136,7 +141,7 @@ module.exports = {
             embed.addFields(fields);
           }
 
-          if (result.image_url) {
+          if (result.image_url !== "N/A") {
             embed.setImage(result.image_url);
           } else {
             embed.setImage(null);
@@ -248,7 +253,7 @@ module.exports = {
             embed.addFields(fields);
           }
 
-          if (selectedResult.image_url) {
+          if (selectedResult.image_url !== "N/A") {
             embed.setImage(selectedResult.image_url);
           } else {
             embed.setImage(null);
@@ -286,6 +291,7 @@ module.exports = {
         }
       });
     } catch (error) {
+      //console.log(error);
       const embed = new EmbedBuilder()
         .setDescription(`No results found for the search ${model}...`)
         .setColor("#5865F2")

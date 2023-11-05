@@ -6,9 +6,9 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const {
-  devsID,
-  logsChannelID,
-  clientId,
+  devs_id,
+  logs_channel,
+  client_id,
   bot_perms,
 } = require("../config.json");
 const User = require("../schemas/premium/premiumUser.js");
@@ -36,7 +36,7 @@ module.exports = {
       });
     }
 
-    if (command.devOnly && interaction.user.id !== devsID) {
+    if (command.devOnly && interaction.user.id !== devs_id) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -84,7 +84,7 @@ module.exports = {
       await command.execute(interaction, client);
     } catch (error) {
       try {
-        const channel = client.channels.cache.get(logsChannelID);
+        const channel = client.channels.cache.get(logs_channel);
 
         const embed = new EmbedBuilder()
           .setColor("Red")
@@ -118,7 +118,7 @@ module.exports = {
       }
 
       await interaction.reply({
-        content: `There was an error while executing this command. I have sent your crash report to the support server. If this persists, please contact the developer by making a support request.\nCheck that the bot has the necessary permissions to execute the command, if you are not sure [re-invite it from this link!](https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot)`,
+        content: `There was an error while executing this command. I have sent your crash report to the support server. If this persists, please contact the developer by making a support request.\nCheck that the bot has the necessary permissions to execute the command, if you are not sure [re-invite it from this link!](https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot)`,
         ephemeral: true,
       });
     }

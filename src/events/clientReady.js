@@ -1,6 +1,6 @@
 const { Events, ActivityType, EmbedBuilder } = require("discord.js");
 const mongoose = require("mongoose");
-const { logsChannelID, mongodbURL } = require("../config.json");
+const { logs_channel, mongodb_url } = require("../config.json");
 const cron = require("node-cron");
 
 module.exports = {
@@ -50,7 +50,7 @@ module.exports = {
         });
       });
 
-      const channel = client.channels.cache.get(logsChannelID);
+      const channel = client.channels.cache.get(logs_channel);
 
       const totalMembers = await client.guilds.cache.reduce(
         (acc, guild) => acc + guild.memberCount,
@@ -102,9 +102,9 @@ module.exports = {
     console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
 
     try {
-      if (!mongodbURL)
+      if (!mongodb_url)
         return console.log("[DATABASE] No MongoDB URL provided.");
-      await mongoose.connect(mongodbURL, {
+      await mongoose.connect(mongodb_url, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });

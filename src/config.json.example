@@ -1,13 +1,13 @@
 {
   "token": "",
-  "clientId": "",
+  "client_id": "",
   
-  "devsID": "",
-  "moderatorRoleID": "",
-  "logsChannelID": "",
+  "devs_id": "",
+  "moderator_role": "",
+  "logs_channel": "",
   
   "bot_perms": "1376674433127",
   "support_server": "",
 
-  "mongodbURL": "",
+  "mongodb_url": "",
 }

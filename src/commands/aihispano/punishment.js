@@ -1,5 +1,5 @@
 const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
-const { moderatorRoleID } = require("../../config.json");
+const { moderator_role } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -82,7 +82,7 @@ module.exports = {
     const pruebaImg = prueba?.attachment?.url ? prueba.attachment.url : null;
 
     const member = interaction.member;
-    if (member.roles.cache.some((role) => role.id === moderatorRoleID)) {
+    if (member.roles.cache.some((role) => role.id === moderator_role)) {
       const embedSancion = new EmbedBuilder()
         .setTitle("New punishment")
         .addFields(

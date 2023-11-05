@@ -5,7 +5,7 @@ const {
   ButtonStyle,
   ActionRowBuilder,
 } = require("discord.js");
-const { clientId, bot_perms } = require("../../config.json");
+const { client_id, bot_perms } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -87,7 +87,7 @@ module.exports = {
     const botInviteButton = new ButtonBuilder()
       .setLabel("Bot Invite")
       .setURL(
-        `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${bot_perms}&scope=bot`
+        `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`
       )
       .setStyle(ButtonStyle.Link);
 

@@ -51,7 +51,7 @@ module.exports = {
 
     try {
       const response = await axios.get(
-        `https://api.applio.org/api=${applio_api_key}/models/search=${model}`
+        `https://api.applio.org/key=${applio_api_key}/models/search=${model}`
       );
       const data = response.data;
 

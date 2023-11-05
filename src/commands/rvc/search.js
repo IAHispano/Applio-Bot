@@ -80,7 +80,7 @@ module.exports = {
       const options = data.slice(0, 25).map((result, index) => ({
         label: `${result.name}`,
         value: `${index + 1}-${result.id}-${result.created_at}`,
-        description: `${result.type} · ${result.epochs} Epochs · ${result.algorithm}`,
+        description: `${result.type} · Made by ${result.author_username}`,
         emoji: "<:dot:1134526388456669234>",
       }));
 

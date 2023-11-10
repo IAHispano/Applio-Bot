@@ -11,9 +11,9 @@ const {
   client_id,
   bot_perms,
 } = require("../config.json");
-const User = require("../schemas/premium/premiumUser.js");
-const Blacklist = require("../schemas/moderation/blackList.js");
-const client = require("../bot.js");
+const User = require("../../schemas/premium/premiumUser.js");
+const Blacklist = require("../../schemas/moderation/blackList.js");
+const client = require("../../bot.js");
 
 module.exports = {
   name: Events.InteractionCreate,

@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const axios = require("axios");
 
 module.exports = {
+  devOnly: true,
   data: new SlashCommandBuilder()
     .setName("chat")
     .setDescription("AI » Enjoy interacting with an AI chat from Discord!")
@@ -16,7 +17,7 @@ module.exports = {
           "es-ES": "El prompt que se usará para la generación de texto.",
         })
         .setRequired(true)
-        .setMaxLength(512),
+        .setMaxLength(512)
     )
     .addStringOption((option) =>
       option
@@ -59,7 +60,7 @@ module.exports = {
         .addChoices({
           name: "command-light-nightly",
           value: "command-light-nightly",
-        }),
+        })
     ),
 
   async execute(interaction, client) {

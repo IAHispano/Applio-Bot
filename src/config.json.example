@@ -8,6 +8,7 @@
   
   "bot_perms": "1376674433127",
   "support_server": "",
-
+  
+  "applio_api_key": "",
   "mongodb_url": "",
 }

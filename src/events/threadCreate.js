@@ -1,5 +1,15 @@
 const fs = require("fs");
 const { Events } = require("discord.js");
+const { REST } = require("@discordjs/rest");
+const { Routes } = require("discord-api-types/v9");
+const { token } = require("../../../config.json");
+
+const rest = new REST().setToken(token);
+
+const fetchUser = async (id) => {
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  return rest.get(Routes.user(id));
+};
 
 function extractAlgorithm(name) {
   const regexPatterns = [
@@ -28,7 +38,7 @@ function extractAlgorithm(name) {
   }
 
   for (const pattern of regexPatterns) {
-    const matches = content.match(pattern);
+    const matches = name.match(pattern);
     if (matches) {
       const algorithm = matches[0].replace(
         /^(.)(.*)$/,
@@ -37,11 +47,11 @@ function extractAlgorithm(name) {
       );
 
       if (algorithm.toLowerCase() === "rvmpe") {
-        content = content.replace(/\brvmpe\b/gi, "Rmvpe");
+        name = name.replace(/\brvmpe\b/gi, "Rmvpe");
         return algorithm;
       }
 
-      content = content.replace(matches[0], algorithm);
+      name = name.replace(matches[0], algorithm);
       return algorithm;
     }
   }
@@ -49,9 +59,9 @@ function extractAlgorithm(name) {
   return "N/A";
 }
 
-function extractEpochsAndAlgorithm(cname, content) {
+function extractEpochsAndAlgorithm(cname) {
   let epochs = "N/A";
-  let algorithm = extractAlgorithm(cname, content);
+  let algorithm = extractAlgorithm(cname);
   let types = null;
   const typeKeywords = ["RVC", "Kits.AI"];
   for (const keyword of typeKeywords) {
@@ -145,6 +155,16 @@ module.exports = {
 
   async execute(thread) {
     try {
+      const threadsChannels = [
+        "1159289700490694666", // AI Hub
+        "1124570199018967075", // AI Hub Polska
+        "1101148158819573790", // AI Hispano
+
+        "1172562944563871856", // Testing
+      ];
+
+      if (!threadsChannels.includes(thread.parentId)) return;
+
       const fetchedThread = await thread.fetch();
 
       const appliedTags = fetchedThread.appliedTags.map((tagId) => {
@@ -152,33 +172,29 @@ module.exports = {
         return tag ? tag.name : `${tagId}`;
       });
 
-      const threadLink = fetchedThread.content
-        ? fetchedThread.content.match(/https?:\/\/[^\s]+/g)
-        : null;
-
-
-
       const messages = await thread.messages.fetch();
-      const starterMessage = messages.first();
+      const starterMessage = messages.first() || "N/A";
 
+      const threadLink =
+      (starterMessage && starterMessage.content) ?
+      starterMessage.content.match(new RegExp("(https?://[^\\s]+)", "ig")) || "N/A" :
+      "N/A";
+    
       const { cname, epochs, algorithm, types } = extractEpochsAndAlgorithm(
-        fetchedThread.name,
-        appliedTags,
-        starterMessage.content
+        fetchedThread.name
       );
+      const username = await fetchUser(fetchedThread.ownerId);
 
       const threadData = {
         id: fetchedThread.id,
         name: fetchedThread.name,
         owner: fetchedThread.ownerId,
-        owner_username: fetchedThread.owner?.user?.username,
-
+        owner_username: username.username,
         upload: fetchedThread.createdAt,
         server: fetchedThread.guild.id,
         tags: appliedTags,
-
-        content: starterMessage.content || "N/A",
-        attachment: fetchedThread.attachments,
+        content: starterMessage.content,
+        attachment: [starterMessage.attachments.first()],
         context: {
           Name: cname || "N/A",
           Type: types || "N/A",

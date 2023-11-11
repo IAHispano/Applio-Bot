@@ -1,6 +1,6 @@
-const Audit_Log = require("../schemas/moderation/auditLog.js");
+const Audit_Log = require("../../schemas/moderation/auditLog.js");
 const { Events, EmbedBuilder } = require("discord.js");
-const client = require("../bot.js");
+const client = require("../../bot.js");
 
 module.exports = {
   name: Events.AutoModerationRuleCreate,

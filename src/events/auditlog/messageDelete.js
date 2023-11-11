@@ -27,7 +27,8 @@ module.exports = {
           { name: "Message ID:", value: `${message.id}` },
         );
       await auditChannel.send({ embeds: [auditEmbed] });
-    } catch (err) {
+    } catch (error) {
+      console.log(error);
       return;
     }
   },

@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.MessageDelete,
-  once: true,
   async execute(message) {
     const data = await Audit_Log.findOne({
       Guild: message.guild.id,

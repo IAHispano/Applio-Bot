@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.ThreadCreate,
-  once: true,
   async execute(thread) {
     const data = await Audit_Log.findOne({
       Guild: thread.guild.id,

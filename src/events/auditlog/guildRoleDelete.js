@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.GuildRoleDelete,
-  once: true,
   async execute(role) {
     const auditEmbed = new EmbedBuilder().setColor("White").setTimestamp();
 

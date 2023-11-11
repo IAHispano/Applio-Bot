@@ -4,7 +4,6 @@ const client = require("../bot.js");
 
 module.exports = {
   name: Events.AutoModerationRuleDelete,
-  once: true,
   async execute(autoModerationRule) {
     const data = await Audit_Log.findOne({
       Guild: autoModerationRule.guild.id,

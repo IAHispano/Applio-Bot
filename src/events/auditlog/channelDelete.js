@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.ChannelDelete,
-  once: true,
   async execute(channel) {
     const auditEmbed = new EmbedBuilder().setColor("White").setTimestamp();
 

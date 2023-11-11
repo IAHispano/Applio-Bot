@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.GuildRoleCreate,
-  once: true,
   async execute(role) {
     const data = await Audit_Log.findOne({
       Guild: role.guild.id,

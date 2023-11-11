@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.ChannelCreate,
-  once: true,
   async execute(channel) {
     const data = await Audit_Log.findOne({
       Guild: channel.guild.id,

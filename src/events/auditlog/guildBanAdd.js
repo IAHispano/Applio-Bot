@@ -4,7 +4,6 @@ const client = require("../../bot.js");
 
 module.exports = {
   name: Events.GuildBanAdd,
-  once: true,
   async execute(guild, user) {
     const data = await Audit_Log.findOne({
       Guild: guild.id,

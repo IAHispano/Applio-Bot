@@ -172,8 +172,23 @@ module.exports = {
         return tag ? tag.name : `${tagId}`;
       });
 
-      const messages = await thread.messages.fetch();
-      const starterMessage = messages.first() || "N/A";
+      const starterMessage = thread.fetchStarterMessage();
+      if (!starterMessage.content.match(/https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud|media\.discordapp\.net\/attachments)\b)(?![^\s]+\.(?:jpg|jpeg|png|gif|jpeg|bmp|svg|webp)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g)) {
+        const messages = await thread.messages.fetch();
+        let foundContent = false;
+        let messageContent = "";
+        for (const message of messages.values()) {
+            if (message.author.id === starterMessage.author.id && message.content && message.content.match(/https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud|media\.discordapp\.net\/attachments)\b)(?![^\s]+\.(?:jpg|jpeg|png|gif|jpeg|bmp|svg|webp)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g)) { 
+              messageContent += message.content + "\n";
+              foundContent = true;
+          }
+        }
+        if (foundContent) {
+            starterMessage.content += "\n" + messageContent;
+        } else {
+            starterMessage.content = starterMessage.content ? starterMessage.content : "";
+        }
+      }
 
       const threadLink =
       (starterMessage && starterMessage.content) ?

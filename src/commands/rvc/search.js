@@ -76,6 +76,9 @@ module.exports = {
 
       const pageSize = 1;
       let currentPage = 1;
+      let mainEmbed;
+      let mainButtons;
+      let selectedResult; // Declarar selectedResult fuera del bucle
 
       const options = data.slice(0, 25).map((result, index) => ({
         label: `${result.name}`,
@@ -84,21 +87,26 @@ module.exports = {
         emoji: "<:dot:1134526388456669234>",
       }));
 
-      const displayPage = (page) => {
+      async function displayPage(page) {
         const startIdx = (page - 1) * pageSize;
         const endIdx = Math.min(startIdx + pageSize, data.length);
+
+        const saveButton = new ButtonBuilder()
+          .setLabel("💾 Save")
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId("send_dm_button");
 
         const downloadButton = new ButtonBuilder()
           .setLabel("📤 Download")
           .setStyle(ButtonStyle.Link);
 
         const embed = new EmbedBuilder()
-          .setColor("#5865F2")
+
           .setFooter({
             text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL(),
+            iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
           })
-          .setColor("#5865F2")
+          .setColor("White")
           .setTimestamp();
 
         for (let i = startIdx; i < endIdx; i++) {
@@ -142,9 +150,11 @@ module.exports = {
           }
 
           if (result.image_url !== "N/A") {
-            embed.setImage(result.image_url);
+            embed.setThumbnail(result.image_url);
           } else {
-            embed.setImage(null);
+            embed.setThumbnail(
+              interaction.user.displayAvatarURL({ dynamic: true })
+            );
           }
 
           if (typeof result.link === "string" && result.link) {
@@ -175,26 +185,26 @@ module.exports = {
         const row_menu = new ActionRowBuilder().addComponents(menu);
 
         const row_buttons = new ActionRowBuilder().addComponents(
+          saveButton,
           downloadButton,
           botInviteButton
         );
-
+        mainEmbed = embed;
+        mainButtons = row_buttons;
         loadingMessage.edit({
           content: `I have found ${data.length} results for the search ${model}...`,
           embeds: [embed],
           components: [row_menu, row_buttons],
         });
-      };
+      }
 
       displayPage(currentPage);
 
-      let collector;
-
-      collector = interaction.channel.createMessageComponentCollector({
+      let menuCollector = interaction.channel.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
       });
 
-      collector.on("collect", async (interaction) => {
+      menuCollector.on("collect", async (interaction) => {
         const selectedResult = data.find(
           (result) =>
             `${data.indexOf(result) + 1}-${result.id}-${result.created_at}` ===
@@ -208,12 +218,11 @@ module.exports = {
 
           const embed = new EmbedBuilder()
             .setTitle(selectedResult.name)
-            .setColor("#5865F2")
             .setFooter({
               text: `Requested by ${interaction.user.tag}`,
-              iconURL: interaction.user.displayAvatarURL(),
+              iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
             })
-            .setColor("#5865F2")
+            .setColor("White")
             .setTimestamp();
 
           const uploadedTimestamp =
@@ -254,9 +263,11 @@ module.exports = {
           }
 
           if (selectedResult.image_url !== "N/A") {
-            embed.setImage(selectedResult.image_url);
+            embed.setThumbnail(selectedResult.image_url);
           } else {
-            embed.setImage(null);
+            embed.setThumbnail(
+              interaction.user.displayAvatarURL({ dynamic: true })
+            );
           }
 
           if (typeof selectedResult.link === "string" && selectedResult.link) {
@@ -266,6 +277,11 @@ module.exports = {
             downloadButton.setURL("https://applio.org");
           }
 
+          const saveButton = new ButtonBuilder()
+            .setLabel("💾 Save")
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId("send_dm_button");
+
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
@@ -273,6 +289,7 @@ module.exports = {
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(
+            saveButton,
             downloadButton,
             botInviteButton
           );
@@ -283,18 +300,48 @@ module.exports = {
             .setOptions(options);
 
           const row_menu = new ActionRowBuilder().addComponents(menu);
-
+          mainEmbed = embed;
+          mainButtons = row_buttons;
           interaction.update({
             embeds: [embed],
             components: [row_menu, row_buttons],
           });
         }
       });
+
+      let buttonCollector = interaction.channel.createMessageComponentCollector(
+        {
+          componentType: ComponentType.Button,
+        }
+      );
+
+      buttonCollector.on("collect", async (interaction) => {
+        if (interaction.customId === "send_dm_button") {
+          interaction.deferUpdate();
+          interaction.user
+            .send({
+              embeds: [mainEmbed],
+              components: [mainButtons],
+            })
+            .then(() => {
+              interaction.channel.send({
+                content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+                ephemeral: true,
+              });
+            })
+            .catch(() => {
+              interaction.channel.send({
+                content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
+                ephemeral: true,
+              });
+            });
+        }
+      });
     } catch (error) {
       //console.log(error);
       const embed = new EmbedBuilder()
         .setDescription(`No results found for the search ${model}...`)
-        .setColor("#5865F2")
+        .setColor("Red")
         .setFooter({
           text: `Powered by Applio — Make sure you spelled it correctly!`,
         });

@@ -174,7 +174,7 @@ module.exports = {
           .setStyle(ButtonStyle.Link);
 
         const menu = new StringSelectMenuBuilder()
-          .setCustomId("models")
+          .setCustomId(interaction.user.id)
           .setPlaceholder(`🔎 ${data.length} models found...`)
           .setOptions(options);
 
@@ -202,6 +202,7 @@ module.exports = {
 
       let menuCollector = interaction.channel.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
+        filter: (i) => i.user.id === interaction.user.id && i.customId === interaction.user.id,
       });
 
       menuCollector.on("collect", async (interaction) => {
@@ -295,7 +296,7 @@ module.exports = {
           );
 
           const menu = new StringSelectMenuBuilder()
-            .setCustomId("models")
+            .setCustomId(interaction.user.id)
             .setPlaceholder(`🔎 ${data.length} models found...`)
             .setOptions(options);
 

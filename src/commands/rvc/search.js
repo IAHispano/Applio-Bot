@@ -113,7 +113,11 @@ module.exports = {
           const result = data[i];
           if (!result) continue;
 
-          const uploadedTimestamp = Date.parse(result.created_at) / 1000;
+          const uploadedTimestamp = typeof result.created_at === 'string'
+          ? Date.parse(result.created_at) / 1000
+          : typeof result.created_at === 'number'
+              ? result.created_at / 1000
+              : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
@@ -226,8 +230,11 @@ module.exports = {
             .setColor("White")
             .setTimestamp();
 
-          const uploadedTimestamp =
-            Date.parse(selectedResult.created_at) / 1000;
+          const uploadedTimestamp = typeof selectedResult.created_at === 'string'
+          ? Date.parse(selectedResult.created_at) / 1000
+          : typeof selectedResult.created_at === 'number'
+              ? selectedResult.created_at / 1000
+              : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;

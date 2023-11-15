@@ -12,65 +12,40 @@ const { client_id, bot_perms, applio_api_key } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("search")
+    .setName("searchuser")
     .setNameLocalizations({
-      "es-ES": "buscador",
+      "es-ES": "buscador-usuario",
     })
-    .setDescription("RVC » Search any voice model in a huge database.")
+    .setDescription("RVC » Search models uploaded by a user.")
     .setDescriptionLocalizations({
-      "es-ES":
-        "RVC » Busca cualquier modelo de voz en una enorme base de datos.",
+      "es-ES": "RVC » Busca modelos subidos por un usuario.",
     })
     .addStringOption((option) =>
       option
-        .setName("model")
+        .setName("user")
         .setNameLocalizations({
-          "es-ES": "modelo",
+          "es-ES": "usuario",
         })
-        .setDescription("Enter the name of the model you wish to search for.")
+        .setDescription(
+          "Enter the username of the user you want to search for."
+        )
         .setDescriptionLocalizations({
-          "es-ES": "Ingrese el nombre del modelo que desea buscar.",
+          "es-ES":
+            "Introduce el nombre de usuario del usuario que quieres buscar.",
         })
         .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("technology")
-        .setDescription("Select the technology of the model.")
-        .setDescriptionLocalizations({
-          "es-ES": "Selecciona la tecnología del modelo.",
-        })
-        .setRequired(false)
-        .addChoices(
-          { name: "RVC", value: "rvc" },
-          { name: "Kits.AI", value: "kits.ai" }
-        )
     )
     .setDMPermission(false),
 
   async execute(interaction) {
-    const model = interaction.options.getString("model");
-    const technology = interaction.options.getString("technology");
-    if (model.length <= 3) {
-      const embed = new EmbedBuilder()
-        .setDescription("Please enter a model name with at least 4 characters.")
-        .setColor("Red");
-      await interaction.reply({ embeds: [embed], ephemeral: true });
-      return;
-    }
+    const user = interaction.options.getString("user");
 
     const loadingMessage = await interaction.reply({
       content: "🔎 Loading models...",
     });
 
     try {
-      let url;
-
-      if (!technology) {
-        url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}`;
-      } else {
-        url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=${technology}`;
-      }
+      const url = `https://api.applio.org/key=${applio_api_key}/models/user=${user}`;
       const response = await axios.get(url);
       const data = response.data;
 
@@ -112,9 +87,10 @@ module.exports = {
           const result = data[i];
           if (!result) continue;
 
-          const uploadedTimestamp = typeof result.created_at === 'string'
-          ? Date.parse(result.created_at) / 1000
-          : typeof result.created_at === 'number'
+          const uploadedTimestamp =
+            typeof result.created_at === "string"
+              ? Date.parse(result.created_at) / 1000
+              : typeof result.created_at === "number"
               ? result.created_at / 1000
               : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
@@ -195,7 +171,7 @@ module.exports = {
         mainEmbed = embed;
         mainButtons = row_buttons;
         loadingMessage.edit({
-          content: `I have found ${data.length} results for the search ${model}...`,
+          content: `I have found ${data.length} models created by ${user}.`,
           embeds: [embed],
           components: [row_menu, row_buttons],
         });
@@ -205,7 +181,9 @@ module.exports = {
 
       let menuCollector = interaction.channel.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
-        filter: (i) => i.user.id === interaction.user.id && i.customId === interaction.user.id,
+        filter: (i) =>
+          i.user.id === interaction.user.id &&
+          i.customId === interaction.user.id,
       });
 
       menuCollector.on("collect", async (interaction) => {
@@ -229,9 +207,10 @@ module.exports = {
             .setColor("White")
             .setTimestamp();
 
-          const uploadedTimestamp = typeof selectedResult.created_at === 'string'
-          ? Date.parse(selectedResult.created_at) / 1000
-          : typeof selectedResult.created_at === 'number'
+          const uploadedTimestamp =
+            typeof selectedResult.created_at === "string"
+              ? Date.parse(selectedResult.created_at) / 1000
+              : typeof selectedResult.created_at === "number"
               ? selectedResult.created_at / 1000
               : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
@@ -347,7 +326,7 @@ module.exports = {
     } catch (error) {
       //console.log(error);
       const embed = new EmbedBuilder()
-        .setDescription(`No results found for the search ${model}...`)
+        .setDescription(`I have not found models created by ${user}...`)
         .setColor("Red")
         .setFooter({
           text: `Powered by Applio — Make sure you spelled it correctly!`,

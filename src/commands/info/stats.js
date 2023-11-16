@@ -32,7 +32,7 @@ module.exports = {
       .addFields(
         { name: "Users", value: `${totalMembers}`, inline: true },
         {
-          name: "Servers",
+          name: "Guilds",
           value: `${interaction.client.guilds.cache.size}`,
           inline: true,
         },

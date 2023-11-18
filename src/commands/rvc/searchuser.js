@@ -40,9 +40,7 @@ module.exports = {
   async execute(interaction) {
     const user = interaction.options.getString("user");
 
-    const loadingMessage = await interaction.reply({
-      content: "🔎 Loading models...",
-    });
+    const loadingMessage = await interaction.deferReply();
 
     try {
       const url = `https://api.applio.org/key=${applio_api_key}/models/user=${user}`;

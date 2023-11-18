@@ -59,9 +59,7 @@ module.exports = {
       return;
     }
 
-    const loadingMessage = await interaction.reply({
-      content: "🔎 Loading models...",
-    });
+    const loadingMessage = await interaction.deferReply();
 
     try {
       let url;

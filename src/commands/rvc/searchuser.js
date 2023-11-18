@@ -301,17 +301,11 @@ module.exports = {
 
       buttonCollector.on("collect", async (interaction) => {
         if (interaction.customId === "send_dm_button") {
-          interaction.deferUpdate();
+          interaction.reply( { content: `💾 ${interaction.user}, sent you a DM with the model information!`, ephemeral: true });
           interaction.user
             .send({
               embeds: [mainEmbed],
               components: [mainButtons],
-            })
-            .then(() => {
-              interaction.channel.send({
-                content: `💾 ${interaction.user}, sent you a DM with the model information!`,
-                ephemeral: true,
-              });
             })
             .catch(() => {
               interaction.channel.send({

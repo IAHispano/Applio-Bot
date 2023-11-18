@@ -1,6 +1,6 @@
 const { Events, ActivityType, EmbedBuilder } = require("discord.js");
 const mongoose = require("mongoose");
-const { logs_channel, mongodb_url } = require("../config.json");
+const { mongodb_url } = require("../config.json");
 const cron = require("node-cron");
 
 module.exports = {
@@ -8,6 +8,7 @@ module.exports = {
   once: true,
   async execute(client) {
     require("../deployment/deployCommands.js");
+
     client.user.setPresence({
       activities: [{ name: "applio.org", type: ActivityType.Watching }],
       status: "online",
@@ -33,7 +34,7 @@ module.exports = {
                 iconURL: client.user.displayAvatarURL(),
               })
               .setDescription(
-                `Hey <@${user.Id}>. Your Premium subscription is over.`,
+                `Hey <@${user.Id}>. Your Premium subscription is over.`
               )
               .setColor("#ff0000")
               .setTimestamp();
@@ -50,72 +51,27 @@ module.exports = {
         });
       });
 
-      const channel = client.channels.cache.get(logs_channel);
+      console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
 
-      const totalMembers = await client.guilds.cache.reduce(
-        (acc, guild) => acc + guild.memberCount,
-        0,
-      );
-
-      const embed = new EmbedBuilder()
-        .setColor("Green")
-        .setTimestamp()
-        .setTitle("Bot Information")
-        .setThumbnail(client.user.displayAvatarURL())
-        .addFields(
-          {
-            name: "Version",
-            value: require("../../package.json").version,
-            inline: true,
-          },
-          {
-            name: "Guilds",
-            value: client.guilds.cache.size.toString(),
-            inline: true,
-          },
-          {
-            name: "Total Members",
-            value: totalMembers.toString(),
-            inline: true,
-          },
-
-          {
-            name: "Total Channels",
-            value: client.channels.cache.size.toString(),
-            inline: true,
-          },
-          {
-            name: "Total Commands",
-            value: client.commands.size.toString(),
-            inline: true,
-          },
-        )
-        .setDescription("The bot has successfully started.");
-
-      await channel.send({
-        embeds: [embed],
-      });
-    } catch (error) {
-      console.log(error);
-    }
-
-    console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
-
-    try {
       if (!mongodb_url)
         return console.log("[DATABASE] No MongoDB URL provided.");
-      await mongoose.connect(mongodb_url, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-    } catch (error) {
-      console.log(`[DATABASE] ${error}`);
-    }
 
-    if (mongoose.connect) {
-      console.log("[DATABASE] Successfully connected to MongoDB.");
-    } else {
-      console.log("[DATABASE] Error connecting to MongoDB.");
+      try {
+        await mongoose.connect(mongodb_url, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        });
+      } catch (error) {
+        console.log(`[DATABASE] ${error}`);
+      }
+
+      if (mongoose.connect) {
+        console.log("[DATABASE] Successfully connected to MongoDB.");
+      } else {
+        console.log("[DATABASE] Error connecting to MongoDB.");
+      }
+    } catch (error) {
+      console.log(`[ERROR] ${error}`);
     }
   },
 };

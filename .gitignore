@@ -23,7 +23,14 @@ out/
 *.swp
 .DS_Store
 
+# Python
+python/__pycache__/*
+python/infer_pack/__pycache__/*
+
 # Bot
 models/
 src/config.json
-json.sqlite
+rmvpe.pt
+hubert_base.pt
+audios/
+ffmpeg.exe

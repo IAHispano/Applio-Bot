@@ -34,7 +34,7 @@ module.exports = {
                 iconURL: client.user.displayAvatarURL(),
               })
               .setDescription(
-                `Hey <@${user.Id}>. Your Premium subscription is over.`
+                `Hey <@${user.Id}>. Your Premium subscription is over.`,
               )
               .setColor("#ff0000")
               .setTimestamp();

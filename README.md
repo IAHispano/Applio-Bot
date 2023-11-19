@@ -1,27 +1,37 @@
 # Applio-Bot
 
-Applio-Bot is a versatile Discord bot designed to simplify various tasks. Whether you need help with automating responses, moderating a chat, or managing a community, Applio-Bot has you covered.
+Welcome to **Applio-Bot**, your all-in-one solution for simplifying various tasks on Discord. Whether you're looking to automate responses, moderate your chat, or efficiently manage your community, Applio-Bot is here to make your Discord experience seamless and enjoyable.
 
 ## Getting Started
 
-### Setup config.json file
+### Setting up the `config.json` file
 
-1. Go to `src/config.json.example`.
-2. Rename it to `config.json`.
-3. Complete the necessary data to configure the bot.
+1. Navigate to `src/config.json.example`.
+2. Rename the file to `config.json`.
+3. Fill in the required data to configure the bot according to your preferences.
 
-### Install Dependencies
+### Installing Dependencies
 
-To install the required dependencies, run the following command in your project directory:
+Ensure you have the necessary dependencies by running the following commands in your project directory:
 
 ```bash
 cd Applio-Bot
 npm install
+pip install -r requirements.txt
 ```
 
-### Run the Bot
+For Linux users, also run:
 
-To start Applio-Bot, execute the following command:
+```bash
+sudo apt update -y
+sudo apt install -y python3.9
+sudo apt install -y python3-pip
+pip install ffmpeg-python
+```
+
+### Running the Bot
+
+Start Applio-Bot with the following command:
 
 ```bash
 node index.js
@@ -29,4 +39,4 @@ node index.js
 
 ## License
 
-This project is licensed under the MIT License. You are free to use, modify, and distribute this software as long as you adhere to the terms outlined in the [LICENSE.md](./LICENSE) file.
+This project is licensed under the MIT License. Feel free to use, modify, and distribute this software as long as you adhere to the terms outlined in the [LICENSE.md](./LICENSE) file.

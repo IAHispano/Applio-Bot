@@ -17,7 +17,7 @@ module.exports = {
           "es-ES": "El prompt que se usará para la generación de texto.",
         })
         .setRequired(true)
-        .setMaxLength(512)
+        .setMaxLength(512),
     )
     .addStringOption((option) =>
       option
@@ -60,7 +60,7 @@ module.exports = {
         .addChoices({
           name: "command-light-nightly",
           value: "command-light-nightly",
-        })
+        }),
     ),
 
   async execute(interaction, client) {

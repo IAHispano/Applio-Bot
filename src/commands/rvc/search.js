@@ -31,7 +31,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Ingrese el nombre del modelo que desea buscar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -43,8 +43,8 @@ module.exports = {
         .setRequired(false)
         .addChoices(
           { name: "RVC", value: "rvc" },
-          { name: "Kits.AI", value: "kits.ai" }
-        )
+          { name: "Kits.AI", value: "kits.ai" },
+        ),
     )
     .setDMPermission(false),
 
@@ -110,9 +110,10 @@ module.exports = {
           const result = data[i];
           if (!result) continue;
 
-          const uploadedTimestamp = typeof result.created_at === 'string'
-          ? Date.parse(result.created_at) / 1000
-          : typeof result.created_at === 'number'
+          const uploadedTimestamp =
+            typeof result.created_at === "string"
+              ? Date.parse(result.created_at) / 1000
+              : typeof result.created_at === "number"
               ? result.created_at / 1000
               : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
@@ -120,7 +121,7 @@ module.exports = {
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
           embed.setDescription(
-            `**Owner:** ${result.author_username}\n**Uploaded:** ${uploadedText}`
+            `**Owner:** ${result.author_username}\n**Uploaded:** ${uploadedText}`,
           );
 
           const fields = [
@@ -154,7 +155,7 @@ module.exports = {
             embed.setThumbnail(result.image_url);
           } else {
             embed.setThumbnail(
-              interaction.user.displayAvatarURL({ dynamic: true })
+              interaction.user.displayAvatarURL({ dynamic: true }),
             );
           }
 
@@ -170,7 +171,7 @@ module.exports = {
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`
+            `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
           )
           .setStyle(ButtonStyle.Link);
 
@@ -188,7 +189,7 @@ module.exports = {
         const row_buttons = new ActionRowBuilder().addComponents(
           saveButton,
           downloadButton,
-          botInviteButton
+          botInviteButton,
         );
         mainEmbed = embed;
         mainButtons = row_buttons;
@@ -203,14 +204,16 @@ module.exports = {
 
       let menuCollector = interaction.channel.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
-        filter: (i) => i.user.id === interaction.user.id && i.customId === interaction.user.id,
+        filter: (i) =>
+          i.user.id === interaction.user.id &&
+          i.customId === interaction.user.id,
       });
 
       menuCollector.on("collect", async (interaction) => {
         const selectedResult = data.find(
           (result) =>
             `${data.indexOf(result) + 1}-${result.id}-${result.created_at}` ===
-            interaction.values[0]
+            interaction.values[0],
         );
 
         if (selectedResult) {
@@ -227,9 +230,10 @@ module.exports = {
             .setColor("White")
             .setTimestamp();
 
-          const uploadedTimestamp = typeof selectedResult.created_at === 'string'
-          ? Date.parse(selectedResult.created_at) / 1000
-          : typeof selectedResult.created_at === 'number'
+          const uploadedTimestamp =
+            typeof selectedResult.created_at === "string"
+              ? Date.parse(selectedResult.created_at) / 1000
+              : typeof selectedResult.created_at === "number"
               ? selectedResult.created_at / 1000
               : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
@@ -237,7 +241,7 @@ module.exports = {
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
           embed.setDescription(
-            `**Owner:** ${selectedResult.author_username}\n**Uploaded:** ${uploadedText}`
+            `**Owner:** ${selectedResult.author_username}\n**Uploaded:** ${uploadedText}`,
           );
 
           const fields = [
@@ -271,7 +275,7 @@ module.exports = {
             embed.setThumbnail(selectedResult.image_url);
           } else {
             embed.setThumbnail(
-              interaction.user.displayAvatarURL({ dynamic: true })
+              interaction.user.displayAvatarURL({ dynamic: true }),
             );
           }
 
@@ -290,13 +294,13 @@ module.exports = {
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`
+              `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(
             saveButton,
             downloadButton,
-            botInviteButton
+            botInviteButton,
           );
 
           const menu = new StringSelectMenuBuilder()
@@ -317,12 +321,15 @@ module.exports = {
       let buttonCollector = interaction.channel.createMessageComponentCollector(
         {
           componentType: ComponentType.Button,
-        }
+        },
       );
 
       buttonCollector.on("collect", async (interaction) => {
         if (interaction.customId === "send_dm_button") {
-          interaction.reply( { content: `💾 ${interaction.user}, sent you a DM with the model information!`, ephemeral: true });
+          interaction.reply({
+            content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+            ephemeral: true,
+          });
           interaction.user
             .send({
               embeds: [mainEmbed],

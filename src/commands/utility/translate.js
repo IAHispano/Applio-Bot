@@ -27,7 +27,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Introduce el texto a traducir.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -59,10 +59,10 @@ module.exports = {
           { name: "Marathi", value: "mr" },
           { name: "Turkish", value: "tr" },
           { name: "Tamil", value: "ta" },
-          { name: "Vietnamese", value: "vi" }
+          { name: "Vietnamese", value: "vi" },
         )
 
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 

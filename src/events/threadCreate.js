@@ -24,7 +24,7 @@ function extractAlgorithm(name) {
       const algorithm = matches[0].replace(
         /^(.)(.*)$/,
         (match, firstChar, restChars) =>
-          firstChar.toUpperCase() + restChars.toLowerCase()
+          firstChar.toUpperCase() + restChars.toLowerCase(),
       );
 
       if (algorithm.toLowerCase() === "rvmpe") {
@@ -43,7 +43,7 @@ function extractAlgorithm(name) {
       const algorithm = matches[0].replace(
         /^(.)(.*)$/,
         (match, firstChar, restChars) =>
-          firstChar.toUpperCase() + restChars.toLowerCase()
+          firstChar.toUpperCase() + restChars.toLowerCase(),
       );
 
       if (algorithm.toLowerCase() === "rvmpe") {
@@ -59,7 +59,7 @@ function extractAlgorithm(name) {
   return "N/A";
 }
 
-function extractEpochsAndAlgorithm(cname,content) {
+function extractEpochsAndAlgorithm(cname, content) {
   cname = cname.replace(/\bRCV\b/g, "RVC");
   cname = cname.replace(/\bRmvpe_gpu\b/g, "Rmvpe");
   cname = cname.replace(/\bRmvpe gpu\b/g, "Rmvpe");
@@ -73,24 +73,27 @@ function extractEpochsAndAlgorithm(cname,content) {
       break;
     }
   }
-  cname = cname.replace(new RegExp(`\\s*\\(${types}\\)|\\s*${types}`, 'gi'), '');
-  const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/ig;
+  cname = cname.replace(
+    new RegExp(`\\s*\\(${types}\\)|\\s*${types}`, "gi"),
+    "",
+  );
+  const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi;
   cname = cname.replace(typePattern, "").trim();
   cname = cname.replace(/\b(RVC(?:\s*V\d+)?|Kits\.AI|\bV\d+\b)\b/gi, "").trim();
-  cname = cname.replace(/RVC|Kits\.AI/g, '')
+  cname = cname.replace(/RVC|Kits\.AI/g, "");
   if (algorithm !== "N/A") {
-    cname = cname.replace(new RegExp(`\\b${algorithm}\\b`, 'gi'), ''); 
+    cname = cname.replace(new RegExp(`\\b${algorithm}\\b`, "gi"), "");
   }
   const regexPatterns = [
     / - (\d+)(?:\s+Epochs)?/,
-    / - (\d+)(?:\s+Epochs)?\)/,  
+    / - (\d+)(?:\s+Epochs)?\)/,
     /\b(\d+)\s+Epochs\b/,
     /(\d+) Epochs/,
     / (\d+) Epochs/,
-    /\((\d+) Epochs\)/,            
+    /\((\d+) Epochs\)/,
     /\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/,
     /(?:\s+\[|\()(\d+)\s+Epochs\)/,
-    /\[(\d+)\s*Epochs\]/,  
+    /\[(\d+)\s*Epochs\]/,
     /(\d+k)\s+Epochs/,
     /(\d+)\s*(?:k\s*)?Epochs?/i,
     /\(EPOCHS (\d+)\)/,
@@ -98,9 +101,9 @@ function extractEpochsAndAlgorithm(cname,content) {
     /\( EPOCH (\d+) \)/,
     //wihout s
     / - (\d+)(?:\s+Epoch)?/,
-    / - (\d+)(?:\s+Epoch)?\)/,  
+    / - (\d+)(?:\s+Epoch)?\)/,
     / (\d+) Epoch/,
-    /\((\d+) Epoch\)/,              
+    /\((\d+) Epoch\)/,
     /\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/,
     /(?:\s+\[|\()(\d+)\s+Epoch\)/,
     /\[(\d+)\s*Epoch\]/,
@@ -116,66 +119,73 @@ function extractEpochsAndAlgorithm(cname,content) {
     /\( EPOCH (\d+) \)/,
   ];
   for (const pattern of regexPatterns) {
-
     const match = cname.match(pattern);
     const match2 = content.match(pattern);
     if (match) {
       epochs = match[1];
       cname = cname.replace(pattern, "");
-      cname = cname.replace(/\s*\( Epochs\)/g, ""); 
-      cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, '').trim();
-      cname = cname.replace(/(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g, '');
-      cname = cname.replace(/\bEpoch\b/g, '');
-      cname = cname.replace(/\bepoch\b/g, '');
-      cname = cname.replace(/\bepochs\b/g, '');
-      cname = cname.replace(/\bepoches\b/g, '');
+      cname = cname.replace(/\s*\( Epochs\)/g, "");
+      cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
+      cname = cname.replace(
+        /(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g,
+        "",
+      );
+      cname = cname.replace(/\bEpoch\b/g, "");
+      cname = cname.replace(/\bepoch\b/g, "");
+      cname = cname.replace(/\bepochs\b/g, "");
+      cname = cname.replace(/\bepoches\b/g, "");
       break;
-    } else if (match2) {   
+    } else if (match2) {
       epochs = match2[1];
       cname = cname.replace(pattern, "");
-      cname = cname.replace(/\s*\( Epochs\)/g, ""); 
-      cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, '').trim();
-      cname = cname.replace(/(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g, '');
-      cname = cname.replace(/\bEpoch\b/g, '');
-      cname = cname.replace(/\bepoch\b/g, '');
-      cname = cname.replace(/\bepochs\b/g, '');
-      cname = cname.replace(/\bepoches\b/g, '');
+      cname = cname.replace(/\s*\( Epochs\)/g, "");
+      cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
+      cname = cname.replace(
+        /(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g,
+        "",
+      );
+      cname = cname.replace(/\bEpoch\b/g, "");
+      cname = cname.replace(/\bepoch\b/g, "");
+      cname = cname.replace(/\bepochs\b/g, "");
+      cname = cname.replace(/\bepoches\b/g, "");
       break;
     }
   }
 
-  cname = cname.replace(/\(\s*,\s*\)/g, '');
+  cname = cname.replace(/\(\s*,\s*\)/g, "");
   cname = cname.replace(/\/+/g, "").trim();
   cname = cname.replace(/\s*\(\s*\)/g, "");
   cname = cname.replace(/\s*\(\s*\)|\s*\(\s*\)/g, "").trim();
-  cname = cname.replace(/\s*\(\s*\)|\s*\(\s*\)|\s*\[\s*\]|\s*\[\s*\]/g, "").trim();
+  cname = cname
+    .replace(/\s*\(\s*\)|\s*\(\s*\)|\s*\[\s*\]|\s*\[\s*\]/g, "")
+    .trim();
   cname = cname.replace(/\s*\(\s*\)/g, "");
   cname = cname.replace(/,\s*,\s*\d+\s*Steps/g, "").trim();
-  cname = cname.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); 
-  cname = cname.replace(/\(\)/g, "").trim(); 
+  cname = cname.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim();
+  cname = cname.replace(/\(\)/g, "").trim();
   cname = cname.replace(/\(\s*,\s*,\s*\)/g, "");
-  cname = cname.replace(/\[\s*\|\s*\]/g, '');
-  cname = cname.replace(/\[\s*,\s*\]/g, '');
+  cname = cname.replace(/\[\s*\|\s*\]/g, "");
+  cname = cname.replace(/\[\s*,\s*\]/g, "");
   cname = cname.replace(/\{\s*\}/g, "");
   cname = cname.replace(/\[\s*\)/g, "");
-  cname = cname.replace(/,+/g, ',');
-  cname = cname.replace(/, ,/g, '')
-  cname = cname.replace(/(?<=\s)-(?=\s)/g, '');
-  cname = cname.replace(/ -+$/g, '');
-  cname = cname.replace(/,\s*$/, '');
-  cname = cname.replace(/\(\{\s*\}\)/g, '');
-  cname = cname.replace(/\(\s*\.\s*\)/g, '');
-  cname = cname.replace(/\[\s*,\s*\]/g, '');
-  cname = cname.replace(/\(\s*\+\s*\)/g, '');
-  cname = cname.replace(/\s+/g, ' ');
-  cname = cname.replace(/(?<=\S)\\+(?=\s|$)/g, '');
-  cname = cname.replace(/\[\|\|\]/g, '');
+  cname = cname.replace(/,+/g, ",");
+  cname = cname.replace(/, ,/g, "");
+  cname = cname.replace(/(?<=\s)-(?=\s)/g, "");
+  cname = cname.replace(/ -+$/g, "");
+  cname = cname.replace(/,\s*$/, "");
+  cname = cname.replace(/\(\{\s*\}\)/g, "");
+  cname = cname.replace(/\(\s*\.\s*\)/g, "");
+  cname = cname.replace(/\[\s*,\s*\]/g, "");
+  cname = cname.replace(/\(\s*\+\s*\)/g, "");
+  cname = cname.replace(/\s+/g, " ");
+  cname = cname.replace(/(?<=\S)\\+(?=\s|$)/g, "");
+  cname = cname.replace(/\[\|\|\]/g, "");
 
   return { cname, epochs, algorithm, types };
 }
 
 function findOwner(content, item) {
-  content = content.replace(/\*\*/g, '');
+  content = content.replace(/\*\*/g, "");
   const regexPatterns = [
     /By: <@(\d+)>/i,
     /Author: <@(\d+)>/i,
@@ -221,33 +231,47 @@ module.exports = {
       });
 
       const starterMessage = await fetchedThread.fetchStarterMessage();
-      if (!starterMessage.content.match(/https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud|media\.discordapp\.net\/attachments)\b)(?![^\s]+\.(?:jpg|jpeg|png|gif|jpeg|bmp|svg|webp)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g)) {
+      if (
+        !starterMessage.content.match(
+          /https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud|media\.discordapp\.net\/attachments)\b)(?![^\s]+\.(?:jpg|jpeg|png|gif|jpeg|bmp|svg|webp)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g,
+        )
+      ) {
         const messages = await fetchedThread.messages.fetch();
         let foundContent = false;
         let messageContent = "";
         for (const message of messages.values()) {
-            if (message.author.id === starterMessage.author.id && message.content && message.content.match(/https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud|media\.discordapp\.net\/attachments)\b)(?![^\s]+\.(?:jpg|jpeg|png|gif|jpeg|bmp|svg|webp)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g)) { 
-              messageContent += message.content + "\n";
-              foundContent = true;
+          if (
+            message.author.id === starterMessage.author.id &&
+            message.content &&
+            message.content.match(
+              /https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud|media\.discordapp\.net\/attachments)\b)(?![^\s]+\.(?:jpg|jpeg|png|gif|jpeg|bmp|svg|webp)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g,
+            )
+          ) {
+            messageContent += message.content + "\n";
+            foundContent = true;
           }
         }
         if (foundContent) {
-            starterMessage.content += "\n" + messageContent;
+          starterMessage.content += "\n" + messageContent;
         } else {
-            starterMessage.content = starterMessage.content ? starterMessage.content : "";
+          starterMessage.content = starterMessage.content
+            ? starterMessage.content
+            : "";
         }
       }
 
       const threadLink =
-      (starterMessage && starterMessage.content) ?
-      starterMessage.content.match(new RegExp("(https?://[^\\s]+)", "ig")) || "N/A" :
-      "N/A";
-    
+        starterMessage && starterMessage.content
+          ? starterMessage.content.match(
+              new RegExp("(https?://[^\\s]+)", "ig"),
+            ) || "N/A"
+          : "N/A";
+
       const { cname, epochs, algorithm, types } = extractEpochsAndAlgorithm(
         fetchedThread.name,
-        starterMessage.content
+        starterMessage.content,
       );
-      
+
       let owner = findOwner(starterMessage.content, fetchedThread.ownerId);
       const username = await fetchUser(owner);
 

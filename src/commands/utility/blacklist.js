@@ -5,7 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("blacklist")
     .setDescription(
-      "Utility » Blacklist or remove users from the bot's blacklist (Developers only)."
+      "Utility » Blacklist or remove users from the bot's blacklist (Developers only).",
     )
     .setDescriptionLocalizations({
       "es-ES":
@@ -31,7 +31,7 @@ module.exports = {
             .setDescriptionLocalizations({
               "es-ES": "El usuario que quieres añadir a la blacklist.",
             })
-            .setRequired(true)
+            .setRequired(true),
         )
         .addStringOption((option) =>
           option
@@ -42,8 +42,8 @@ module.exports = {
             .setDescription("Reason for blacklisting.")
             .setDescriptionLocalizations({
               "es-ES": "Razón por la que se añade a la blacklist.",
-            })
-        )
+            }),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -65,8 +65,8 @@ module.exports = {
             .setDescriptionLocalizations({
               "es-ES": "El usuario que quieres eliminar de la blacklist.",
             })
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     )
     .setDMPermission(false),
   devOnly: true,
@@ -87,13 +87,13 @@ module.exports = {
           await newEntry.save();
 
           await interaction.reply(
-            `${user.username} has been blacklisted. Reason: ${reason}`
+            `${user.username} has been blacklisted. Reason: ${reason}`,
           );
         }
       } catch (error) {
         console.error("Error occurred while adding user to blacklist:", error);
         await interaction.reply(
-          "An error occurred while adding the user to the blacklist."
+          "An error occurred while adding the user to the blacklist.",
         );
       }
     } else if (subcommand === "remove") {
@@ -106,7 +106,7 @@ module.exports = {
 
         if (removedEntry) {
           await interaction.reply(
-            `${user.username} has been removed from the blacklist.`
+            `${user.username} has been removed from the blacklist.`,
           );
         } else {
           await interaction.reply(`${user.username} is not blacklisted.`);
@@ -114,10 +114,10 @@ module.exports = {
       } catch (error) {
         console.error(
           "Error occurred while removing user from blacklist:",
-          error
+          error,
         );
         await interaction.reply(
-          "An error occurred while removing the user from the blacklist."
+          "An error occurred while removing the user from the blacklist.",
         );
       }
     }

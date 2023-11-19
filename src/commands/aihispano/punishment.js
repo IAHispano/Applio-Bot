@@ -127,9 +127,7 @@ module.exports = {
       canal.send({ embeds: [embedSancion] });
 
       const embed = new EmbedBuilder()
-        .setDescription(
-          `Punishment awarded to user ${usuario} for ${tiempo}.`,
-        )
+        .setDescription(`Punishment awarded to user ${usuario} for ${tiempo}.`)
         .setColor("Blurple")
         .setTimestamp();
 

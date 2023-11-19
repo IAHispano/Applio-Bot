@@ -21,7 +21,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Indique el nombre del modelo que desea publicar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -33,19 +33,19 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Indique el enlace del modelo que desea publicar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("epochs")
 
         .setDescription(
-          "Indicate the number of epochs of the model you want to upload."
+          "Indicate the number of epochs of the model you want to upload.",
         )
         .setDescriptionLocalizations({
           "es-ES": "Indique el número de epochs del modelo que desea publicar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
 
     .addStringOption((option) =>
@@ -55,7 +55,7 @@ module.exports = {
           "es-ES": "tecnología",
         })
         .setDescription(
-          "Select the technology where you have created the model."
+          "Select the technology where you have created the model.",
         )
         .setDescriptionLocalizations({
           "es-ES": "Seleccione la tecnología donde ha creado el modelo.",
@@ -68,9 +68,9 @@ module.exports = {
           {
             name: "RVC",
             value: "RVC",
-          }
+          },
         )
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -97,9 +97,9 @@ module.exports = {
           { name: "Mangio-crepe", value: "Mangio-crepe" },
           { name: "Mangio-crepe-tiny", value: "Mangio-crepe-tiny" },
           { name: "Rmvpe", value: "Rmvpe" },
-          { name: "Rmvpe_gpu", value: "Rmvpe_gpu" }
+          { name: "Rmvpe_gpu", value: "Rmvpe_gpu" },
         )
-        .setRequired(true)
+        .setRequired(true),
     )
     .addAttachmentOption((option) =>
       option
@@ -108,13 +108,13 @@ module.exports = {
           "es-ES": "imagen",
         })
         .setDescription(
-          "Select the image of the model (in rectangular format and of good quality)."
+          "Select the image of the model (in rectangular format and of good quality).",
         )
         .setDescriptionLocalizations({
           "es-ES":
             "Seleccione la imagen del modelo (en formato rectangular y de buena calidad).",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addAttachmentOption((option) =>
       option
@@ -123,7 +123,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Sube una muestra de audio del modelo.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -140,9 +140,9 @@ module.exports = {
           { name: "🇲🇽 Spanish (Latin)", value: "🇲🇽 Spanish (Latin)" },
           { name: "🇰🇷 Korean", value: "🇰🇷 Korean" },
           { name: "🇯🇵 Japanese", value: "🇯🇵 Japanese" },
-          { name: "🏴 Other languages...", value: "🏴 Other languages..." }
+          { name: "🏴 Other languages...", value: "🏴 Other languages..." },
         )
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -162,9 +162,9 @@ module.exports = {
           { name: "💃 Actor", value: "💃 Actor" },
           { name: "🎰 Anime", value: "🎰 Anime" },
           { name: "🪄 Character", value: "🪄 Character" },
-          { name: "🎷 Instrument", value: "🎷 Instrument" }
+          { name: "🎷 Instrument", value: "🎷 Instrument" },
         )
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 
@@ -194,7 +194,7 @@ module.exports = {
         .setDescription(
           `
               \`\`\`${nombre} (${tecnología})\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n > **Audio:** [Click here to download the audio sample!](${audioURL})
-              `
+              `,
         )
         .setImage(imagenURL || audioURL)
 
@@ -206,7 +206,7 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setTitle(`New model of ${autor}`)
         .setDescription(
-          `\`\`\`${nombre} (${tecnología} [${algoritmo}] - ${epochs} Epochs)\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n > **Audio:** [Click here to download the audio sample!](${audioURL})\n`
+          `\`\`\`${nombre} (${tecnología} [${algoritmo}] - ${epochs} Epochs)\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n > **Audio:** [Click here to download the audio sample!](${audioURL})\n`,
         )
         .setImage(imagenURL || audioURL)
         .setColor("Blurple")

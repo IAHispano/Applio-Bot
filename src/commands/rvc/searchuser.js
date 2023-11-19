@@ -27,13 +27,13 @@ module.exports = {
           "es-ES": "usuario",
         })
         .setDescription(
-          "Enter the username of the user you want to search for."
+          "Enter the username of the user you want to search for.",
         )
         .setDescriptionLocalizations({
           "es-ES":
             "Introduce el nombre de usuario del usuario que quieres buscar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 
@@ -96,7 +96,7 @@ module.exports = {
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
           embed.setDescription(
-            `**Owner:** ${result.author_username}\n**Uploaded:** ${uploadedText}`
+            `**Owner:** ${result.author_username}\n**Uploaded:** ${uploadedText}`,
           );
 
           const fields = [
@@ -130,7 +130,7 @@ module.exports = {
             embed.setThumbnail(result.image_url);
           } else {
             embed.setThumbnail(
-              interaction.user.displayAvatarURL({ dynamic: true })
+              interaction.user.displayAvatarURL({ dynamic: true }),
             );
           }
 
@@ -146,7 +146,7 @@ module.exports = {
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`
+            `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
           )
           .setStyle(ButtonStyle.Link);
 
@@ -164,7 +164,7 @@ module.exports = {
         const row_buttons = new ActionRowBuilder().addComponents(
           saveButton,
           downloadButton,
-          botInviteButton
+          botInviteButton,
         );
         mainEmbed = embed;
         mainButtons = row_buttons;
@@ -188,7 +188,7 @@ module.exports = {
         const selectedResult = data.find(
           (result) =>
             `${data.indexOf(result) + 1}-${result.id}-${result.created_at}` ===
-            interaction.values[0]
+            interaction.values[0],
         );
 
         if (selectedResult) {
@@ -216,7 +216,7 @@ module.exports = {
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
           embed.setDescription(
-            `**Owner:** ${selectedResult.author_username}\n**Uploaded:** ${uploadedText}`
+            `**Owner:** ${selectedResult.author_username}\n**Uploaded:** ${uploadedText}`,
           );
 
           const fields = [
@@ -250,7 +250,7 @@ module.exports = {
             embed.setThumbnail(selectedResult.image_url);
           } else {
             embed.setThumbnail(
-              interaction.user.displayAvatarURL({ dynamic: true })
+              interaction.user.displayAvatarURL({ dynamic: true }),
             );
           }
 
@@ -269,13 +269,13 @@ module.exports = {
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`
+              `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(
             saveButton,
             downloadButton,
-            botInviteButton
+            botInviteButton,
           );
 
           const menu = new StringSelectMenuBuilder()
@@ -296,12 +296,15 @@ module.exports = {
       let buttonCollector = interaction.channel.createMessageComponentCollector(
         {
           componentType: ComponentType.Button,
-        }
+        },
       );
 
       buttonCollector.on("collect", async (interaction) => {
         if (interaction.customId === "send_dm_button") {
-          interaction.reply( { content: `💾 ${interaction.user}, sent you a DM with the model information!`, ephemeral: true });
+          interaction.reply({
+            content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+            ephemeral: true,
+          });
           interaction.user
             .send({
               embeds: [mainEmbed],

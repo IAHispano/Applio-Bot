@@ -40,8 +40,8 @@ module.exports = {
             .setDescriptionLocalizations({
               "es-ES": "Canción que quieres reproducir.",
             })
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -52,7 +52,7 @@ module.exports = {
         .setDescription("Stop playing music.")
         .setDescriptionLocalizations({
           "es-ES": "Deja de reproducir música.",
-        })
+        }),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -63,17 +63,16 @@ module.exports = {
         .setDescription("Skip the current song.")
         .setDescriptionLocalizations({
           "es-ES": "Salta la canción actual.",
-        })
+        }),
     )
     .setDMPermission(false),
   async execute(interaction) {
-    
     const voiceChannel = await interaction.member.voice.channel;
     const subcommand = interaction.options.getSubcommand();
 
     if (!voiceChannel) {
       return interaction.reply(
-        "You need to be in a voice channel to use this command!"
+        "You need to be in a voice channel to use this command!",
       );
     }
 
@@ -183,7 +182,7 @@ async function playNextSong(voiceChannel, interaction, guildId) {
       duration,
       thumbnail,
       requestedBy,
-      interaction
+      interaction,
     );
 
     interaction.channel.send({ embeds: [embed] });
@@ -213,7 +212,7 @@ function createNowPlayingEmbed(
   duration,
   thumbnail,
   requestedBy,
-  interaction
+  interaction,
 ) {
   const embed = new EmbedBuilder()
     .setTitle(ytInfo.title)
@@ -221,7 +220,7 @@ function createNowPlayingEmbed(
     .addFields(
       { name: "Duration", value: formatDuration(duration), inline: true },
       { name: "Streams", value: formatNumber(ytInfo.views), inline: true },
-      { name: "Artist", value: ytInfo.channel.name, inline: true }
+      { name: "Artist", value: ytInfo.channel.name, inline: true },
     )
     .setThumbnail(thumbnail)
     .setColor("Blurple")

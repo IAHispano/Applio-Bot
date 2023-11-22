@@ -26,6 +26,7 @@ torch.manual_seed(114514)
 
 config = Config()
 
+
 def find_folder_parent(search_dir, folder_name):
     for dirpath, dirnames, filenames in os.walk(search_dir):
         if folder_name in dirnames:
@@ -63,27 +64,11 @@ if not os.path.exists("./ffmpeg.exe") and os.name == "nt":
         )
 
 if not os.path.exists("./ffprobe.exe") and os.name == "nt":
-        print("Downloading ffprobe.exe")
-        wget.download(
-            "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffprobe.exe",
-            out="./ffprobe.exe",
-        )
-
-hubert_model = None
-
-def load_hubert():
-    global hubert_model
-    models = checkpoint_utils.load_model_ensemble_and_task(
-        ["hubert_base.pt"],
-        suffix="",
+    print("Downloading ffprobe.exe")
+    wget.download(
+        "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffprobe.exe",
+        out="./ffprobe.exe",
     )
-    hubert_model = models[0]
-    hubert_model = hubert_model.to(config.device)
-    if config.is_half:
-        hubert_model = hubert_model.half()
-    else:
-        hubert_model = hubert_model.float()
-    hubert_model.eval()
 
 
 def search_pth_index(folder):
@@ -256,6 +241,23 @@ if verify == "downloaded":
 else:
     message = "Error"
     sys.exit()
+
+
+hubert_model = None
+
+def load_hubert():
+    global hubert_model
+    models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
+        ["hubert_base.pt"],
+        suffix="",
+    )
+    hubert_model = models[0]
+    hubert_model = hubert_model.to(config.device)
+    if config.is_half:
+        hubert_model = hubert_model.half()
+    else:
+        hubert_model = hubert_model.float()
+    hubert_model.eval()
 
 
 def vc_single(

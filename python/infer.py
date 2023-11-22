@@ -66,7 +66,7 @@ if not os.path.exists("./ffprobe.exe") and os.name == "nt":
         print("Downloading ffprobe.exe")
         wget.download(
             "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffprobe.exe",
-            out="./ffmpeg.exe",
+            out="./ffprobe.exe",
         )
 
 hubert_model = None

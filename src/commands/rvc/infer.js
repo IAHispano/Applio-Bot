@@ -12,63 +12,33 @@ const { getAudioDurationInSeconds } = require("get-audio-duration");
 
 const absolutePath = path.resolve("./");
 
-async function deleteFilesInFolder(folderPath) {
-  try {
-    const folderExists = await fs.promises
-      .access(folderPath, fs.constants.F_OK)
-      .then(() => true)
-      .catch(() => false);
+function deleteAndCreateFolder(folderPath) {
+  if (fs.existsSync(folderPath)) {
+    deleteFolderSync(folderPath);
+  }
 
-    if (!folderExists) {
-      await fs.promises.mkdir(folderPath, { recursive: true });
-      return;
-    }
+  fs.mkdirSync(folderPath, { recursive: true });
+}
 
-    const files = await fs.promises.readdir(folderPath);
-    for (const file of files) {
+function deleteFolderSync(folderPath) {
+  if (fs.existsSync(folderPath)) {
+    fs.readdirSync(folderPath).forEach((file, index) => {
       const filePath = path.join(folderPath, file);
-      await fs.promises.unlink(filePath);
-    }
-  } catch (error) {
-    console.error(`Error deleting files in folder ${folderPath}: ${error}`);
+      if (fs.lstatSync(filePath).isDirectory()) {
+        deleteFolderSync(filePath);
+      } else {
+        fs.unlinkSync(filePath);
+      }
+    });
+
+    fs.rmdirSync(folderPath);
   }
 }
 
-deleteFilesInFolder("./audios/input");
-deleteFilesInFolder("./audios/output");
-
-async function runCommand(command) {
-  try {
-    const { stdout, stderr } = await exec1(command);
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-    } else {
-      console.log(stdout);
-    }
-  } catch (error) {
-    console.log(`error: ${error}`);
-  }
-}
-function getModelsList(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath);
-  }
-
-  const modelsList = [];
-  const files = fs.readdirSync(dirPath);
-  for (const file of files) {
-    const filePath = path.join(dirPath, file);
-    if (fs.statSync(filePath).isDirectory()) {
-      modelsList.push({
-        name: file,
-        value: file,
-      });
-    }
-  }
-  return modelsList;
-}
-
-const modelsList = getModelsList("./models");
+deleteAndCreateFolder("./audios/input");
+deleteAndCreateFolder("./audios/output");
+deleteAndCreateFolder("./models");
+deleteAndCreateFolder("./zips");
 
 const downloadFile = (url, outputPath) => {
   return new Promise(async (resolve, reject) => {
@@ -92,26 +62,13 @@ const downloadFile = (url, outputPath) => {
   });
 };
 
-const searchFileWithPrefix = (folderPath, prefix, startsWith) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(folderPath, (err, files) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      const matchingFile = files.find((file) =>
-        startsWith ? file.startsWith(prefix) : file.endsWith(prefix),
-      );
-      resolve(matchingFile ? path.join(folderPath, matchingFile) : null);
-    });
-  });
-};
-
-const exec1 = util.promisify(exec);
+const execPromise = util.promisify((command) => {
+  exec(command, { maxBuffer: 1024 * 1024 * 50 });
+});
 
 async function runCommand(command) {
   try {
-    const { stdout, stderr } = await exec1(command);
+    const { stdout, stderr } = await execPromise(command);
     if (stderr) {
       console.log(`stderr: ${stderr}`);
     } else {
@@ -145,30 +102,28 @@ async function processAudio(url, songName, modelname) {
         resultFilePath: conversionPath,
       };
     }
-    const model_folder = path.join(absolutePath, "models", modelname);
 
-    const index_file = await searchFileWithPrefix(model_folder, "added_", true);
-    const weight_file = await searchFileWithPrefix(model_folder, ".pth", false);
+    const regex =
+      /^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$)/;
 
-    if (!index_file || !weight_file) {
+    if (!regex.test(modelname)) {
       return {
         success: false,
-        message: "Error finding model files.",
+        message: "Not link provided.",
         audioFilePath: outputPath,
         resultFilePath: conversionPath,
       };
     }
 
     const input_path = path.join(outputPath);
-    const index_path = path.join(index_file);
+
     const opt_path = path.join(conversionPath);
-    const model_path = path.join(weight_file);
 
     const python_script = `"${path.join(absolutePath, "python", "infer.py")}"`;
-    const command = `python ${python_script} 0 "${input_path}" "${index_path}" rmvpe "${opt_path}" "${model_path}" 0.66 cpu True 3 0 1 0.33`;
+    const command = `python ${python_script} 0 0.66 rmvpe "${input_path}" "${opt_path}" "${modelname}"`;
+
     try {
       await runCommand(command);
-      console.log("Audio processed successfully!");
 
       if (fs.existsSync(conversionPath)) {
         return {
@@ -226,7 +181,7 @@ class AudioReplyQueue {
 
   push(url, songName, modelName, interaction) {
     this.queue.push({ url, songName, modelName, interaction });
-    const embedCola = new EmbedBuilder()
+    const embedQueue = new EmbedBuilder()
       .setTitle("Added to the queue!")
       .setDescription(
         `${interaction.user} your file has been added to the queue.\nYou are number #${this.length}, please wait.`,
@@ -234,7 +189,11 @@ class AudioReplyQueue {
       .setColor("#5865F2")
       .setTimestamp();
 
-    interaction.editReply({ content: "", embeds: [embedCola] });
+    interaction.editReply({
+      content: "",
+      embeds: [embedQueue],
+      ephemeral: true,
+    });
 
     if (!this.processing) {
       this.process();
@@ -254,12 +213,14 @@ class AudioReplyQueue {
           if (result && result.success && result.resultFilePath) {
             const attachment = new AttachmentBuilder(result.resultFilePath);
 
-            await interaction.channel?.send({
+            await interaction.editReply({
               content: `${interaction.user}, your audio has been processed and converted successfully!`,
+              embeds: [],
               files: [attachment],
             });
           } else {
-            await interaction.followUp({
+            await interaction.editReply({
+              embeds: [],
               content: result?.message || "Unknown error occurred.",
             });
           }
@@ -308,7 +269,6 @@ module.exports = {
       option
         .setName("model")
         .setDescription("Select the model you want to use.")
-        .addChoices(...modelsList)
         .setRequired(true),
     ),
   async execute(interaction) {
@@ -331,7 +291,7 @@ module.exports = {
 
       await interaction.reply({
         content: "Loading audio...",
-        ephemeral: false,
+        ephemeral: true,
       });
       audioReplyQueue.push(
         audioURL,

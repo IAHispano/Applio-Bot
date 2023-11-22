@@ -1,8 +1,12 @@
 import os
 import sys
 import wget
+import gdown
 import torch
+import zipfile
+import requests
 import warnings
+from bs4 import BeautifulSoup
 import traceback
 import numpy as np
 import soundfile as sf
@@ -21,30 +25,55 @@ warnings.filterwarnings("ignore")
 torch.manual_seed(114514)
 
 config = Config()
-hubert_model = None
+
+def find_folder_parent(search_dir, folder_name):
+    for dirpath, dirnames, filenames in os.walk(search_dir):
+        if folder_name in dirnames:
+            return os.path.abspath(dirpath)
+    return None
+
+
+now_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(now_dir)
+file_path = find_folder_parent(now_dir, "models")
+
+zips_path = os.getcwd() + "/zips"
+
 
 if not os.path.exists("./hubert_base.pt"):
+    print("Downloading hubert_base.pt")
     wget.download(
         "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt",
         out="./hubert_base.pt",
     )
 
 if not os.path.exists("./rmvpe.pt"):
+    print("Downloading rmvpe.pt")
     wget.download(
         "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt",
         out="./rmvpe.pt",
     )
 
-if not os.path.exists("./ffmpeg.exe"):
-    wget.download(
-        "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffmpeg.exe",
-        out="./ffmpeg.exe",
-    )
+if not os.path.exists("./ffmpeg.exe") and os.name == "nt":
+    if not os.path.exists("./ffmpeg.exe"):
+        print("Downloading ffmpeg.exe")
+        wget.download(
+            "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffmpeg.exe",
+            out="./ffmpeg.exe",
+        )
 
+if not os.path.exists("./ffprobe.exe") and os.name == "nt":
+        print("Downloading ffprobe.exe")
+        wget.download(
+            "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffprobe.exe",
+            out="./ffmpeg.exe",
+        )
+
+hubert_model = None
 
 def load_hubert():
     global hubert_model
-    models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
+    models = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],
         suffix="",
     )
@@ -55,6 +84,178 @@ def load_hubert():
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
+
+
+def search_pth_index(folder):
+    pth_paths = [
+        os.path.join(folder, file)
+        for file in os.listdir(folder)
+        if os.path.isfile(os.path.join(folder, file)) and file.endswith(".pth")
+    ]
+    index_paths = [
+        os.path.join(folder, file)
+        for file in os.listdir(folder)
+        if os.path.isfile(os.path.join(folder, file)) and file.endswith(".index")
+    ]
+
+    return pth_paths, index_paths
+
+
+def get_mediafire_download_link(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+    download_button = soup.find(
+        "a", {"class": "input popsok", "aria-label": "Download file"}
+    )
+    if download_button:
+        download_link = download_button.get("href")
+        return download_link
+    else:
+        return None
+
+
+def download_from_url(url):
+    os.makedirs(zips_path, exist_ok=True)
+    if url != "":
+        if "drive.google.com" in url:
+            if "file/d/" in url:
+                file_id = url.split("file/d/")[1].split("/")[0]
+            elif "id=" in url:
+                file_id = url.split("id=")[1].split("&")[0]
+            else:
+                return None
+
+            if file_id:
+                os.chdir(zips_path)
+                try:
+                    gdown.download(
+                        f"https://drive.google.com/uc?id={file_id}",
+                        quiet=False,
+                        fuzzy=True,
+                    )
+                except Exception as e:
+                    error_message = str(e)
+                    if (
+                        "Too many users have viewed or downloaded this file recently"
+                        in error_message
+                    ):
+                        os.chdir(now_dir)
+                        return "too much use"
+                    elif (
+                        "Cannot retrieve the public link of the file." in error_message
+                    ):
+                        os.chdir(now_dir)
+                        return "private link"
+                    else:
+                        print(error_message)
+                        os.chdir(now_dir)
+                        return None
+
+        elif "/blob/" in url or "/resolve/" in url:
+            os.chdir(zips_path)
+            if "/blob/" in url:
+                url = url.replace("/blob/", "/resolve/")
+
+            response = requests.get(url, stream=True)
+            if response.status_code == 200:
+                file_name = url.split("/")[-1]
+                file_name = file_name.replace("%20", "_")
+                total_size_in_bytes = int(response.headers.get("content-length", 0))
+                block_size = 1024  # 1 Kibibyte
+                progress_bar_length = 50
+                progress = 0
+                with open(os.path.join(zips_path, file_name), "wb") as file:
+                    for data in response.iter_content(block_size):
+                        file.write(data)
+                        progress += len(data)
+                        progress_percent = int((progress / total_size_in_bytes) * 100)
+                        num_dots = int(
+                            (progress / total_size_in_bytes) * progress_bar_length
+                        )
+                        progress_bar = (
+                            "["
+                            + "." * num_dots
+                            + " " * (progress_bar_length - num_dots)
+                            + "]"
+                        )
+                        print(
+                            f"{progress_percent}% {progress_bar} {progress}/{total_size_in_bytes}  ",
+                            end="\r",
+                        )
+                        if progress_percent == 100:
+                            print("\n")
+
+            else:
+                os.chdir(now_dir)
+                return None
+        elif "/tree/main" in url:
+            os.chdir(zips_path)
+            response = requests.get(url)
+            soup = BeautifulSoup(response.content, "html.parser")
+            temp_url = ""
+            for link in soup.find_all("a", href=True):
+                if link["href"].endswith(".zip"):
+                    temp_url = link["href"]
+                    break
+            if temp_url:
+                url = temp_url
+                url = url.replace("blob", "resolve")
+                if "huggingface.co" not in url:
+                    url = "https://huggingface.co" + url
+
+                    wget.download(url)
+            else:
+                os.chdir(now_dir)
+                return None
+        else:
+            try:
+                os.chdir(zips_path)
+                wget.download(url)
+            except Exception as e:
+                os.chdir(now_dir)
+                print(e)
+                return None
+
+        for currentPath, _, zipFiles in os.walk(zips_path):
+            for Files in zipFiles:
+                filePart = Files.split(".")
+                extensionFile = filePart[len(filePart) - 1]
+                filePart.pop()
+                nameFile = "_".join(filePart)
+                realPath = os.path.join(currentPath, Files)
+                os.rename(realPath, nameFile + "." + extensionFile)
+
+    os.chdir(now_dir)
+    return "downloaded"
+
+
+def unzip_file(zip_path, zip_file_name):
+    zip_file_path = os.path.join(zip_path, zip_file_name + ".zip")
+    extract_path = os.path.join(file_path, "models", zip_file_name)
+    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+        zip_ref.extractall(extract_path)
+    # os.remove(zip_file_path)
+
+
+url = sys.argv[6]
+verify = download_from_url(url)
+
+if verify == "downloaded":
+    file_name = os.path.splitext(os.path.basename(url))[0]
+
+    extract_folder_path = os.path.join(file_path, "models", file_name)
+    os.makedirs(extract_folder_path, exist_ok=True)
+    zip_file_path = os.path.join(zips_path, file_name + ".zip")
+
+    if not os.path.exists(zip_file_path):
+        sys.exit()
+    unzip_file(zips_path, file_name)
+
+    result = search_pth_index(os.path.join(file_path, "models", file_name))
+else:
+    message = "Error"
+    sys.exit()
 
 
 def vc_single(
@@ -80,13 +281,11 @@ def vc_single(
     f0_up_key = int(f0_up_key)
     try:
         audio = load_audio(input_audio_path, 16000)
-        print("Trying to load", input_audio_path)
         audio_max = np.abs(audio).max() / 0.95
 
         if audio_max > 1:
             audio /= audio_max
 
-        times = [0, 0, 0]
         if not hubert_model:
             load_hubert()
         if_f0 = cpt.get("f0", 1)
@@ -108,7 +307,6 @@ def vc_single(
             sid,
             audio,
             input_audio_path,
-            times,
             f0_up_key,
             f0_method,
             file_index,
@@ -124,12 +322,10 @@ def vc_single(
             f0_file=f0_file,
         )
 
-        print("Time: ", times[2], sep="")
-
         if output_path is not None:
             sf.write(output_path, audio_opt, tgt_sr, format="WAV")
 
-        return "Correcto", (tgt_sr, audio_opt)
+        return "Ready!", (tgt_sr, audio_opt)
 
     except:
         info = traceback.format_exc()
@@ -275,12 +471,15 @@ def get_vc(weight_root, sid):
 
 
 f0up_key = sys.argv[1]
-input_path = sys.argv[2]
-index_path = sys.argv[3]
-f0method = sys.argv[4]
+index_rate = float(sys.argv[2])
+f0method = sys.argv[3]
+input_path = sys.argv[4]
 opt_path = sys.argv[5]
-model_path = sys.argv[6]
-index_rate = float(sys.argv[7])
+
+
+model_path = result[0][0]
+index_path = result[1][0]
+
 sid = f0up_key
 input_audio = input_path
 f0_pitch = 0
@@ -313,6 +512,7 @@ try:
         message = result
 
     print(message)
+
 
 except Exception as e:
     print(e)

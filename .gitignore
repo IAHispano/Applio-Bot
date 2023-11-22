@@ -29,8 +29,10 @@ python/infer_pack/__pycache__/*
 
 # Bot
 models/
+zips/
 src/config.json
 rmvpe.pt
 hubert_base.pt
 audios/
 ffmpeg.exe
+ffprobe.exe

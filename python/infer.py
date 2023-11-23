@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import wget
 import torch
@@ -11,6 +12,7 @@ import numpy as np
 import soundfile as sf
 from config import Config
 from bs4 import BeautifulSoup
+from urllib.parse import unquote
 from vc_infer_pipeline import VC
 from fairseq import checkpoint_utils
 from infer_pack.models import (
@@ -19,6 +21,7 @@ from infer_pack.models import (
     SynthesizerTrnMs768NSFsid,
     SynthesizerTrnMs768NSFsid_nono,
 )
+
 from infer_pack.utils import load_audio
 
 warnings.filterwarnings("ignore")
@@ -139,11 +142,15 @@ def download_from_url(url):
             response = requests.get(url, stream=True)
             if response.status_code == 200:
                 file_name = url.split("/")[-1]
-                file_name = file_name.replace("%20", "_")
+                file_name = unquote(file_name)
+
+                file_name = re.sub(r"[^a-zA-Z0-9_.-]", "_", file_name)
+
                 total_size_in_bytes = int(response.headers.get("content-length", 0))
                 block_size = 1024
                 progress_bar_length = 50
                 progress = 0
+
                 with open(os.path.join(zips_path, file_name), "wb") as file:
                     for data in response.iter_content(block_size):
                         file.write(data)
@@ -191,9 +198,9 @@ def download_from_url(url):
             try:
                 os.chdir(zips_path)
                 wget.download(url)
-            except Exception as e:
+            except Exception as error:
                 os.chdir(now_dir)
-                print(e)
+                print(error)
                 return None
 
         for currentPath, _, zipFiles in os.walk(zips_path):
@@ -280,7 +287,6 @@ def vc_single(
         if audio_max > 1:
             audio /= audio_max
 
-      
         if not hubert_model:
             load_hubert()
         if_f0 = cpt.get("f0", 1)
@@ -316,7 +322,6 @@ def vc_single(
             crepe_hop_length,
             f0_file=f0_file,
         )
-
 
         if output_path is not None:
             sf.write(output_path, audio_opt, tgt_sr, format="WAV")

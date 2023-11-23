@@ -103,7 +103,7 @@ async function processAudio(audioURL, modelURL, audioFile, tone) {
     await downloadFile(audioURL, outputPath);
 
     const duration = await getAudioDurationInSeconds(outputPath);
-    const durationLimit = 560;
+    const durationLimit = 240;
 
     if (duration > durationLimit) {
       return {
@@ -132,7 +132,6 @@ async function processAudio(audioURL, modelURL, audioFile, tone) {
 
     const python_script = `"${path.join(absolutePath, "python", "infer.py")}"`;
     const command = `python ${python_script} ${tone} "${input_path}" "${output_path}" "${modelURL}"`;
-    console.log("Running command:", command);
     try {
       await runCommand(command);
 
@@ -266,27 +265,44 @@ const audioReplyQueue = new AudioReplyQueue();
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("cover")
-    .setDescription("Create a cover with AI easily from Discord!")
+    .setDescription("RVC » Create a cover with AI easily from Discord!")
+    .setDescriptionLocalizations({
+      "es-ES": "RVC » Crea un cover con IA fácilmente desde Discord!",
+    })
     .addAttachmentOption((option) =>
       option
         .setName("audio")
-        .setDescription("Select the audio you want to convert.")
+        .setDescription("Select the audio.")
+        .setDescriptionLocalizations({
+          "es-ES": "Selecciona el audio.",
+        })
         .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("model")
-        .setDescription("Select the model you want to use.")
+        .setNameLocalizations({ "es-ES": "modelo" })
+        .setDescription(
+          "Enter the link of the model (e.g. HuggingFace, make sure it does not have special characters)"
+        )
+        .setDescriptionLocalizations({
+          "es-ES":
+            "Ingresa el link del modelo (ej. HuggingFace, asegúrate de que no tenga caracteres especiales)",
+        })
         .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("tone")
-        .setDescription("Select the tone you want to use.")
+        .setNameLocalizations({ "es-ES": "tono" })
+        .setDescription("Select the tone.")
+        .setDescriptionLocalizations({
+          "es-ES": "Selecciona el tono.",
+        })
         .addChoices(
-          { name: "High tone", value: "10" },
-          { name: "Default tone", value: "0" },
-          { name: "Low tone", value: "-10" }
+          // { name: "High tone", value: "10" },
+          { name: "Default tone", value: "0" }
+          // { name: "Low tone", value: "-10" }
         )
     ),
   async execute(interaction) {

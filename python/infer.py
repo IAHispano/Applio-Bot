@@ -1,12 +1,8 @@
 import os
 import sys
 import wget
-import gdown
 import torch
-import zipfile
-import requests
 import warnings
-from bs4 import BeautifulSoup
 import traceback
 import numpy as np
 import soundfile as sf
@@ -25,51 +21,25 @@ warnings.filterwarnings("ignore")
 torch.manual_seed(114514)
 
 config = Config()
-
-
-def find_folder_parent(search_dir, folder_name):
-    for dirpath, dirnames, filenames in os.walk(search_dir):
-        if folder_name in dirnames:
-            return os.path.abspath(dirpath)
-    return None
-
-
-now_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(now_dir)
-file_path = find_folder_parent(now_dir, "models")
-
-zips_path = os.getcwd() + "/zips"
-
+hubert_model = None
 
 if not os.path.exists("./hubert_base.pt"):
-    print("Downloading hubert_base.pt")
     wget.download(
         "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt",
         out="./hubert_base.pt",
     )
 
 if not os.path.exists("./rmvpe.pt"):
-    print("Downloading rmvpe.pt")
     wget.download(
         "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt",
         out="./rmvpe.pt",
     )
 
-if not os.path.exists("./ffmpeg.exe") and os.name == "nt":
-    if not os.path.exists("./ffmpeg.exe"):
-        print("Downloading ffmpeg.exe")
-        wget.download(
-            "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffmpeg.exe",
-            out="./ffmpeg.exe",
-        )
-
-if not os.path.exists("./ffprobe.exe") and os.name == "nt":
-    print("Downloading ffprobe.exe")
+if not os.path.exists("./ffmpeg.exe"):
     wget.download(
-        "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffprobe.exe",
-        out="./ffprobe.exe",
+        "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffmpeg.exe",
+        out="./ffmpeg.exe",
     )
-
 
 def search_pth_index(folder):
     pth_paths = [
@@ -242,9 +212,6 @@ else:
     message = "Error"
     sys.exit()
 
-
-hubert_model = None
-
 def load_hubert():
     global hubert_model
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
@@ -283,11 +250,13 @@ def vc_single(
     f0_up_key = int(f0_up_key)
     try:
         audio = load_audio(input_audio_path, 16000)
+        print("Trying to load", input_audio_path)
         audio_max = np.abs(audio).max() / 0.95
 
         if audio_max > 1:
             audio /= audio_max
 
+        times = [0, 0, 0]
         if not hubert_model:
             load_hubert()
         if_f0 = cpt.get("f0", 1)
@@ -309,6 +278,7 @@ def vc_single(
             sid,
             audio,
             input_audio_path,
+            times,
             f0_up_key,
             f0_method,
             file_index,
@@ -324,10 +294,12 @@ def vc_single(
             f0_file=f0_file,
         )
 
+        print("Time: ", times[2], sep="")
+
         if output_path is not None:
             sf.write(output_path, audio_opt, tgt_sr, format="WAV")
 
-        return "Ready!", (tgt_sr, audio_opt)
+        return "Done", (tgt_sr, audio_opt)
 
     except:
         info = traceback.format_exc()
@@ -472,12 +444,12 @@ def get_vc(weight_root, sid):
     n_spk = cpt["config"][-3]
 
 
+
 f0up_key = sys.argv[1]
 index_rate = float(sys.argv[2])
 f0method = sys.argv[3]
 input_path = sys.argv[4]
 opt_path = sys.argv[5]
-
 
 model_path = result[0][0]
 index_path = result[1][0]
@@ -514,7 +486,6 @@ try:
         message = result
 
     print(message)
-
 
 except Exception as e:
     print(e)

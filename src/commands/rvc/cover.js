@@ -283,11 +283,11 @@ module.exports = {
         .setName("model")
         .setNameLocalizations({ "es-ES": "modelo" })
         .setDescription(
-          "Enter the link of the model (e.g. HuggingFace, make sure it does not have special characters)"
+          "Enter the link of the model (Only HuggingFace, make sure it does not have special characters)"
         )
         .setDescriptionLocalizations({
           "es-ES":
-            "Ingresa el link del modelo (ej. HuggingFace, asegúrate de que no tenga caracteres especiales)",
+            "Ingresa el link del modelo (Sólo HuggingFace, asegúrate de que no tenga caracteres especiales)",
         })
         .setRequired(true)
     )
@@ -313,10 +313,18 @@ module.exports = {
     const tone = interaction.options.getString("tone") || "0";
 
     const fileSizeMb = fileSizeInMb(audio?.attachment.size);
+    if (!modelURL.includes("huggingface")) {
+      await interaction.reply({
+        content: `The model must be from HuggingFace.`,
+        ephemeral: true,
+      });
+      return;
+    }
 
     if (fileSizeMb > 100) {
-      await interaction.editReply({
+      await interaction.reply({
         content: `The audio weighs more than ${sizeLimit}mb.`,
+        ephemeral: true,
       });
       return;
     }

@@ -26,7 +26,8 @@ For Linux users, also run:
 sudo apt update -y
 sudo apt install -y python3.9
 sudo apt install -y python3-pip
-pip install ffmpeg-python
+sudo apt-get install libsndfile1
+sudo apt-get install ffmpeg
 ```
 
 ### Running the Bot

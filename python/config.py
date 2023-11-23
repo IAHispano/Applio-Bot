@@ -36,10 +36,7 @@ def use_fp32_config():
                     json.dump(data, d, indent=4)
 
     else:
-        print(
-            "CUDA is not available. Make sure you have an NVIDIA GPU and CUDA installed."
-        )
-    return (usefp16, device_capability)
+        return (usefp16, device_capability)
 
 
 class Config:

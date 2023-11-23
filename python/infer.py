@@ -215,7 +215,7 @@ def unzip_file(zip_path, zip_file_name):
     extract_path = os.path.join(file_path, "models", zip_file_name)
     with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
         zip_ref.extractall(extract_path)
-    # os.remove(zip_file_path)
+    os.remove(zip_file_path)
 
 
 url = sys.argv[4]

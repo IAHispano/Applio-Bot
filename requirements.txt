@@ -5,7 +5,6 @@ scipy==1.9.3
 librosa==0.9.1
 llvmlite==0.39.0
 faiss-cpu==1.7.3
-gradio==3.34.0
 Cython
 pydub>=0.25.1
 soundfile>=0.12.1
@@ -44,6 +43,7 @@ httpx==0.23.0
 torchcrepe==0.0.20
 fastapi==0.88
 stftpitchshift==1.5.1
+fairseq
 gdown
 wget
 beautifulsoup4

@@ -184,11 +184,19 @@ class AudioReplyQueue {
   push(modelURL, audioURL, audioFile, tone, interaction) {
     this.queue.push({ modelURL, audioURL, audioFile, tone, interaction });
     const embedQueue = new EmbedBuilder()
-      .setTitle("Added to the queue!")
+      .setTitle("Processing audio...")
       .setDescription(
-        `${interaction.user} your file has been added to the queue.\nYou are number #${this.length}, please wait.`
+        `Your file has been added to the queue. You are number #${
+          this.length
+        } in the queue, please wait until your file is processed.\n\n- **File:** ${audioFile}\n- **Model:** [Discover it here](${modelURL})\n- **Tone:** ${tone}\n- **Estimated time:** ${
+          this.length * 4
+        } minutes (#${this.length})`
       )
       .setColor("#5865F2")
+      .setFooter({
+        text: `Requested by ${interaction.user.tag}`,
+        iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
+      })
       .setTimestamp();
 
     interaction.editReply({

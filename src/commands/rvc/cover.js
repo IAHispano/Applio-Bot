@@ -5,7 +5,7 @@ const {
 } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
+const { spawn } = require("child_process");
 const axios = require("axios");
 const util = require("util");
 const { getAudioDurationInSeconds } = require("get-audio-duration");
@@ -69,33 +69,34 @@ const downloadFile = (url, outputPath) => {
     }
   });
 };
+function runCommand(command) {
+  const child = spawn(command, { shell: true });
 
-const execPromise = util.promisify((command) => {
-  exec(command, { maxBuffer: 1024 * 1024 * 50 });
-});
+  child.stdout.on("data", (data) => {
+    process.stdout.write(data);
+  });
 
-async function runCommand(command) {
-  try {
-    const { stdout, stderr } = await execPromise(command);
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-    } else {
-      console.log(stdout);
-    }
-  } catch (error) {
-    console.log(`error: ${error}`);
-  }
+  child.stderr.on("data", (data) => {
+    process.stderr.write(data);
+  });
+
+  return new Promise((resolve, reject) => {
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Command failed with code ${code}`));
+      }
+    });
+  });
 }
-
 function fileSizeInMb(fileSizeBytes) {
   return fileSizeBytes / 1048576;
 }
 
 async function processAudio(audioURL, modelURL, audioFile, tone) {
-  console.log("Processing audio:", audioURL, modelURL, audioFile, tone);
   const outputPath = path.join(absolutePath, `/audios/input/${audioFile}`);
   const conversionPath = path.join(absolutePath, `/audios/output/${audioFile}`);
-  console.log("Paths:", conversionPath);
   let start = Date.now();
 
   try {
@@ -131,7 +132,7 @@ async function processAudio(audioURL, modelURL, audioFile, tone) {
 
     const python_script = `"${path.join(absolutePath, "python", "infer.py")}"`;
     const command = `python ${python_script} ${tone} "${input_path}" "${output_path}" "${modelURL}"`;
-
+    console.log("Running command:", command);
     try {
       await runCommand(command);
 
@@ -221,14 +222,15 @@ class AudioReplyQueue {
           if (result.resultFilePath) {
             const attachment = new AttachmentBuilder(result.resultFilePath);
 
-            await interaction.editReply({
+            await interaction.followUp({
               content: `${interaction.user}, your audio has been processed and converted successfully!`,
               files: [attachment],
+              ephemeral: true,
             });
           } else {
-            await interaction.editReply({
-              embeds: [],
+            await interaction.followUp({
               content: result?.message || "Unknown error occurred.",
+              ephemeral: true,
             });
           }
 

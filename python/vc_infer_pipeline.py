@@ -344,7 +344,6 @@ class VC(object):
         audio0,
         pitch,
         pitchf,
-        times,
         index,
         big_npy,
         index_rate,
@@ -431,8 +430,6 @@ class VC(object):
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         t2 = ttime()
-        times[0] += t1 - t0
-        times[2] += t2 - t1
         return audio1
 
     def pipeline(
@@ -442,7 +439,6 @@ class VC(object):
         sid,
         audio,
         input_audio_path,
-        times,
         f0_up_key,
         f0_method,
         file_index,
@@ -519,7 +515,6 @@ class VC(object):
             pitch = torch.tensor(pitch, device=self.device).unsqueeze(0).long()
             pitchf = torch.tensor(pitchf, device=self.device).unsqueeze(0).float()
         t2 = ttime()
-        times[1] += t2 - t1
         for t in opt_ts:
             t = t // self.window * self.window
             if if_f0 == 1:
@@ -531,7 +526,6 @@ class VC(object):
                         audio_pad[s : t + self.t_pad2 + self.window],
                         pitch[:, s // self.window : (t + self.t_pad2) // self.window],
                         pitchf[:, s // self.window : (t + self.t_pad2) // self.window],
-                        times,
                         index,
                         big_npy,
                         index_rate,
@@ -548,7 +542,6 @@ class VC(object):
                         audio_pad[s : t + self.t_pad2 + self.window],
                         None,
                         None,
-                        times,
                         index,
                         big_npy,
                         index_rate,
@@ -566,7 +559,6 @@ class VC(object):
                     audio_pad[t:],
                     pitch[:, t // self.window :] if t is not None else pitch,
                     pitchf[:, t // self.window :] if t is not None else pitchf,
-                    times,
                     index,
                     big_npy,
                     index_rate,
@@ -583,7 +575,6 @@ class VC(object):
                     audio_pad[t:],
                     None,
                     None,
-                    times,
                     index,
                     big_npy,
                     index_rate,

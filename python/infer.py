@@ -275,13 +275,12 @@ def vc_single(
     f0_up_key = int(f0_up_key)
     try:
         audio = load_audio(input_audio_path, 16000)
-        print("Trying to load", input_audio_path)
         audio_max = np.abs(audio).max() / 0.95
 
         if audio_max > 1:
             audio /= audio_max
 
-        times = [0, 0, 0]
+      
         if not hubert_model:
             load_hubert()
         if_f0 = cpt.get("f0", 1)
@@ -303,7 +302,6 @@ def vc_single(
             sid,
             audio,
             input_audio_path,
-            times,
             f0_up_key,
             f0_method,
             file_index,
@@ -319,12 +317,11 @@ def vc_single(
             f0_file=f0_file,
         )
 
-        print("Time: ", times[2], sep="")
 
         if output_path is not None:
             sf.write(output_path, audio_opt, tgt_sr, format="WAV")
 
-        return "Done", (tgt_sr, audio_opt)
+        return (tgt_sr, audio_opt)
 
     except:
         info = traceback.format_exc()

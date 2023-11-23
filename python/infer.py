@@ -2,11 +2,16 @@ import os
 import sys
 import wget
 import torch
+import gdown
 import warnings
 import traceback
+import zipfile
+import requests
 import numpy as np
 import soundfile as sf
 from config import Config
+
+from bs4 import BeautifulSoup
 from vc_infer_pipeline import VC
 from fairseq import checkpoint_utils
 from infer_pack.models import (
@@ -22,6 +27,19 @@ torch.manual_seed(114514)
 
 config = Config()
 hubert_model = None
+
+def find_folder_parent(search_dir, folder_name):
+    for dirpath, dirnames, filenames in os.walk(search_dir):
+        if folder_name in dirnames:
+            return os.path.abspath(dirpath)
+    return None
+
+
+now_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(now_dir)
+file_path = find_folder_parent(now_dir, "models")
+
+zips_path = os.getcwd() + "/zips"
 
 if not os.path.exists("./hubert_base.pt"):
     wget.download(

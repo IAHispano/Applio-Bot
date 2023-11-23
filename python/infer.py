@@ -3,14 +3,13 @@ import sys
 import wget
 import torch
 import gdown
-import warnings
-import traceback
 import zipfile
+import warnings
 import requests
+import traceback
 import numpy as np
 import soundfile as sf
 from config import Config
-
 from bs4 import BeautifulSoup
 from vc_infer_pipeline import VC
 from fairseq import checkpoint_utils
@@ -27,6 +26,7 @@ torch.manual_seed(114514)
 
 config = Config()
 hubert_model = None
+
 
 def find_folder_parent(search_dir, folder_name):
     for dirpath, dirnames, filenames in os.walk(search_dir):
@@ -58,6 +58,13 @@ if not os.path.exists("./ffmpeg.exe"):
         "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffmpeg.exe",
         out="./ffmpeg.exe",
     )
+
+if not os.path.exists("./ffprobe.exe"):
+    wget.download(
+        "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/ffprobe.exe",
+        out="./ffprobe.exe",
+    )
+
 
 def search_pth_index(folder):
     pth_paths = [
@@ -135,7 +142,7 @@ def download_from_url(url):
                 file_name = url.split("/")[-1]
                 file_name = file_name.replace("%20", "_")
                 total_size_in_bytes = int(response.headers.get("content-length", 0))
-                block_size = 1024  # 1 Kibibyte
+                block_size = 1024
                 progress_bar_length = 50
                 progress = 0
                 with open(os.path.join(zips_path, file_name), "wb") as file:
@@ -229,6 +236,7 @@ if verify == "downloaded":
 else:
     message = "Error"
     sys.exit()
+
 
 def load_hubert():
     global hubert_model
@@ -434,7 +442,6 @@ def get_vc(weight_root, sid):
             cpt = None
         return {"visible": False, "__type__": "update"}
     person = weight_root
-    # print("loading %s" % person)
     cpt = torch.load(person, map_location="cpu")
     tgt_sr = cpt["config"][-1]
     cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]
@@ -460,7 +467,6 @@ def get_vc(weight_root, sid):
         net_g = net_g.float()
     vc = VC(tgt_sr, config)
     n_spk = cpt["config"][-3]
-
 
 
 f0up_key = sys.argv[1]
@@ -505,6 +511,6 @@ try:
 
     print(message)
 
-except Exception as e:
-    print(e)
-    message = "Voice conversion failed", e
+except Exception as error:
+    message = "Voice conversion failed", error
+    print(message)

@@ -35,6 +35,14 @@ function deleteFolderSync(folderPath) {
   }
 }
 
+async function deleteFilesByPath(paths) {
+  for (const filePath of paths) {
+    if (fs.existsSync(filePath)) {
+      await fs.promises.rm(filePath, { recursive: true });
+    }
+  }
+}
+
 deleteAndCreateFolder("./audios/input");
 deleteAndCreateFolder("./audios/output");
 deleteAndCreateFolder("./models");
@@ -84,8 +92,10 @@ function fileSizeInMb(fileSizeBytes) {
 }
 
 async function processAudio(audioURL, modelURL, audioFile, tone) {
+  console.log("Processing audio:", audioURL, modelURL, audioFile, tone);
   const outputPath = path.join(absolutePath, `/audios/input/${audioFile}`);
   const conversionPath = path.join(absolutePath, `/audios/output/${audioFile}`);
+  console.log("Paths:", conversionPath);
   let start = Date.now();
 
   try {
@@ -117,10 +127,10 @@ async function processAudio(audioURL, modelURL, audioFile, tone) {
 
     const input_path = path.join(outputPath);
 
-    const opt_path = path.join(conversionPath);
+    const output_path = path.join(conversionPath);
 
     const python_script = `"${path.join(absolutePath, "python", "infer.py")}"`;
-    const command = `python ${python_script} ${tone} "${input_path}" "${opt_path}" "${modelURL}"`;
+    const command = `python ${python_script} ${tone} "${input_path}" "${output_path}" "${modelURL}"`;
 
     try {
       await runCommand(command);
@@ -165,14 +175,6 @@ async function processAudio(audioURL, modelURL, audioFile, tone) {
   }
 }
 
-async function deleteFilesByPath(paths) {
-  for (const filePath of paths) {
-    if (fs.existsSync(filePath)) {
-      await fs.promises.rm(filePath, { recursive: true });
-    }
-  }
-}
-
 class AudioReplyQueue {
   constructor() {
     this.queue = [];
@@ -204,18 +206,23 @@ class AudioReplyQueue {
     this.processing = true;
 
     for (let i = 0; i < this.queue.length; i++) {
-      const { modelURL, audioURL, audioFile, tone, interaction } = this.queue[i];
+      const { modelURL, audioURL, audioFile, tone, interaction } =
+        this.queue[i];
 
       try {
         if (audioFile && modelURL) {
-          const result = await processAudio(audioURL, modelURL, audioFile, tone);
+          const result = await processAudio(
+            audioURL,
+            modelURL,
+            audioFile,
+            tone
+          );
 
-          if (result && result.success && result.resultFilePath) {
+          if (result.resultFilePath) {
             const attachment = new AttachmentBuilder(result.resultFilePath);
 
             await interaction.editReply({
               content: `${interaction.user}, your audio has been processed and converted successfully!`,
-              embeds: [],
               files: [attachment],
             });
           } else {
@@ -255,7 +262,6 @@ class AudioReplyQueue {
 const audioReplyQueue = new AudioReplyQueue();
 
 module.exports = {
-  devOnly: true,
   data: new SlashCommandBuilder()
     .setName("cover")
     .setDescription("Create a cover with AI easily from Discord!")
@@ -302,6 +308,5 @@ module.exports = {
       ephemeral: true,
     });
     audioReplyQueue.push(modelURL, audioURL, audioFile, tone, interaction);
-
   },
 };

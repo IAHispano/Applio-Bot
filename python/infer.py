@@ -35,8 +35,7 @@ def find_folder_parent(search_dir, folder_name):
     return None
 
 
-now_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(now_dir)
+now_dir = os.getcwd()
 file_path = find_folder_parent(now_dir, "models")
 
 zips_path = os.getcwd() + "/zips"
@@ -379,7 +378,7 @@ def vc_multi(
                 protect,
                 crepe_hop_length,
             )
-            if "Success" in info:
+            if "success" in info:
                 try:
                     tgt_sr, audio_opt = opt
                     if format1 in ["wav", "flac"]:

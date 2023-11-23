@@ -246,7 +246,50 @@ class VC(object):
         f0_max = 1100
         f0_mel_min = 1127 * np.log(1 + f0_min / 700)
         f0_mel_max = 1127 * np.log(1 + f0_max / 700)
-        if f0_method == "rmvpe":
+        if f0_method == "pm":
+            f0 = (
+                parselmouth.Sound(x, self.sr)
+                .to_pitch_ac(
+                    time_step=time_step / 1000,
+                    voicing_threshold=0.6,
+                    pitch_floor=f0_min,
+                    pitch_ceiling=f0_max,
+                )
+                .selected_array["frequency"]
+            )
+            pad_size = (p_len - len(f0) + 1) // 2
+            if pad_size > 0 or p_len - len(f0) - pad_size > 0:
+                f0 = np.pad(
+                    f0, [[pad_size, p_len - len(f0) - pad_size]], mode="constant"
+                )
+        elif f0_method == "harvest":
+            input_audio_path2wav[input_audio_path] = x.astype(np.double)
+            f0 = cache_harvest_f0(input_audio_path, self.sr, f0_max, f0_min, 10)
+            if filter_radius > 2:
+                f0 = signal.medfilt(f0, 3)
+        elif f0_method == "dio":
+            f0, t = pyworld.dio(
+                x.astype(np.double),
+                fs=self.sr,
+                f0_ceil=f0_max,
+                f0_floor=f0_min,
+                frame_period=10,
+            )
+            f0 = pyworld.stonemask(x.astype(np.double), f0, t, self.sr)
+            f0 = signal.medfilt(f0, 3)
+        elif f0_method == "crepe":
+            f0 = self.get_f0_official_crepe_computation(x, f0_min, f0_max)
+        elif f0_method == "crepe-tiny":
+            f0 = self.get_f0_official_crepe_computation(x, f0_min, f0_max, "tiny")
+        elif f0_method == "mangio-crepe":
+            f0 = self.get_f0_crepe_computation(
+                x, f0_min, f0_max, p_len, crepe_hop_length
+            )
+        elif f0_method == "mangio-crepe-tiny":
+            f0 = self.get_f0_crepe_computation(
+                x, f0_min, f0_max, p_len, crepe_hop_length, "tiny"
+            )
+        elif f0_method == "rmvpe":
             if hasattr(self, "model_rmvpe") == False:
                 from rmvpe import RMVPE
 
@@ -254,6 +297,20 @@ class VC(object):
                     "rmvpe.pt", is_half=self.is_half, device=self.device
                 )
             f0 = self.model_rmvpe.infer_from_audio(x, thred=0.03)
+
+        elif "hybrid" in f0_method:
+            input_audio_path2wav[input_audio_path] = x.astype(np.double)
+            f0 = self.get_f0_hybrid_computation(
+                f0_method,
+                input_audio_path,
+                x,
+                f0_min,
+                f0_max,
+                p_len,
+                filter_radius,
+                crepe_hop_length,
+                time_step,
+            )
 
         f0 *= pow(2, f0_up_key / 12)
         tf0 = self.sr // self.window
@@ -287,6 +344,7 @@ class VC(object):
         audio0,
         pitch,
         pitchf,
+        times,
         index,
         big_npy,
         index_rate,
@@ -373,6 +431,8 @@ class VC(object):
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         t2 = ttime()
+        times[0] += t1 - t0
+        times[2] += t2 - t1
         return audio1
 
     def pipeline(
@@ -382,6 +442,7 @@ class VC(object):
         sid,
         audio,
         input_audio_path,
+        times,
         f0_up_key,
         f0_method,
         file_index,
@@ -458,6 +519,7 @@ class VC(object):
             pitch = torch.tensor(pitch, device=self.device).unsqueeze(0).long()
             pitchf = torch.tensor(pitchf, device=self.device).unsqueeze(0).float()
         t2 = ttime()
+        times[1] += t2 - t1
         for t in opt_ts:
             t = t // self.window * self.window
             if if_f0 == 1:
@@ -469,6 +531,7 @@ class VC(object):
                         audio_pad[s : t + self.t_pad2 + self.window],
                         pitch[:, s // self.window : (t + self.t_pad2) // self.window],
                         pitchf[:, s // self.window : (t + self.t_pad2) // self.window],
+                        times,
                         index,
                         big_npy,
                         index_rate,
@@ -485,6 +548,7 @@ class VC(object):
                         audio_pad[s : t + self.t_pad2 + self.window],
                         None,
                         None,
+                        times,
                         index,
                         big_npy,
                         index_rate,
@@ -502,6 +566,7 @@ class VC(object):
                     audio_pad[t:],
                     pitch[:, t // self.window :] if t is not None else pitch,
                     pitchf[:, t // self.window :] if t is not None else pitchf,
+                    times,
                     index,
                     big_npy,
                     index_rate,
@@ -518,6 +583,7 @@ class VC(object):
                     audio_pad[t:],
                     None,
                     None,
+                    times,
                     index,
                     big_npy,
                     index_rate,

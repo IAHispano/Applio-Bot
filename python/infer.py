@@ -218,7 +218,7 @@ def unzip_file(zip_path, zip_file_name):
     # os.remove(zip_file_path)
 
 
-url = sys.argv[6]
+url = sys.argv[4]
 verify = download_from_url(url)
 
 if verify == "downloaded":
@@ -470,10 +470,11 @@ def get_vc(weight_root, sid):
 
 
 f0up_key = sys.argv[1]
-index_rate = float(sys.argv[2])
-f0method = sys.argv[3]
-input_path = sys.argv[4]
-opt_path = sys.argv[5]
+input_path = sys.argv[2]
+opt_path = sys.argv[3]
+index_rate = float(0.66)
+f0method = "rmvpe"
+
 
 model_path = result[0][0]
 index_path = result[1][0]

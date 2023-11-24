@@ -271,6 +271,7 @@ class AudioReplyQueue {
 const audioReplyQueue = new AudioReplyQueue();
 
 module.exports = {
+  devOnly: true,
   data: new SlashCommandBuilder()
     .setName("cover")
     .setDescription("RVC » Create a cover with AI easily from Discord!")

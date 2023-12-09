@@ -1,4 +1,5 @@
 import os
+import tqdm
 import re
 import sys
 import wget
@@ -212,9 +213,25 @@ def download_from_url(url):
                 realPath = os.path.join(currentPath, Files)
                 os.rename(realPath, nameFile + "." + extensionFile)
 
-    os.chdir(now_dir)
-    return "downloaded"
+        os.chdir(now_dir)
+        return "downloaded"
 
+    os.chdir(now_dir)
+    return None
+
+def extract_and_show_progress(zipfile_path, unzips_path):
+    try:
+        with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
+            total_files = len(zip_ref.infolist())
+            with tqdm(total=total_files, unit='files', ncols= 100, colour= 'green') as pbar:
+                for file_info in zip_ref.infolist():
+                    zip_ref.extract(file_info, unzips_path)
+                    pbar.update(1)
+        return True
+    except Exception as e:
+        print(f"Error al descomprimir {zipfile_path}: {e}")
+        return False
+    
 
 def unzip_file(zip_path, zip_file_name):
     zip_file_path = os.path.join(zip_path, zip_file_name + ".zip")
@@ -228,17 +245,33 @@ url = sys.argv[4]
 verify = download_from_url(url)
 
 if verify == "downloaded":
-    file_name = os.path.splitext(os.path.basename(url))[0]
-
-    extract_folder_path = os.path.join(file_path, "models", file_name)
-    os.makedirs(extract_folder_path, exist_ok=True)
-    zip_file_path = os.path.join(zips_path, file_name + ".zip")
-
-    if not os.path.exists(zip_file_path):
+    extract_folder_path = ""
+    for filename in os.listdir(zips_path):
+        if filename.endswith(".zip"):
+            zipfile_path = os.path.join(zips_path, filename)
+            print("Proceeding with the extraction...")
+            
+            model_name = os.path.basename(zipfile_path)
+            extract_folder_path = os.path.join(
+                file_path,
+                "models",
+                os.path.normpath(str(model_name).replace(".zip", "")),
+            )
+                
+                
+            success = extract_and_show_progress(zipfile_path, extract_folder_path)
+            if success:
+                print("Extracción exitosa: {model_name}")
+            else:
+                print("Fallo en la extracción: {model_name}")
+                sys.exit()
+        else:
+            print("Unzip error.")
+            sys.exit()
+    if not extract_folder_path:
+        print("No model name")
         sys.exit()
-    unzip_file(zips_path, file_name)
-
-    result = search_pth_index(os.path.join(file_path, "models", file_name))
+    result = search_pth_index(extract_folder_path)
 else:
     message = "Error"
     sys.exit()
@@ -512,6 +545,7 @@ try:
         message = result
 
     print(message)
+    print('finished')
 
 except Exception as error:
     message = "Voice conversion failed", error

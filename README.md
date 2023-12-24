@@ -17,17 +17,6 @@ Ensure you have the necessary dependencies by running the following commands in 
 ```bash
 cd Applio-Bot
 npm install
-pip install -r requirements.txt
-```
-
-For Linux users, also run:
-
-```bash
-sudo apt update -y
-sudo apt install -y python3.9
-sudo apt install -y python3-pip
-sudo apt-get install libsndfile1
-sudo apt-get install ffmpeg
 ```
 
 ### Running the Bot

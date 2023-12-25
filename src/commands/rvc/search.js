@@ -76,6 +76,8 @@ module.exports = {
       let currentPage = 1;
       let mainEmbed;
       let mainButtons;
+      let messageIdMap = {};
+      let selectedResult;
 
       const options = data.slice(0, 25).map((result, index) => ({
         label: `${result.name}`,
@@ -88,10 +90,7 @@ module.exports = {
         const startIdx = (page - 1) * pageSize;
         const endIdx = Math.min(startIdx + pageSize, data.length);
 
-        const saveButton = new ButtonBuilder()
-          .setLabel("💾 Save")
-          .setStyle(ButtonStyle.Primary)
-          .setCustomId("send_dm_button");
+        
 
         const downloadButton = new ButtonBuilder()
           .setLabel("📤 Download")
@@ -107,6 +106,7 @@ module.exports = {
           .setTimestamp();
 
         for (let i = startIdx; i < endIdx; i++) {
+          selectedResult = results[i];
           const result = data[i];
           if (!result) continue;
 
@@ -168,6 +168,11 @@ module.exports = {
           embed.setTitle(result.name);
         }
 
+        const saveButton = new ButtonBuilder()
+          .setLabel("💾 Save")
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId(`save_button_${selectedResult.id}`);
+        
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
@@ -193,11 +198,13 @@ module.exports = {
         );
         mainEmbed = embed;
         mainButtons = row_buttons;
-        loadingMessage.edit({
+        let new_id = loadingMessage.edit({
           content: `I have found ${data.length} results for the search ${model}...`,
           embeds: [embed],
           components: [row_menu, row_buttons],
         });
+        new_id = await new_id;
+        messageIdMap[embedId] = new_id.id;
       }
 
       displayPage(currentPage);
@@ -289,7 +296,7 @@ module.exports = {
           const saveButton = new ButtonBuilder()
             .setLabel("💾 Save")
             .setStyle(ButtonStyle.Primary)
-            .setCustomId("send_dm_button");
+            .setCustomId(`save_button_${selectedResult.id}`);
 
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
@@ -315,6 +322,8 @@ module.exports = {
             embeds: [embed],
             components: [row_menu, row_buttons],
           });
+
+          messageIdMap[embedId] = interaction.message.id;
         }
       });
 
@@ -325,22 +334,65 @@ module.exports = {
       );
 
       buttonCollector.on("collect", async (interaction) => {
-        if (interaction.customId === "send_dm_button") {
-          interaction.reply({
-            content: `💾 ${interaction.user}, sent you a DM with the model information!`,
-            ephemeral: true,
-          });
-          interaction.user
-            .send({
-              embeds: [mainEmbed],
-              components: [mainButtons],
-            })
-            .catch(() => {
-              interaction.channel.send({
-                content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
-                ephemeral: true,
+        if (interaction.customId.startsWith("save_button_")) {
+          const embedId = interaction.customId.replace("save_button_", "");
+          const originalMessageId = messageIdMap[embedId];
+
+          if (originalMessageId) {
+
+            const originalMessage = await interaction.channel.messages.fetch(
+              originalMessageId,
+            );
+  
+
+            if (originalMessage && originalMessage.embeds.length > 0) {
+              const savedEmbed = originalMessage.embeds[0];
+              const savedComponents = originalMessage.components;
+
+              interaction.user
+              .send({
+                embeds: [savedEmbed],
+                components: savedComponents,
+              })
+              .then(() => {
+                interaction.reply({
+                  content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+                  ephemeral: true,
+                })
+              })
+              .catch(() => {
+                interaction.reply({
+                  content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
+                  ephemeral: true,
+                });
               });
-            });
+              delete messageIdMap[embedId];
+            } else {
+            }
+          } else {
+          }
+        }
+      });
+      buttonCollector.on("end", async (collected, reason) => {
+
+        for (const embedId in messageIdMap) {
+          const originalMessageId = messageIdMap[embedId];
+          console.log(originalMessageId)
+          if (originalMessageId) {
+            try {
+              
+              const originalMessage = await interaction.channel.messages.fetch(
+                originalMessageId
+              )
+      
+              if (originalMessage && originalMessage.components.length > 0) {
+       
+                delete messageIdMap[embedId];
+              }
+            } catch (error) {
+              console.log("");
+            }
+          }
         }
       });
     } catch (error) {

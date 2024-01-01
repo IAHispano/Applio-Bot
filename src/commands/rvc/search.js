@@ -168,6 +168,8 @@ module.exports = {
           embed.setTitle(result.name);
         }
 
+        let embedId = `${selectedResult.id}`
+
         const saveButton = new ButtonBuilder()
           .setLabel("💾 Save")
           .setStyle(ButtonStyle.Primary)
@@ -292,6 +294,8 @@ module.exports = {
             downloadButton.setDisabled(true);
             downloadButton.setURL("https://applio.org");
           }
+
+          let embedId = `${selectedResult.id}`
 
           const saveButton = new ButtonBuilder()
             .setLabel("💾 Save")

@@ -106,8 +106,8 @@ module.exports = {
           .setTimestamp();
 
         for (let i = startIdx; i < endIdx; i++) {
-          selectedResult = results[i];
           const result = data[i];
+          selectedResult = data[i];
           if (!result) continue;
 
           const uploadedTimestamp =

@@ -77,7 +77,7 @@ module.exports = {
     const motivo = interaction.options.getString("reason");
     const tiempo = interaction.options.getString("time");
     const prueba = interaction.options.get("proof");
-    const canal = interaction.guild.channels.cache.get("1117398602239705118");
+    const canal = interaction.guild.channels.cache.get("1185924049310851183");
 
     const pruebaImg = prueba?.attachment?.url ? prueba.attachment.url : null;
 

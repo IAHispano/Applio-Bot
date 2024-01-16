@@ -40,7 +40,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Selecciona la tecnología del modelo.",
         })
-        .setRequired(false)
+        .setRequired(true)
         .addChoices(
           { name: "RVC", value: "rvc" },
           { name: "Kits.AI", value: "kits.ai" },

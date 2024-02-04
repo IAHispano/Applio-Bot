@@ -14,7 +14,7 @@ const {
     data: new SlashCommandBuilder()
       .setName("fakeyou")
       .setNameLocalizations({
-        "es-ES": "buscador",
+        "es-ES": "fakeyou",
       })
       .setDescription("Fakeyou » Search any voice model in Fakeyou.")
       .setDescriptionLocalizations({

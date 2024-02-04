@@ -51,12 +51,9 @@ const {
   
         const response = await axios.get("https://api.fakeyou.com/tts/list");
         let data = response.data.models || [];
-        console.log(data);
         data = data.filter(modelo =>
             modelo.title.toLowerCase().includes(model.toLowerCase())
         );
-
-        console.log(data);
   
         const pageSize = 1;
         let currentPage = 1;
@@ -284,7 +281,6 @@ const {
   
           for (const embedId in messageIdMap) {
             const originalMessageId = messageIdMap[embedId];
-            console.log(originalMessageId)
             if (originalMessageId) {
               try {
                 

@@ -33,19 +33,6 @@ module.exports = {
         })
         .setRequired(true),
     )
-    .addStringOption((option) =>
-      option
-        .setName("technology")
-        .setDescription("Select the technology of the model.")
-        .setDescriptionLocalizations({
-          "es-ES": "Selecciona la tecnología del modelo.",
-        })
-        .setRequired(true)
-        .addChoices(
-          { name: "RVC", value: "rvc" },
-          { name: "Kits.AI", value: "kits.ai" },
-        ),
-    )
     .setDMPermission(false),
 
   async execute(interaction) {
@@ -62,13 +49,7 @@ module.exports = {
     const loadingMessage = await interaction.deferReply();
 
     try {
-      let url;
-
-      if (!technology) {
-        url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}`;
-      } else {
-        url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=${technology}`;
-      }
+      const url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=${technology}`;
       const response = await axios.get(url);
       const data = response.data;
 
@@ -89,8 +70,6 @@ module.exports = {
       async function displayPage(page) {
         const startIdx = (page - 1) * pageSize;
         const endIdx = Math.min(startIdx + pageSize, data.length);
-
-        
 
         const downloadButton = new ButtonBuilder()
           .setLabel("📤 Download")

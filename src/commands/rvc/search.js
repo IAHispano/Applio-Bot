@@ -37,7 +37,6 @@ module.exports = {
 
   async execute(interaction) {
     const model = interaction.options.getString("model");
-    const technology = interaction.options.getString("technology");
     if (model.length <= 3) {
       const embed = new EmbedBuilder()
         .setDescription("Please enter a model name with at least 4 characters.")
@@ -49,7 +48,7 @@ module.exports = {
     const loadingMessage = await interaction.deferReply();
 
     try {
-      const url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=${technology}`;
+      const url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=rvc`;
       const response = await axios.get(url);
       const data = response.data;
 

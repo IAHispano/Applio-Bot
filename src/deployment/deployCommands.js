@@ -1,5 +1,4 @@
 const { REST, Routes } = require("discord.js");
-const { client_id, token } = require("./../config.json");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -31,19 +30,25 @@ for (const folder of commandFolders) {
   }
 }
 
-const rest = new REST().setToken(token);
+const rest = new REST().setToken(process.env.BOT_TOKEN);
 
 (async () => {
   try {
-    const globalData = await rest.put(Routes.applicationCommands(client_id), {
-      body: globalCommands,
-    });
+    const globalData = await rest.put(
+      Routes.applicationCommands(process.env.BOT_ID),
+      {
+        body: globalCommands,
+      },
+    );
     console.log(
       `[COMMAND] Successfully published ${globalData.length} global commands.`,
     );
 
     const guildData = await rest.put(
-      Routes.applicationGuildCommands(client_id, "1096877223765606521"),
+      Routes.applicationGuildCommands(
+        process.env.BOT_ID,
+        process.env.AI_HISPANO_ID,
+      ),
       {
         body: guildCommands,
       },

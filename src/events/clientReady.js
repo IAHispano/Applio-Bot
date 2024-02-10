@@ -1,6 +1,5 @@
 const { Events, ActivityType, EmbedBuilder } = require("discord.js");
 const mongoose = require("mongoose");
-const { mongodb_url } = require("../config.json");
 const cron = require("node-cron");
 
 module.exports = {
@@ -53,11 +52,11 @@ module.exports = {
 
       console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
 
-      if (!mongodb_url)
+      if (!process.env.MONGODB_URL)
         return console.log("[DATABASE] No MongoDB URL provided.");
 
       try {
-        await mongoose.connect(mongodb_url, {
+        await mongoose.connect(process.env.MONGODB_URL, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
         });

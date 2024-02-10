@@ -8,7 +8,6 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const axios = require("axios");
-const { client_id, bot_perms, applio_api_key } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -48,7 +47,7 @@ module.exports = {
     const loadingMessage = await interaction.deferReply();
 
     try {
-      const url = `https://api.applio.org/key=${applio_api_key}/models/search?name=${model}&type=rvc`;
+      const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${model}&type=rvc`;
       const response = await axios.get(url);
       const data = response.data;
 
@@ -146,17 +145,17 @@ module.exports = {
           embed.setTitle(result.name);
         }
 
-        let embedId = `${selectedResult.id}`
+        let embedId = `${selectedResult.id}`;
 
         const saveButton = new ButtonBuilder()
           .setLabel("💾 Save")
           .setStyle(ButtonStyle.Primary)
           .setCustomId(`save_button_${selectedResult.id}`);
-        
+
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
+            `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
           )
           .setStyle(ButtonStyle.Link);
 
@@ -273,7 +272,7 @@ module.exports = {
             downloadButton.setURL("https://applio.org");
           }
 
-          let embedId = `${selectedResult.id}`
+          let embedId = `${selectedResult.id}`;
 
           const saveButton = new ButtonBuilder()
             .setLabel("💾 Save")
@@ -283,7 +282,7 @@ module.exports = {
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
+              `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(
@@ -321,33 +320,30 @@ module.exports = {
           const originalMessageId = messageIdMap[embedId];
 
           if (originalMessageId) {
-
-            const originalMessage = await interaction.channel.messages.fetch(
-              originalMessageId,
-            );
-  
+            const originalMessage =
+              await interaction.channel.messages.fetch(originalMessageId);
 
             if (originalMessage && originalMessage.embeds.length > 0) {
               const savedEmbed = originalMessage.embeds[0];
               const savedComponents = originalMessage.components;
 
               interaction.user
-              .send({
-                embeds: [savedEmbed],
-                components: savedComponents,
-              })
-              .then(() => {
-                interaction.reply({
-                  content: `💾 ${interaction.user}, sent you a DM with the model information!`,
-                  ephemeral: true,
+                .send({
+                  embeds: [savedEmbed],
+                  components: savedComponents,
                 })
-              })
-              .catch(() => {
-                interaction.reply({
-                  content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
-                  ephemeral: true,
+                .then(() => {
+                  interaction.reply({
+                    content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+                    ephemeral: true,
+                  });
+                })
+                .catch(() => {
+                  interaction.reply({
+                    content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
+                    ephemeral: true,
+                  });
                 });
-              });
               delete messageIdMap[embedId];
             } else {
             }
@@ -356,19 +352,15 @@ module.exports = {
         }
       });
       buttonCollector.on("end", async (collected, reason) => {
-
         for (const embedId in messageIdMap) {
           const originalMessageId = messageIdMap[embedId];
-          console.log(originalMessageId)
+          console.log(originalMessageId);
           if (originalMessageId) {
             try {
-              
-              const originalMessage = await interaction.channel.messages.fetch(
-                originalMessageId
-              )
-      
+              const originalMessage =
+                await interaction.channel.messages.fetch(originalMessageId);
+
               if (originalMessage && originalMessage.components.length > 0) {
-       
                 delete messageIdMap[embedId];
               }
             } catch (error) {

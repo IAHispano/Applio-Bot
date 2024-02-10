@@ -1,7 +1,9 @@
 const { ShardingManager } = require("discord.js");
-const { token } = require("./src/config.json");
+require("dotenv").config();
 
-const manager = new ShardingManager("./src/bot.js", { token: token });
+const manager = new ShardingManager("./src/bot.js", {
+  token: process.env.BOT_TOKEN,
+});
 manager.on("shardCreate", (shard) =>
   console.log(`[CLIENT] Launched shard ${shard.id}`),
 );

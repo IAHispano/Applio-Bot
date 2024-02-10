@@ -2,9 +2,8 @@ const fs = require("fs");
 const { Events } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { token } = require("./../config.json");
 
-const rest = new REST().setToken(token);
+const rest = new REST().setToken(process.env.BOT_TOKEN);
 
 const fetchUser = async (id) => {
   await new Promise((resolve) => setTimeout(resolve, 200));

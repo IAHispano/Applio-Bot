@@ -1,38 +1,4 @@
-# Logs
-logs
-*.log
-
-# Dependency directories
 node_modules/
-package-lock.json
-
-# Environment variables
+pnpm-lock.yaml
 .env
 
-# Output of build tools
-dist/
-build/
-out/
-
-# IDEs and editors
-.vscode/
-.idea/
-*.sublime-workspace
-
-# Miscellaneous
-*.swp
-.DS_Store
-
-# Python
-python/__pycache__/*
-python/infer_pack/__pycache__/*
-
-# Bot
-models/
-zips/
-src/config.json
-rmvpe.pt
-hubert_base.pt
-audios/
-ffmpeg.exe
-ffprobe.exe

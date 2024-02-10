@@ -8,7 +8,6 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const axios = require("axios");
-const { client_id, bot_perms, applio_api_key } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -43,7 +42,7 @@ module.exports = {
     const loadingMessage = await interaction.deferReply();
 
     try {
-      const url = `https://api.applio.org/key=${applio_api_key}/models/user=${user}`;
+      const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/user=${user}`;
       const response = await axios.get(url);
       const data = response.data;
 
@@ -146,7 +145,7 @@ module.exports = {
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
+            `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
           )
           .setStyle(ButtonStyle.Link);
 
@@ -269,7 +268,7 @@ module.exports = {
           const botInviteButton = new ButtonBuilder()
             .setLabel("🤖 Bot Invite")
             .setURL(
-              `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=${bot_perms}&scope=bot`,
+              `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
             )
             .setStyle(ButtonStyle.Link);
           const row_buttons = new ActionRowBuilder().addComponents(

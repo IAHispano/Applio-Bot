@@ -1,5 +1,4 @@
 const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
-const { moderator_role } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,7 +6,6 @@ module.exports = {
     .setNameLocalizations({
       "es-ES": "sanción",
     })
-
     .setDescription(
       "AI Hispano » Apply a sanction to a user (Moderators only).",
     )
@@ -73,35 +71,41 @@ module.exports = {
     )
     .setDMPermission(false),
   async execute(interaction) {
-    const usuario = interaction.options.getMember("user");
-    const motivo = interaction.options.getString("reason");
-    const tiempo = interaction.options.getString("time");
-    const prueba = interaction.options.get("proof");
-    const canal = interaction.guild.channels.cache.get("1185924049310851183");
+    const user = interaction.options.getMember("user");
+    const reason = interaction.options.getString("reason");
+    const time = interaction.options.getString("time");
+    const proof = interaction.options.get("proof");
+    const channel = interaction.guild.channels.cache.get(
+      process.env.AI_HISPANO_PUNISHMENT_CHANNEL_ID,
+    );
 
-    const pruebaImg = prueba?.attachment?.url ? prueba.attachment.url : null;
+    const proofImg = proof?.attachment?.url ? proof.attachment.url : null;
 
     const member = interaction.member;
-    if (member.roles.cache.some((role) => role.id === moderator_role)) {
-      const embedSancion = new EmbedBuilder()
+    if (
+      member.roles.cache.some(
+        (role) => role.id === process.env.AI_HISPANO_MOD_ID,
+      )
+    ) {
+      const embedPunishment = new EmbedBuilder()
         .setTitle("New punishment")
         .addFields(
-          { name: "User", value: `${usuario}`, inline: true },
+          { name: "User", value: `${user}`, inline: true },
           {
             name: "Staff",
             value: `${interaction.member?.user}`,
             inline: true,
           },
-          { name: "Reason", value: `${motivo}`, inline: true },
-          { name: "Time", value: `${tiempo}`, inline: true },
+          { name: "Reason", value: `${reason}`, inline: true },
+          { name: "Time", value: `${time}`, inline: true },
         )
-        .setImage(pruebaImg)
+        .setImage(proofImg)
         .setColor("Blurple")
         .setTimestamp();
 
       let timeoutMilliseconds = 0;
 
-      switch (tiempo) {
+      switch (time) {
         case "1 minute":
           timeoutMilliseconds = 1 * 60 * 1000;
           break;
@@ -122,12 +126,12 @@ module.exports = {
           break;
       }
 
-      await usuario.timeout(timeoutMilliseconds, motivo);
+      await user.timeout(timeoutMilliseconds, reason);
 
-      canal.send({ embeds: [embedSancion] });
+      channel.send({ embeds: [embedPunishment] });
 
       const embed = new EmbedBuilder()
-        .setDescription(`Punishment awarded to user ${usuario} for ${tiempo}.`)
+        .setDescription(`Punishment awarded to user ${user} for ${time}.`)
         .setColor("Blurple")
         .setTimestamp();
 
@@ -136,7 +140,7 @@ module.exports = {
         ephemeral: true,
       });
     } else {
-      // El autor no tiene el rol de moderador, responde con un mensaje de error
+      // The author doesn't have the moderator role, respond with an error message
       return interaction.reply(
         "You don't have permission to use this command.",
       );

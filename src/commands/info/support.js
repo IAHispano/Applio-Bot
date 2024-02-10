@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { support_server } = require("../../config.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -17,7 +16,7 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setTitle("Applio — Support server")
       .setDescription(
-        `Join the official Applio server to get support and find out all the latest news!\n\n[Support Server](${support_server})`,
+        `Join the official Applio server to get support and find out all the latest news!\n\n[Support Server](${process.env.SUPPORT_SERVER})`,
       )
       .setColor("White")
       .setTimestamp();

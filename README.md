@@ -1,6 +1,6 @@
 # Applio-Bot
 
-Applio-Bot is an all-in-one solution to simplify various tasks in Discord. Automate responses, moderate your chat or efficiently manage your community, with unique functions powered by AI 
+Applio-Bot is an all-in-one solution to simplify various tasks in Discord. Automate responses, moderate your chat or efficiently manage your community, with unique functions powered by AI
 
 ## Getting Started
 

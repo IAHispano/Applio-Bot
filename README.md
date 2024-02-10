@@ -4,10 +4,10 @@ Applio-Bot is an all-in-one solution to simplify various tasks in Discord. Autom
 
 ## Getting Started
 
-### Setting up the `config.json` file
+### Setting up the `.env` file
 
-1. Navigate to `src/config.json.example`.
-2. Rename the file to `config.json`.
+1. Navigate to `.env.example`.
+2. Rename the file to `.env`.
 3. Fill in the required data to configure the bot according to your preferences.
 
 ### Installing Dependencies

@@ -25,7 +25,6 @@ module.exports = {
       "AI Hispano": [],
       Info: [],
       Moderation: [],
-      RVC: [],
       Utility: [],
     };
 
@@ -39,8 +38,6 @@ module.exports = {
         groupedCommands["Info"].push(command);
       } else if (description.startsWith("Moderation »")) {
         groupedCommands["Moderation"].push(command);
-      } else if (description.startsWith("RVC »")) {
-        groupedCommands["RVC"].push(command);
       } else if (description.startsWith("Utility »")) {
         groupedCommands["Utility"].push(command);
       }

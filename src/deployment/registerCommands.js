@@ -18,7 +18,7 @@ const totalCommands = commandFolders.reduce((acc, folder) => {
 
 const bar = new ProgressBar(
   "[COMMAND] [:bar] :current/:total (:percent) - :commandName",
-  { total: totalCommands }
+  { total: totalCommands },
 );
 
 for (const folder of commandFolders) {

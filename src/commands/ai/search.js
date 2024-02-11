@@ -91,8 +91,8 @@ module.exports = {
             typeof result.created_at === "string"
               ? Date.parse(result.created_at) / 1000
               : typeof result.created_at === "number"
-              ? result.created_at / 1000
-              : NaN;
+                ? result.created_at / 1000
+                : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
@@ -220,8 +220,8 @@ module.exports = {
             typeof selectedResult.created_at === "string"
               ? Date.parse(selectedResult.created_at) / 1000
               : typeof selectedResult.created_at === "number"
-              ? selectedResult.created_at / 1000
-              : NaN;
+                ? selectedResult.created_at / 1000
+                : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;

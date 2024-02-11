@@ -1,14 +1,15 @@
-const Audit_Log = require("../../schemas/moderation/auditLog.js");
+const Audit_Log = require("../schemas/moderation/auditLog.js");
 const { Events, EmbedBuilder } = require("discord.js");
-const client = require("../../bot.js");
+const client = require("../bot.js");
 
 module.exports = {
-  name: Events.ChannelDelete,
-  async execute(channel) {
+  name: Events.GuildRoleDelete,
+  once: false,
+  async execute(role) {
     const auditEmbed = new EmbedBuilder().setColor("White").setTimestamp();
 
     const data = await Audit_Log.findOne({
-      Guild: channel.guild.id,
+      Guild: role.guild.id,
     });
     let logID;
     if (data) {
@@ -16,14 +17,13 @@ module.exports = {
     } else {
       return;
     }
-
     const auditChannel = client.channels.cache.get(logID);
 
     auditEmbed
-      .setTitle("Channel Deleted")
+      .setTitle("Role Removed")
       .addFields(
-        { name: "Channel Name:", value: channel.name, inline: false },
-        { name: "Channel ID:", value: channel.id, inline: false },
+        { name: "Role Name:", value: role.name, inline: false },
+        { name: "Role ID:", value: role.id, inline: false },
       );
     await auditChannel.send({ embeds: [auditEmbed] });
   },

@@ -5,4 +5,4 @@ const Schema = new mongoose.Schema({
   plan: String,
 });
 
-module.exports = mongoose.model("premiumcode", Schema);
+module.exports = mongoose.model("premiumCode", Schema);

@@ -9,4 +9,4 @@ let user = Schema({
   plan: { type: String, default: null },
 });
 
-module.exports = model("premium", user);
+module.exports = model("premiumUser", user);

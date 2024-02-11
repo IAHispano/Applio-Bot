@@ -1,9 +1,10 @@
-const Audit_Log = require("../../schemas/moderation/auditLog.js");
+const Audit_Log = require("../schemas/moderation/auditLog.js");
 const { Events, EmbedBuilder } = require("discord.js");
-const client = require("../../bot.js");
+const client = require("../bot.js");
 
 module.exports = {
   name: Events.AutoModerationRuleUpdate,
+  once: false,
   async execute(newAutoModerationRule, oldAutoModerationRule) {
     const data = await Audit_Log.findOne({
       Guild: newAutoModerationRule.guild.id,

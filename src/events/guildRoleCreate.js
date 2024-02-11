@@ -1,12 +1,13 @@
-const Audit_Log = require("../../schemas/moderation/auditLog.js");
+const Audit_Log = require("../schemas/moderation/auditLog.js");
 const { Events, EmbedBuilder } = require("discord.js");
-const client = require("../../bot.js");
+const client = require("../bot.js");
 
 module.exports = {
-  name: Events.GuildBanAdd,
-  async execute(thread) {
+  name: Events.GuildRoleCreate,
+  once: false,
+  async execute(role) {
     const data = await Audit_Log.findOne({
-      Guild: thread.guild.id,
+      Guild: role.guild.id,
     });
     let logID;
     if (data) {
@@ -19,11 +20,10 @@ module.exports = {
     const auditChannel = client.channels.cache.get(logID);
 
     auditEmbed
-      .setTitle("Thread Deleted")
+      .setTitle("Role Created")
       .addFields(
-        { name: "Name:", value: thread.name, inline: false },
-        { name: "Tag:", value: `<#${thread.id}>`, inline: false },
-        { name: "ID:", value: thread.id, inline: false },
+        { name: "Role Name:", value: role.name, inline: false },
+        { name: "Role ID:", value: role.id, inline: false },
       );
     await auditChannel.send({ embeds: [auditEmbed] });
   },

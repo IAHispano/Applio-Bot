@@ -5,6 +5,6 @@ const blacklistSchema = new mongoose.Schema({
   reason: String,
 });
 
-const Blacklist = mongoose.model("Blacklist", blacklistSchema);
+const Blacklist = mongoose.model("blacklistUser", blacklistSchema);
 
 module.exports = Blacklist;

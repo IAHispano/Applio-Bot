@@ -5,4 +5,4 @@ let schema = new Schema({
   Channel: String,
 });
 
-module.exports = model("audit_log", schema);
+module.exports = model("auditLog", schema);

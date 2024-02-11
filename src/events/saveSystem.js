@@ -209,7 +209,7 @@ function findOwner(content, item) {
 
 module.exports = {
   name: Events.ThreadCreate,
-
+  once: false,
   async execute(thread) {
     try {
       const threadsChannels = [

@@ -81,7 +81,6 @@ module.exports = {
           url: `https://applio.org/user/${firstResult.author_username}`,
         })
         .setDescription(
-          `If you enjoy it, don't forget to like it by clicking on the title!\n` +
             `- **Uploaded:** <t:${Math.trunc(
               new Date(firstResult.created_at).getTime() / 1000
             )}:d>\n` +
@@ -169,7 +168,6 @@ module.exports = {
             url: `https://applio.org/user/${firstResult.author_username}`,
           })
           .setDescription(
-            `If you enjoy it, don't forget to like it by clicking on the title!\n` +
               `- **Uploaded:** <t:${Math.trunc(
                 new Date(selectedModel.created_at).getTime() / 1000
               )}:d>\n` +

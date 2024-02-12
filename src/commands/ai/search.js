@@ -52,12 +52,6 @@ module.exports = {
       const response = await axios.get(url);
       const data = response.data.slice(0, 25);
 
-      if (!data || data.length === 0) {
-        return interaction.reply({
-          content: "No models found with that name.",
-        });
-      }
-
       const options = data.map((result, index) => ({
         label: `${result.name}`,
         value: `${index}-${result.id}-${Math.trunc(
@@ -81,10 +75,9 @@ module.exports = {
           url: `https://applio.org/user/${firstResult.author_username}`,
         })
         .setDescription(
-            `- **Uploaded:** <t:${Math.trunc(
-              new Date(firstResult.created_at).getTime() / 1000
-            )}:d>\n` +
-            `- **Likes:** ${firstResult.likes}`
+          `- **Uploaded:** <t:${Math.trunc(
+            new Date(firstResult.created_at).getTime() / 1000
+          )}:d>\n` + `- **Likes:** ${firstResult.likes}`
         )
         .setColor("White")
         .setThumbnail(
@@ -168,10 +161,9 @@ module.exports = {
             url: `https://applio.org/user/${firstResult.author_username}`,
           })
           .setDescription(
-              `- **Uploaded:** <t:${Math.trunc(
-                new Date(selectedModel.created_at).getTime() / 1000
-              )}:d>\n` +
-              `- **Likes:** ${selectedModel.likes}`
+            `- **Uploaded:** <t:${Math.trunc(
+              new Date(selectedModel.created_at).getTime() / 1000
+            )}:d>\n` + `- **Likes:** ${selectedModel.likes}`
           )
           .setColor("White")
           .setThumbnail(
@@ -291,9 +283,8 @@ module.exports = {
         }
       });
     } catch (error) {
-      console.error(error);
-      interaction.edit({
-        content: "An error occurred while processing the request.",
+      loading.edit({
+        content: `Sorry, I could not find models that match your search ${model_name}, you can search for similar models in https://applio.org/models`,
       });
     }
   },

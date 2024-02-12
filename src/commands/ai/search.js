@@ -284,7 +284,28 @@ module.exports = {
       });
     } catch (error) {
       loading.edit({
-        content: `Sorry, I could not find models that match your search ${model_name}, you can search for similar models in https://applio.org/models`,
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("An error occurred")
+            .setDescription(
+              `Sorry, I could not find models that match your search "${model_name}"`
+            )
+            .setColor("Red"),
+        ],
+        components: [
+          new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setLabel("🤖 Bot Invite")
+              .setStyle(ButtonStyle.Link)
+              .setURL(
+                `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`
+              ),
+            new ButtonBuilder()
+              .setLabel("🔍 Search")
+              .setStyle(ButtonStyle.Link)
+              .setURL(`https://applio.org/models`)
+          ),
+        ],
       });
     }
   },

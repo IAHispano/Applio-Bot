@@ -12,16 +12,33 @@ module.exports = {
       "es-ES": "Info » Obtén estadísticas sobre Applio.",
     })
     .setDMPermission(false),
-  async execute(interaction) {
-    const totalMembers = await interaction.client.guilds.cache.reduce(
-      (acc, guild) => acc + guild.memberCount,
-      0,
-    );
+  async execute(interaction, client) {
     const cpuUsage = process.cpuUsage().user / process.cpuUsage().system;
 
     const usedMemoryMB = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
-      2,
+      2
     );
+
+    const GuildsCount = async () => {
+      const req = await client.shard.fetchClientValues("guilds.cache.size");
+      return req.reduce((p, n) => p + n, 0);
+    };
+
+    const UsersCount = async () => {
+      const req = await client.shard.broadcastEval((client) =>
+        client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+      );
+      return req.reduce((p, n) => p + n, 0);
+    };
+
+    const ChannelsCount = async () => {
+      const req = await client.shard.fetchClientValues("channels.cache.size");
+      return req.reduce((p, n) => p + n, 0);
+    };
+
+    const getGuildsCount = await GuildsCount();
+    const getUsersCount = await UsersCount();
+    const getChannelsCount = await ChannelsCount();
 
     const embed = new EmbedBuilder()
       .setAuthor({
@@ -30,15 +47,15 @@ module.exports = {
       })
       .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
       .addFields(
-        { name: "Users", value: `${totalMembers}`, inline: true },
+        { name: "Users", value: `${getUsersCount}`, inline: true },
         {
           name: "Guilds",
-          value: `${interaction.client.guilds.cache.size}`,
+          value: `${getGuildsCount}`,
           inline: true,
         },
         {
           name: "Channels",
-          value: `${interaction.client.channels.cache.size}`,
+          value: `${getChannelsCount}`,
           inline: true,
         },
         {
@@ -50,7 +67,7 @@ module.exports = {
           name: "Created",
           value: `<t:${parseInt(
             interaction.client.user.createdTimestamp / 1000,
-            10,
+            10
           )}:R>`,
           inline: true,
         },
@@ -58,7 +75,7 @@ module.exports = {
           name: "Uptime",
           value: `<t:${parseInt(
             interaction.client.readyTimestamp / 1000,
-            10,
+            10
           )}:R>`,
           inline: true,
         },
@@ -76,7 +93,7 @@ module.exports = {
           name: "CPU Usage",
           value: `${cpuUsage.toFixed(2)}%`,
           inline: true,
-        },
+        }
       )
       .setFooter({
         text: `Requested by ${interaction.user.tag}`,

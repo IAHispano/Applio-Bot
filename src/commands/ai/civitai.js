@@ -103,120 +103,106 @@ module.exports = {
         sort: sort,
         period: period,
       });
-      let data = response.items || [];
+      let data = response.items;
+
+
       data = data.filter((modelo) =>
         modelo.name.toLowerCase().includes(model.toLowerCase())
       );
-
-      const pageSize = 1;
-      let currentPage = 1;
-      let mainEmbed;
-      let mainButtons;
       let messageIdMap = {};
-      let selectedResult;
 
       const options = data.slice(0, 25).map((result, index) => ({
         label: `${result.name.slice(0, 100)}`,
-        value: `${index + 1}-${result.id}-${result.modelVersions[0].createdAt}`,
+        value: `${index}-${result.id}-${result.modelVersions[0].createdAt}`,
         description: `${result.type} · Made by ${result.creator.username}`,
         emoji: "<:dot:1134526388456669234>",
       }));
 
-      async function displayPage(page) {
-        const startIdx = (page - 1) * pageSize;
-        const endIdx = Math.min(startIdx + pageSize, data.length);
 
-        const LinkButton = new ButtonBuilder()
+      const result = data[0]; // Get the first result
+
+      const LinkButton = new ButtonBuilder()
           .setLabel("📤 Link")
           .setStyle(ButtonStyle.Link);
 
-        const embed = new EmbedBuilder()
-          .setFooter({
-            text: `Requested by ${interaction.user.tag}`,
-            iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
-          })
-          .setColor("White")
-          .setTimestamp();
+      const embed = new EmbedBuilder()
+        .setFooter({
+          text: `Requested by ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setColor("White")
+        .setTimestamp();
+      
 
-        for (let i = startIdx; i < endIdx; i++) {
-          const result = data[i];
-          selectedResult = data[i];
-          if (!result) continue;
-
-          const uploadedTimestamp =
+      const uploadedTimestamp =
             typeof result.modelVersions[0].createdAt === "string"
               ? Date.parse(result.modelVersions[0].createdAt) / 1000
               : typeof result.modelVersions[0].createdAt === "number"
               ? result.modelVersions[0].createdAt / 1000
               : NaN;
-          const uploadedText = isNaN(uploadedTimestamp)
+      const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
-          embed.setTitle(result.name.slice(0, 100));
+      embed.setTitle(result.name.slice(0, 100));
 
-          embed.setDescription(
+      embed.setDescription(
             `**Owner:** ${result.creator.username}\n**Uploaded:** ${uploadedText}`
-          );
+      );
 
-          const fields = [
+      const fields = [
             {
               name: "Type",
               value: `${result.type}`,
               inline: true,
             },
-          ];
+      ];
 
-          embed.addFields(fields);
+      embed.addFields(fields);
 
-          if (
-            result.modelVersions[0].images[0].nsfw !== "X" &&
-            result.modelVersions[0].images[0].nsfw !== "Mature"
-          ) {
-            embed.setThumbnail(result.modelVersions[0].images[0].url);
-          } else {
-            embed.setThumbnail(
-              interaction.user.displayAvatarURL({ dynamic: true })
-            );
-          }
-
-          LinkButton.setURL(`https://civitai.com/models/${result.id}`);
-        }
-
-        let embedId = `${selectedResult.id}`;
-
-        const saveButton = new ButtonBuilder()
-          .setLabel("💾 Save")
-          .setStyle(ButtonStyle.Primary)
-          .setCustomId(`save_fake_${selectedResult.id}`);
-
-        const menu = new StringSelectMenuBuilder()
-          .setCustomId(interaction.user.id)
-          .setPlaceholder(`🔎 ${data.length} models found...`)
-          .setOptions(options);
-
-        if (data.length === 1) {
-          menu.setDisabled(true);
-        }
-
-        const row_menu = new ActionRowBuilder().addComponents(menu);
-
-        const row_buttons = new ActionRowBuilder().addComponents(
-          saveButton,
-          LinkButton
+      if (
+        result.modelVersions[0].images[0].nsfw !== "X" &&
+        result.modelVersions[0].images[0].nsfw !== "Mature"
+      ) {
+        embed.setThumbnail(result.modelVersions[0].images[0].url);
+      } else {
+        embed.setThumbnail(
+          interaction.user.displayAvatarURL({ dynamic: true })
         );
-        mainEmbed = embed;
-        mainButtons = row_buttons;
-        let new_id = loadingMessage.edit({
-          content: `I have found ${data.length} results for the search ${model}...`,
-          embeds: [embed],
-          components: [row_menu, row_buttons],
-        });
-        new_id = await new_id;
-        messageIdMap[embedId] = new_id.id;
       }
 
-      displayPage(currentPage);
+      LinkButton.setURL(`https://civitai.com/models/${result.id}`);
+
+      let embedId = `${result.id}`;
+
+      const saveButton = new ButtonBuilder()
+        .setLabel("💾 Save")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId(`save_fake_${result.id}`);
+
+      const menu = new StringSelectMenuBuilder()
+        .setCustomId(interaction.user.id)
+        .setPlaceholder(`🔎 ${data.length} models found...`)
+        .setOptions(options);
+
+      if (data.length === 1) {
+        menu.setDisabled(true);
+      }
+
+      const row_menu = new ActionRowBuilder().addComponents(menu);
+
+      const row_buttons = new ActionRowBuilder().addComponents(
+        saveButton,
+        LinkButton
+      );
+      let new_id = loadingMessage.edit({
+        content: `I have found ${data.length} results for the search ${model}...`,
+        embeds: [embed],
+        components: [row_menu, row_buttons],
+      });
+      new_id = await new_id;
+      messageIdMap[embedId] = new_id.id;
+      
 
       let menuCollector = interaction.channel.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
@@ -226,12 +212,15 @@ module.exports = {
       });
 
       menuCollector.on("collect", async (interaction) => {
-        const selectedResult = data.find(
-          (result) =>
-            `${data.indexOf(result) + 1}-${result.id}-${
-              result.modelVersions[0].createdAt
-            }` === interaction.values[0]
+        if (!interaction.values || interaction.values.length === 0) {
+          return;
+        }
+
+        const selectedModelIndex = parseInt(
+          interaction.values[0].split("-")[0]
         );
+
+        const selectedResult = data[selectedModelIndex];
 
         if (selectedResult) {
           const LinkButton = new ButtonBuilder()
@@ -273,7 +262,7 @@ module.exports = {
 
           if (
             selectedResult.modelVersions[0].images[0].nsfw !== "X" &&
-            result.modelVersions[0].images[0].nsfw !== "Mature"
+            selectedResult.modelVersions[0].images[0].nsfw !== "Mature"
           ) {
             embed.setThumbnail(selectedResult.modelVersions[0].images[0].url);
           } else {
@@ -302,8 +291,6 @@ module.exports = {
             .setOptions(options);
 
           const row_menu = new ActionRowBuilder().addComponents(menu);
-          mainEmbed = embed;
-          mainButtons = row_buttons;
           interaction.update({
             embeds: [embed],
             components: [row_menu, row_buttons],

@@ -25,8 +25,9 @@ module.exports = {
           "es-ES": "El canal para el Audit Log.",
         })
         .addChannelTypes(ChannelType.GuildText)
-        .setRequired(true),
-    ),
+        .setRequired(true)
+    )
+    .setDMPermission(false),
   async execute(interaction) {
     const { options, guild } = interaction;
     const channel = options.getChannel("channel");
@@ -36,13 +37,13 @@ module.exports = {
     });
     if (data) {
       return await interaction.reply(
-        "You have already a audit log system here!",
+        "You have already a audit log system here!"
       );
     }
     const embed = new EmbedBuilder()
       .setTitle("Audit Log Setup")
       .setDescription(
-        `The Audit Log has been setup in ${channel}!\n\n**Note:** If you delete the channel, the audit log system will be deleted!`,
+        `The Audit Log has been setup in ${channel}!\n\n**Note:** If you delete the channel, the audit log system will be deleted!`
       )
       .setColor("Blurple")
       .setThumbnail(guild.iconURL({ dynamic: true, size: 4096 }))

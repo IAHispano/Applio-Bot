@@ -15,7 +15,9 @@ module.exports = {
     .setDescription("Moderation » Delete the audit log system in your server.")
     .setDescriptionLocalizations({
       "es-ES": "Moderation » Borra el sistema de auditoría en tu servidor.",
-    }),
+    })
+    .setDMPermission(false),
+
   async execute(interaction) {
     const { guild } = interaction;
 

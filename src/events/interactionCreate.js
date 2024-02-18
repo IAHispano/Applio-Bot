@@ -52,14 +52,14 @@ async function executeCommand(command, interaction, channel) {
 
   try {
     await command.execute(interaction, client);
-    
+
     const now = new Date();
     const formattedTimestamp = `[${now.getDate()}/${
       now.getMonth() + 1
-    }/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}]`;
+    }/${now.getFullYear()} - ${now.getHours()}:${now.getMinutes()}]`;
 
     console.log(
-      `${formattedTimestamp} - ${interaction.user.username} (${interaction.user.id}): /${interaction.commandName} in "${interaction.guild.name}" (${interaction.guild.id}) #${interaction.channel.name} (${interaction.channel.id})`
+      `${formattedTimestamp} ${interaction.user.username} (${interaction.user.id}): /${interaction.commandName} in "${interaction.guild.name}" (${interaction.guild.id}) #${interaction.channel.name} (${interaction.channel.id})`
     );
 
     const success_embed = new EmbedBuilder()

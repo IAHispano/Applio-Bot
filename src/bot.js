@@ -11,6 +11,6 @@ require("./deployment/registerEvents.js");
 client.login(process.env.BOT_TOKEN).catch((error) => {
   console.log(
     "[ERROR] Could not log into the bot, check your token and try again." +
-      error
+      error,
   );
 });

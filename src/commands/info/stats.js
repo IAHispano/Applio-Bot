@@ -16,7 +16,7 @@ module.exports = {
     const cpuUsage = process.cpuUsage().user / process.cpuUsage().system;
 
     const usedMemoryMB = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
-      2
+      2,
     );
 
     const GuildsCount = async () => {
@@ -26,7 +26,7 @@ module.exports = {
 
     const UsersCount = async () => {
       const req = await client.shard.broadcastEval((client) =>
-        client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+        client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
       );
       return req.reduce((p, n) => p + n, 0);
     };
@@ -67,7 +67,7 @@ module.exports = {
           name: "Created",
           value: `<t:${parseInt(
             interaction.client.user.createdTimestamp / 1000,
-            10
+            10,
           )}:R>`,
           inline: true,
         },
@@ -75,7 +75,7 @@ module.exports = {
           name: "Uptime",
           value: `<t:${parseInt(
             interaction.client.readyTimestamp / 1000,
-            10
+            10,
           )}:R>`,
           inline: true,
         },
@@ -93,7 +93,7 @@ module.exports = {
           name: "CPU Usage",
           value: `${cpuUsage.toFixed(2)}%`,
           inline: true,
-        }
+        },
       )
       .setFooter({
         text: `Requested by ${interaction.user.tag}`,

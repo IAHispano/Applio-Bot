@@ -30,7 +30,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Ingrese el nombre del modelo que desea buscar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 
@@ -55,7 +55,7 @@ module.exports = {
       const options = data.map((result, index) => ({
         label: `${result.name}`,
         value: `${index}-${result.id}-${Math.trunc(
-          new Date(result.created_at).getTime() / 1000
+          new Date(result.created_at).getTime() / 1000,
         )}`,
         description: `${result.type} · Made by ${result.author_username}`,
         emoji: "<:dot:1134526388456669234>",
@@ -76,17 +76,17 @@ module.exports = {
         })
         .setDescription(
           `- **Uploaded:** <t:${Math.trunc(
-            new Date(firstResult.created_at).getTime() / 1000
-          )}:d>\n` + `- **Likes:** ${firstResult.likes}`
+            new Date(firstResult.created_at).getTime() / 1000,
+          )}:d>\n` + `- **Likes:** ${firstResult.likes}`,
         )
         .setColor("White")
         .setThumbnail(
-          firstResult.image_url !== "N/A" ? firstResult.image_url : null
+          firstResult.image_url !== "N/A" ? firstResult.image_url : null,
         )
         .addFields(
           { name: "Epochs", value: firstResult.epochs, inline: true },
           { name: "Technology", value: firstResult.type, inline: true },
-          { name: "Algorithm", value: firstResult.algorithm, inline: true }
+          { name: "Algorithm", value: firstResult.algorithm, inline: true },
         )
         .setFooter({
           text: `Requested by ${interaction.user.tag}`,
@@ -115,14 +115,14 @@ module.exports = {
         .setLabel("🤖 Bot Invite")
         .setStyle(ButtonStyle.Link)
         .setURL(
-          `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`
+          `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
         );
 
       const rowButtons = new ActionRowBuilder().addComponents(
         saveButton,
         downloadButton,
         likeButton,
-        botInviteButton
+        botInviteButton,
       );
 
       let new_id = await loading.edit({
@@ -140,7 +140,7 @@ module.exports = {
         {
           componentType: ComponentType.SELECT_MENU,
           filter: (i) => i.user.id === interaction.user.id,
-        }
+        },
       );
 
       menuCollector.on("collect", async (interaction) => {
@@ -149,7 +149,7 @@ module.exports = {
         }
 
         const selectedModelIndex = parseInt(
-          interaction.values[0].split("-")[0]
+          interaction.values[0].split("-")[0],
         );
         const selectedModel = data[selectedModelIndex];
 
@@ -162,17 +162,17 @@ module.exports = {
           })
           .setDescription(
             `- **Uploaded:** <t:${Math.trunc(
-              new Date(selectedModel.created_at).getTime() / 1000
-            )}:d>\n` + `- **Likes:** ${selectedModel.likes}`
+              new Date(selectedModel.created_at).getTime() / 1000,
+            )}:d>\n` + `- **Likes:** ${selectedModel.likes}`,
           )
           .setColor("White")
           .setThumbnail(
-            selectedModel.image_url !== "N/A" ? selectedModel.image_url : null
+            selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
           )
           .addFields(
             { name: "Epochs", value: selectedModel.epochs, inline: true },
             { name: "Technology", value: selectedModel.type, inline: true },
-            { name: "Algorithm", value: selectedModel.algorithm, inline: true }
+            { name: "Algorithm", value: selectedModel.algorithm, inline: true },
           )
           .setFooter({
             text: `Requested by ${interaction.user.tag}`,
@@ -201,14 +201,14 @@ module.exports = {
           .setLabel("🤖 Bot Invite")
           .setStyle(ButtonStyle.Link)
           .setURL(
-            `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`
+            `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
           );
 
         const rowButtons = new ActionRowBuilder().addComponents(
           saveButton,
           downloadButton,
           likeButton,
-          botInviteButton
+          botInviteButton,
         );
 
         await interaction.update({
@@ -224,7 +224,7 @@ module.exports = {
       let buttonCollector = interaction.channel.createMessageComponentCollector(
         {
           componentType: ComponentType.Button,
-        }
+        },
       );
 
       buttonCollector.on("collect", async (interaction) => {
@@ -288,7 +288,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle("An error occurred")
             .setDescription(
-              `Sorry, I could not find models that match your search "${model_name}"`
+              `Sorry, I could not find models that match your search "${model_name}"`,
             )
             .setColor("Red"),
         ],
@@ -298,12 +298,12 @@ module.exports = {
               .setLabel("🤖 Bot Invite")
               .setStyle(ButtonStyle.Link)
               .setURL(
-                `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`
+                `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
               ),
             new ButtonBuilder()
               .setLabel("🔍 Search")
               .setStyle(ButtonStyle.Link)
-              .setURL(`https://applio.org/models`)
+              .setURL(`https://applio.org/models`),
           ),
         ],
       });

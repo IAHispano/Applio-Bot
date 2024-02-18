@@ -28,7 +28,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "La página desde la que empezar a obtener modelos.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -40,7 +40,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Ingrese el nombre del modelo que desea buscar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -56,8 +56,8 @@ module.exports = {
         .addChoices(
           { name: "Highest Rated", value: "Highest Rated" },
           { name: "Most Downloaded", value: "Most Downloaded" },
-          { name: "Newest", value: "Newest" }
-        )
+          { name: "Newest", value: "Newest" },
+        ),
     )
     .addStringOption((option) =>
       option
@@ -75,8 +75,8 @@ module.exports = {
           { name: "Year", value: "Year" },
           { name: "Month", value: "Month" },
           { name: "Week", value: "Week" },
-          { name: "Day", value: "Day" }
-        )
+          { name: "Day", value: "Day" },
+        ),
     )
     .setDMPermission(false),
 
@@ -105,9 +105,8 @@ module.exports = {
       });
       let data = response.items;
 
-
       data = data.filter((modelo) =>
-        modelo.name.toLowerCase().includes(model.toLowerCase())
+        modelo.name.toLowerCase().includes(model.toLowerCase()),
       );
       let messageIdMap = {};
 
@@ -118,12 +117,11 @@ module.exports = {
         emoji: "<:dot:1134526388456669234>",
       }));
 
-
       const result = data[0]; // Get the first result
 
       const LinkButton = new ButtonBuilder()
-          .setLabel("📤 Link")
-          .setStyle(ButtonStyle.Link);
+        .setLabel("📤 Link")
+        .setStyle(ButtonStyle.Link);
 
       const embed = new EmbedBuilder()
         .setFooter({
@@ -132,30 +130,29 @@ module.exports = {
         })
         .setColor("White")
         .setTimestamp();
-      
 
       const uploadedTimestamp =
-            typeof result.modelVersions[0].createdAt === "string"
-              ? Date.parse(result.modelVersions[0].createdAt) / 1000
-              : typeof result.modelVersions[0].createdAt === "number"
-              ? result.modelVersions[0].createdAt / 1000
-              : NaN;
+        typeof result.modelVersions[0].createdAt === "string"
+          ? Date.parse(result.modelVersions[0].createdAt) / 1000
+          : typeof result.modelVersions[0].createdAt === "number"
+            ? result.modelVersions[0].createdAt / 1000
+            : NaN;
       const uploadedText = isNaN(uploadedTimestamp)
-            ? "N/A"
-            : `<t:${Math.floor(uploadedTimestamp)}:R>`;
+        ? "N/A"
+        : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
       embed.setTitle(result.name.slice(0, 100));
 
       embed.setDescription(
-            `**Owner:** ${result.creator.username}\n**Uploaded:** ${uploadedText}`
+        `**Owner:** ${result.creator.username}\n**Uploaded:** ${uploadedText}`,
       );
 
       const fields = [
-            {
-              name: "Type",
-              value: `${result.type}`,
-              inline: true,
-            },
+        {
+          name: "Type",
+          value: `${result.type}`,
+          inline: true,
+        },
       ];
 
       embed.addFields(fields);
@@ -167,7 +164,7 @@ module.exports = {
         embed.setThumbnail(result.modelVersions[0].images[0].url);
       } else {
         embed.setThumbnail(
-          interaction.user.displayAvatarURL({ dynamic: true })
+          interaction.user.displayAvatarURL({ dynamic: true }),
         );
       }
 
@@ -193,7 +190,7 @@ module.exports = {
 
       const row_buttons = new ActionRowBuilder().addComponents(
         saveButton,
-        LinkButton
+        LinkButton,
       );
       let new_id = loadingMessage.edit({
         content: `I have found ${data.length} results for the search ${model}...`,
@@ -202,7 +199,6 @@ module.exports = {
       });
       new_id = await new_id;
       messageIdMap[embedId] = new_id.id;
-      
 
       let menuCollector = interaction.channel.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
@@ -217,7 +213,7 @@ module.exports = {
         }
 
         const selectedModelIndex = parseInt(
-          interaction.values[0].split("-")[0]
+          interaction.values[0].split("-")[0],
         );
 
         const selectedResult = data[selectedModelIndex];
@@ -240,14 +236,14 @@ module.exports = {
             typeof selectedResult.modelVersions[0].createdAt === "string"
               ? Date.parse(selectedResult.modelVersions[0].createdAt) / 1000
               : typeof selectedResult.modelVersions[0].createdAt === "number"
-              ? selectedResult.modelVersions[0].createdAt / 1000
-              : NaN;
+                ? selectedResult.modelVersions[0].createdAt / 1000
+                : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
           embed.setDescription(
-            `**Owner:** ${selectedResult.creator.username}\n**Uploaded:** ${uploadedText}`
+            `**Owner:** ${selectedResult.creator.username}\n**Uploaded:** ${uploadedText}`,
           );
 
           const fields = [
@@ -267,7 +263,7 @@ module.exports = {
             embed.setThumbnail(selectedResult.modelVersions[0].images[0].url);
           } else {
             embed.setThumbnail(
-              interaction.user.displayAvatarURL({ dynamic: true })
+              interaction.user.displayAvatarURL({ dynamic: true }),
             );
           }
 
@@ -282,7 +278,7 @@ module.exports = {
 
           const row_buttons = new ActionRowBuilder().addComponents(
             saveButton,
-            LinkButton
+            LinkButton,
           );
 
           const menu = new StringSelectMenuBuilder()
@@ -303,7 +299,7 @@ module.exports = {
       let buttonCollector = interaction.channel.createMessageComponentCollector(
         {
           componentType: ComponentType.Button,
-        }
+        },
       );
 
       buttonCollector.on("collect", async (interaction) => {

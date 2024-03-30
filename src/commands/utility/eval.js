@@ -7,6 +7,7 @@ const {
 const client = require("../../bot.js");
 
 module.exports = {
+  devOnly: true,
   data: new SlashCommandBuilder()
     .setName("eval")
     .setDescription("Utility » Eval a code (Developers only).")
@@ -26,7 +27,7 @@ module.exports = {
         })
         .setRequired(true),
     ),
-  devOnly: true,
+
   async execute(interaction) {
     await interaction.deferReply();
 

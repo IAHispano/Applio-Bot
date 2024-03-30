@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require("discord.js");
 const Blacklist = require("../../schemas/moderation/blackList.js");
 
 module.exports = {
+  devOnly: true,
   data: new SlashCommandBuilder()
     .setName("blacklist")
     .setDescription(
@@ -69,7 +70,7 @@ module.exports = {
         ),
     )
     .setDMPermission(false),
-  devOnly: true,
+
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
 

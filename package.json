@@ -1,6 +1,9 @@
 {
   "name": "applio-bot",
   "version": "2.0.0",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "@discordjs/rest": "^2.0.1",
     "@discordjs/voice": "^0.16.0",
@@ -14,8 +17,7 @@
     "node-cron": "^3.0.2",
     "progress": "^2.0.3",
     "soycanvas": "^1.0.4",
-    "translate-google": "^1.5.0",
-    "voucher-code-generator": "^1.3.0"
+    "translate-google": "^1.5.0"
   },
   "devDependencies": {
     "prettier": "3.0.3"

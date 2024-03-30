@@ -14,42 +14,6 @@ module.exports = {
     });
 
     try {
-      cron.schedule("*/60 * * * * *", async () => {
-        const users = await User.find({ isPremium: true });
-
-        if (!users || !users.length) return;
-
-        await users.forEach(async (user) => {
-          if (Date.now() >= user.expiresAt) {
-            user.isPremium = false;
-            user.PremID = null;
-            user.redeemedAt = null;
-            user.expiresAt = null;
-            user.plan = null;
-            user.save();
-            const embed = new EmbedBuilder()
-              .setAuthor({
-                name: `Premium Subscription!`,
-                iconURL: client.user.displayAvatarURL(),
-              })
-              .setDescription(
-                `Hey <@${user.Id}>. Your Premium subscription is over.`,
-              )
-              .setColor("#ff0000")
-              .setTimestamp();
-            try {
-              client.users.fetch(user.Id).then((user) => {
-                user.send({ embeds: [embed] });
-              });
-            } catch (error) {
-              console.log(`[ERROR] ${error}`);
-            }
-
-            console.log(`[DEBUG] Premium Expired for (${user.Id})`);
-          }
-        });
-      });
-
       console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
 
       if (!process.env.MONGODB_URL)

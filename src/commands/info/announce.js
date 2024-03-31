@@ -11,7 +11,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("announce")
     .setDescription(
-      "Info » Send a message with Applio's update (Developers only)."
+      "Info Â» Send a message with Applio's update (Developers only)."
     )
     .addStringOption((option) =>
       option
@@ -44,6 +44,7 @@ module.exports = {
       .replace(/\\n/g, "\n");
     const attachment = interaction.options.getAttachment("attachment") || null;
     const channels = ["1188315275393777785", "1206185734659252225"];
+
 
     const cancelButton = new ButtonBuilder()
       .setCustomId("cancelAnnouncement")
@@ -96,39 +97,35 @@ module.exports = {
     collector.on("collect", async (i) => {
       if (i.isStringSelectMenu()) {
         const selectedChannelIds = i.values;
-        const selectedChannels = [];
+        //const selectedChannels = [];
 
         // Using broadcastEval to search for channels across all shards
-        const res = await client.shard.broadcastEval(
-          (c, ids) => {
-            return ids.map((id) => c.channels.cache.get(id));
-          },
-          { context: selectedChannelIds }
-        );
+        const res = await client.shard.broadcastEval((c, context) => {
+          console.log(c, context)
+          const [ids, msg, att] = context;
+          for (const id of ids) {
+            try {
+              const channel = c.channels.cache.get(id);
+              if (channel) {
+                channel.send({
+                  content: msg.replace(/\\n/g, "\n"),
+                  files: att ? [att] : [],
+                })
+              }
+            } catch (error) {
+              console.log(error)
+            }
 
-        // Flattening the array of arrays into a single array of channels
-        for (const channels of res) {
-          selectedChannels.push(...channels.filter((channel) => channel));
-        }
-
-        if (selectedChannels.length !== selectedChannelIds.length) {
-          i.update({
-            content: ":x: One or more selected channels not found.",
-            components: [],
-          });
-          return;
-        }
+          }
+        }, {
+          context: [selectedChannelIds, message, attachment]
+        });
 
         // Sending message to selected channels
-        for (const channel of selectedChannels) {
-          channel.send({
-            content: message.replace(/\\n/g, "\n"),
-            files: attachment ? [attachment] : [],
-          });
-        }
+
 
         i.update({
-          content: `Message sent to **${selectedChannels.length}** channels.\n\n**Message:**\n${message}`,
+          content: `Message sent to **${selectedChannelIds.length}** channels.\n\n**Message:**\n${message}`,
           components: [],
         });
       } else if (i.customId === "confirmAnnouncement") {

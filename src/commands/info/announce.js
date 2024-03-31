@@ -43,7 +43,7 @@ module.exports = {
       .getString("message")
       .replace(/\\n/g, "\n");
     const attachment = interaction.options.getAttachment("attachment") || null;
-    const channels = ["1188315275393777785", "1206185734659252225"];
+    const channels = ["1188315275393777785", "1159380240271953940"];
 
 
     const cancelButton = new ButtonBuilder()
@@ -101,7 +101,6 @@ module.exports = {
 
         // Using broadcastEval to search for channels across all shards
         const res = await client.shard.broadcastEval((c, context) => {
-          console.log(c, context)
           const [ids, msg, att] = context;
           for (const id of ids) {
             try {

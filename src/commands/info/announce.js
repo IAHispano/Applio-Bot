@@ -11,7 +11,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("announce")
     .setDescription(
-      "Info Â» Send a message with Applio's update (Developers only)."
+      "Info » Send a message with Applio's update (Developers only)."
     )
     .addStringOption((option) =>
       option

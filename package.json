@@ -7,7 +7,9 @@
   "dependencies": {
     "@discordjs/rest": "^2.0.1",
     "@discordjs/voice": "^0.16.0",
+    "@supabase/supabase-js": "^2.42.0",
     "axios": "^1.5.1",
+    "cheerio": "1.0.0-rc.12",
     "discord-api-types": "^0.37.63",
     "discord.js": "^14.13.0",
     "dotenv": "^16.4.2",
@@ -15,9 +17,11 @@
     "moment": "^2.29.4",
     "mongoose": "^7.6.3",
     "node-cron": "^3.0.2",
+    "node-fetch": "^2.6.7",
     "progress": "^2.0.3",
     "soycanvas": "^1.0.4",
-    "translate-google": "^1.5.0"
+    "translate-google": "^1.5.0",
+    "whatwg-url": "^14.0.0"
   },
   "devDependencies": {
     "prettier": "3.0.3"

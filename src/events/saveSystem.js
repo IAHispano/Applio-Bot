@@ -347,7 +347,7 @@ module.exports = {
       };
   
       const { error } = await supabase
-        .from('models_test')
+        .from('models')
         .upsert([dataToUpload]);
   
       if (error) {

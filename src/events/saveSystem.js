@@ -1,11 +1,11 @@
 const fs = require("fs");
-const { Events } = require("discord.js");
+const { EmbedBuilder, Events } = require("discord.js");
 const { extractAlgorithm, extractEpochsAndAlgorithm, findOwner, enviarMensajeConArchivo, tagsMapping, youtubeImage } = require("../utils/main.js")
 const { createClient }= require('@supabase/supabase-js');
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const rest = new REST().setToken(process.env.BOT_TOKEN);
-
+const client = require("../bot.js");
 const fetchUser = async (id) => {
   await new Promise((resolve) => setTimeout(resolve, 200)); // Rate limit protection
   const user = await rest.get(Routes.user(id));
@@ -50,7 +50,6 @@ module.exports = {
         for (let i = 0; i < 15; i++) {
           await new Promise(resolve => setTimeout(resolve, 10000));
           try {
-            // Esperar 5 segundos
            fetchedThread = await thread.fetch();
            test = await fetchedThread.fetchStarterMessage();
            if (test && test.content) break;
@@ -194,7 +193,7 @@ module.exports = {
       let data_attachment = jsonData.attachments && jsonData.attachments[0] !== null ? jsonData.attachments : (jsonData.attachment && jsonData.attachment[0] !== null ? jsonData.attachment : null);
       
       if (data_attachment) {
-        const imageExtensions = [".png", ".jpeg", ".jpg", ".webp", ".gif", ".bmp", ".tiff"]; // Lista de extensiones de imágenes
+        const imageExtensions = [".png", ".jpeg", ".jpg", ".webp", ".gif", ".bmp", ".tiff"]; 
         const imageAttachment = data_attachment.find(attachment => 
           (attachment.contentType && attachment.contentType.startsWith('image/')) || 
           (attachment.type && attachment.type.startsWith('image/'))
@@ -228,7 +227,7 @@ module.exports = {
       
       if (links && links.length > 0) {
         for (const link of links) {
-          let site = ""; // Por defecto, categorizamos como "otros"
+          let site = "";
   
           if (link.includes("huggingface.co")) {
             site = "huggingface.co";
@@ -281,7 +280,6 @@ module.exports = {
         
         for (const site in supportedSites) {
           for (const link of supportedSites[site]) {
-            // Realiza una solicitud HTTP para obtener el tamaño del archivo
             try {
               reorganizedSupportedSites.push({
                 Cloud: site,
@@ -351,10 +349,40 @@ module.exports = {
         .upsert([dataToUpload]);
   
       if (error) {
-        return console.log(error.message);
+        console.log(error.message);
+      } else {
+        console.log("Data uploaded correctly");
       }
-  
-      return console.log("Data uploaded correctly");
+
+      try {
+        const embed = new EmbedBuilder()
+        .setTitle(`${jsonData.context.Name}`)
+        .addFields(
+            { name: 'ID', value: `${jsonData.id} || <#${jsonData.id}>`, inline: true },
+            { name: 'Server', value: `${result.server} (${result.server_name})`, inline: true },
+            { name: 'Propietario', value: owner, inline: true },
+            { name: 'Fecha de Creación', value: new Date(jsonData.upload).toLocaleString(), inline: true },
+            { name: 'Etiquetas', value: result.tags.length > 0 ? result.tags.join(', ') : 'Nothing', inline: false },
+        )
+        .setImage(image !== 'N/A' ? image : "https://github.com/IAHispano/Applio-Website/blob/main/public/no_bg_applio_logo.png?raw=true")
+        .setFooter({ text: `Fetch from ${test.channel.id}` });
+        const res = await client.shard.broadcastEval((c, context) => {
+          const [embed] = context;
+          try {
+            const channel = c.channels.cache.get(process.env.LOG_CHANNEL_ID);
+            if (channel) {
+              channel.send({embeds: [embed]})
+            }
+          } catch (error) {
+            console.log(error)
+          }
+        }, {
+          context: [embed]
+        });
+      } catch (error) {
+        console.log(error)
+      }
+      
 
     } catch (error) {
       console.error("Error fetching thread:", error);

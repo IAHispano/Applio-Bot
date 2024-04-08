@@ -21,7 +21,6 @@ async function enviarMensajeConArchivo(webhookURL, mensaje, rutaArchivo) {
       response = await webhook.send({
           content: mensaje,
           files: [archivoAdjunto],
-          //avatarURL: "https://cdn.discordapp.com/avatars/865079034500874281/a_c324f93e1a32adc1f38e85901c729257.gif?size=1024&width=0&height=320"
       })
       return response.attachments[0].url
   } catch (error) {
@@ -1105,46 +1104,6 @@ async function updateJSONFile(filePath) {
             }
         }
     }
-    
-
-    // if (jsonData.attachments) {
-    //   const imageExtensions = [".png", ".jpeg", ".jpg", ".webp", ".gif", ".bmp", ".tiff"]; // Lista de extensiones de imágenes
-    //   for (const attachment of jsonData.attachments) {
-    //     const attachmentUrl = attachment.contentType && 
-    //     attachment.contentType.startsWith('image/') &&
-    //     !attachment.contentType.includes('image/xxx') || 
-    //     attachment.type && 
-    //     attachment.type.startsWith('image/') &&
-    //     !attachment.type.includes('image/xxx')
-    //     if (attachmentUrl) {
-    //       let contentUrl = false;
-    //       try {
-    //         const rutaImagen = await GetCdnDsc(attachment.url);
-    //         const mensaje = "```" + cname + " RVC V2\nID:"+ jsonData.id + "\nOWNER:" + jsonData.owner + "```";
-    //         contentUrl = await enviarMensajeConArchivo("https://discord.com/api/webhooks/1208562747793608824/W1BSDiXwu6nFGmSOKo4CFAuDCFl2KNL1C-xd99woELi417w88BAj5UhV-OAAcyg7er5j", mensaje, rutaImagen);
-    //       } catch (error) {
-    //         console.error('Error al obtener y enviar la imagen:', error);
-    //       }
-    //       if(!contentUrl) {
-    //         continue;
-    //       }
-    //       const hasImageExtension = imageExtensions.some(extension => contentUrl.includes(extension));
-    //       if (hasImageExtension) {
-    //         //console.log(contentUrl);
-    //         image = contentUrl;
-    //         const xxx = {
-    //           name: "imagefromcdn",
-    //           url: image,
-    //           proxyUrl: image,
-    //           size: 0,
-    //           type: "image/xxx", 
-    //         };
-    //         jsonData.attachments.push(xxx);
-    //       }
-          
-    //     }
-    //   }
-    // }
     
     if (data_attachment) {
       const imageExtensions = [".png", ".jpeg", ".jpg", ".webp", ".gif", ".bmp", ".tiff"]; // Lista de extensiones de imágenes

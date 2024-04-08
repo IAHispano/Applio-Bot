@@ -135,8 +135,8 @@ module.exports = {
         typeof result.modelVersions[0].createdAt === "string"
           ? Date.parse(result.modelVersions[0].createdAt) / 1000
           : typeof result.modelVersions[0].createdAt === "number"
-            ? result.modelVersions[0].createdAt / 1000
-            : NaN;
+          ? result.modelVersions[0].createdAt / 1000
+          : NaN;
       const uploadedText = isNaN(uploadedTimestamp)
         ? "N/A"
         : `<t:${Math.floor(uploadedTimestamp)}:R>`;
@@ -236,8 +236,8 @@ module.exports = {
             typeof selectedResult.modelVersions[0].createdAt === "string"
               ? Date.parse(selectedResult.modelVersions[0].createdAt) / 1000
               : typeof selectedResult.modelVersions[0].createdAt === "number"
-                ? selectedResult.modelVersions[0].createdAt / 1000
-                : NaN;
+              ? selectedResult.modelVersions[0].createdAt / 1000
+              : NaN;
           const uploadedText = isNaN(uploadedTimestamp)
             ? "N/A"
             : `<t:${Math.floor(uploadedTimestamp)}:R>`;

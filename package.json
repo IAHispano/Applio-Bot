@@ -1,8 +1,9 @@
 {
   "name": "applio-bot",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@discordjs/rest": "^2.0.1",

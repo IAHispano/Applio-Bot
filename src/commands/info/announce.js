@@ -11,7 +11,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("announce")
     .setDescription(
-      "Info » Send a message with Applio's update (Developers only)."
+      "Info » Send a message with Applio's update (Developers only).",
     )
     .addStringOption((option) =>
       option
@@ -23,7 +23,7 @@ module.exports = {
         .setDescriptionLocalizations({
           "es-ES": "Mensaje a enviar.",
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addAttachmentOption((option) =>
       option
@@ -34,7 +34,7 @@ module.exports = {
         .setDescription("Attachment to be sent.")
         .setDescriptionLocalizations({
           "es-ES": "Adjunto a enviar.",
-        })
+        }),
     )
     .setDMPermission(false),
 
@@ -44,7 +44,6 @@ module.exports = {
       .replace(/\\n/g, "\n");
     const attachment = interaction.options.getAttachment("attachment") || null;
     const channels = ["1188315275393777785", "1159380240271953940"];
-
 
     const cancelButton = new ButtonBuilder()
       .setCustomId("cancelAnnouncement")
@@ -100,28 +99,29 @@ module.exports = {
         //const selectedChannels = [];
 
         // Using broadcastEval to search for channels across all shards
-        const res = await client.shard.broadcastEval((c, context) => {
-          const [ids, msg, att] = context;
-          for (const id of ids) {
-            try {
-              const channel = c.channels.cache.get(id);
-              if (channel) {
-                channel.send({
-                  content: msg.replace(/\\n/g, "\n"),
-                  files: att ? [att] : [],
-                })
+        const res = await client.shard.broadcastEval(
+          (c, context) => {
+            const [ids, msg, att] = context;
+            for (const id of ids) {
+              try {
+                const channel = c.channels.cache.get(id);
+                if (channel) {
+                  channel.send({
+                    content: msg.replace(/\\n/g, "\n"),
+                    files: att ? [att] : [],
+                  });
+                }
+              } catch (error) {
+                console.log(error);
               }
-            } catch (error) {
-              console.log(error)
             }
-
-          }
-        }, {
-          context: [selectedChannelIds, message, attachment]
-        });
+          },
+          {
+            context: [selectedChannelIds, message, attachment],
+          },
+        );
 
         // Sending message to selected channels
-
 
         i.update({
           content: `Message sent to **${selectedChannelIds.length}** channels.\n\n**Message:**\n${message}`,
@@ -136,10 +136,10 @@ module.exports = {
           .then((channels) => channels.array());
 
         const textChannels = allChannels.filter(
-          (channel) => channel.type === "GUILD_TEXT"
+          (channel) => channel.type === "GUILD_TEXT",
         );
         const channelsToSend = textChannels.filter((channel) =>
-          channels.includes(channel.id)
+          channels.includes(channel.id),
         );
 
         for (const channel of channelsToSend) {
@@ -150,7 +150,7 @@ module.exports = {
             });
           } else {
             console.error(
-              `Channel with ID ${channel.id} not found or is not a text-based channel.`
+              `Channel with ID ${channel.id} not found or is not a text-based channel.`,
             );
           }
         }

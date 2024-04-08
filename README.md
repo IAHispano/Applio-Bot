@@ -26,7 +26,3 @@ Start Applio-Bot with the following command:
 ```bash
 node index.js
 ```
-
-## License
-
-This project is licensed under the MIT License. Feel free to use, modify, and distribute this software as long as you adhere to the terms outlined in the [LICENSE.md](./LICENSE) file.

@@ -360,9 +360,9 @@ module.exports = {
         .addFields(
             { name: 'ID', value: `${jsonData.id} || <#${jsonData.id}>`, inline: true },
             { name: 'Server', value: `${result.server} (${result.server_name})`, inline: true },
-            { name: 'Propietario', value: owner, inline: true },
-            { name: 'Fecha de Creación', value: new Date(jsonData.upload).toLocaleString(), inline: true },
-            { name: 'Etiquetas', value: result.tags.length > 0 ? result.tags.join(', ') : 'Nothing', inline: false },
+            { name: 'Owner', value: owner, inline: true },
+            { name: 'Upload', value: new Date(jsonData.upload).toLocaleString(), inline: true },
+            { name: 'Tags', value: result.tags.length > 0 ? result.tags.join(', ') : 'Nothing', inline: false },
         )
         .setImage(image !== 'N/A' ? image : "https://github.com/IAHispano/Applio-Website/blob/main/public/no_bg_applio_logo.png?raw=true")
         .setFooter({ text: `Fetch from ${test.channel.id}` });

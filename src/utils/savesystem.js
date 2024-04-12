@@ -2,7 +2,7 @@ const fs = require("fs");
 const axios = require("axios");
 const { WebhookClient, AttachmentBuilder } = require("discord.js");
 
-async function enviarMensajeConArchivo(webhookURL, mensaje, rutaArchivo) {
+async function sendMessage(webhookURL, mensaje, rutaArchivo) {
   try {
     const webhook = new WebhookClient({ url: webhookURL });
 
@@ -143,7 +143,6 @@ function convertirAbreviacionANumero(valorAbreviado) {
   for (const [abreviacion, multiplicador] of Object.entries(multiplicadores)) {
     if (valorAbreviado.toLowerCase().includes(abreviacion)) {
       const numero = parseFloat(valorAbreviado.replace(/[^\d.]/g, ""));
-      //console.log(numero)
       return Math.floor(numero * multiplicador).toString();
     }
   }
@@ -584,19 +583,9 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
     const match = cname.match(pattern);
     if (match) {
       epochs = match[1];
-
-      // Elimina la parte encontrada del título
-
       cname = cname.replace(pattern, "");
-
-      //cleaned epochs
       cname = cname.replace(/\s*\( Epochs\)/g, "");
-
       cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
-
-      //cname = cname.replace(/(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g, '');
-      //cname = cname.replace(/\s*\d+k(?![a-z])/g, '');
-
       cname = cname.replace(/\bEpoch\b/g, "");
       cname = cname.replace(/\bepoch\b/g, "");
       cname = cname.replace(/\bepochs\b/g, "");
@@ -615,14 +604,11 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
     const match2 = ccontent.match(pattern);
     if (match2 && epochs === "N/A") {
       epochs = match2[1];
-      // Elimina la parte encontrada del título
       cname = cname.replace(pattern, "");
 
-      //cleaned epochs
+      // Cleaned epochs
       cname = cname.replace(/\s*\( Epochs\)/g, "");
       cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
-      //cname = cname.replace(/(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g, '');
-      //cname = cname.replace(/\s*\d+k(?![a-z])/g, '');
       cname = cname.replace(/\bEpoch\b/g, "");
       cname = cname.replace(/\bepoch\b/g, "");
       cname = cname.replace(/\bepochs\b/g, "");
@@ -645,16 +631,14 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   cname = cname.replace(/\s*\(\s*\)/g, "");
   if (/, ,\s*\d+\s*Steps/.test(cname)) {
     mcname = cname.replace(/,\s*,\s*\d+\s*Steps/g, "").trim();
-    //console.log("Old: " + cname + " New: " + mcname);
     cname = mcname;
   }
 
   if (/\(\s*,\s*\d+\s*Steps\)/.test(cname)) {
-    mcname = cname.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); // Eliminar "(,, 9400 Steps)"
-    //console.log("Old: " + cname + " New: " + mcname);
+    mcname = cname.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); // Delete "(,, 9400 Steps)"
     cname = mcname;
   }
-  cname = cname.replace(/\(\)/g, "").trim(); // Eliminar cualquier otro "(,)" restante
+  cname = cname.replace(/\(\)/g, "").trim(); // Delete "(,)"
   cname = cname.replace(/\(\s*,\s*,\s*\)/g, "");
   cname = cname.replace(/\[\s*\|\s*\]/g, "");
   cname = cname.replace(/\[\s*,\s*\]/g, "");
@@ -681,11 +665,9 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   } else {
     cname = cname.replace(/ -+(?!\s*\S)/, "");
     cname = cname.replace(/ -+$/g, "");
-    //cname = cname.replace(/ -+(?=\s*\S)(?![^\[]*\])/, '');
     cname = cname.replace(/\s-\s(?![\w\d])/g, "");
   }
 
-  //cname = cname.replace(/ -+$/g, '');
 
   cname = cname.replace(/,\s*$/, "");
   cname = cname.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); //remove / ()[]
@@ -694,17 +676,16 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   cname = cname.replace(
     /(?<!\S.|\S)\|{2,}(?=\s{2}|\)|\])|(?<=\s{2}|\(|\[\s*)\|{2,}(?!\S.|\S)/g,
     "",
-  ); //remove || in ()[] and blank spaces
+  ); // remove || in ()[] and blank spaces
 
   cname = cname.replace(
     /(?<!\S.|\S)\|(?=\s{1,}(?:\)|\]))|(?<=\s{1,}(?:\(|\[\s*))\|(?!\S.|\S)/g,
     "",
-  ); // above
+  );
   cname = cname.replace(/(?<=\()\s*\|(?=\s*\))|(?<=\[\s*)\s*\|(?=\s*\])/g, "");
   cname = cname.replace(/\|\s*\|/g, "|");
   cname = cname.replace(/\s*\|\s*\|\s*\|/g, " |");
   cname = cname.replace(/(?<=\s{2}|^|\[)\s*;\s*(?=\]|\s{2}|$)/g, "");
-  //cname = cname.replace(/(?<=\s{2}|^|\[|\()\s*-\s*(?=\]|\s{2}|$|\))/g, '');
   cname = cname.replace(
     /(?<=\()\s*-\s*(?=\s*\))|(?<=\[\s*)\s*-\s*(?=\s*\])/g,
     "",
@@ -722,7 +703,7 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
     if (!_r.test(cname)) {
       cname = cname.replace(/ -+(?!\s*\S)/, "");
       cname = cname.replace(/ -+$/g, "");
-      cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // eliminar - dentro de ()[]
+      cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // Delete - in ()[]
     } else {
       _r = / -+(?=\s*\S)/;
       if (!_r.test(cname)) {
@@ -829,10 +810,9 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
     cname.match(/\|/g) && cname.match(/\|/g).length <= 1
       ? cname.replace(/\|/g, "")
       : cname;
-  //cname = cname.match(/,/g) && cname.match(/,/g).length <= 1 ? cname.replace(/,/g, '') : cname;
-  //cname = cname.match(/-/g) && cname.match(/-/g).length <= 1 ? cname.replace(/-/g, '') : cname;
 
-  cname = cname.replace(/\([^a-zA-Z\d\s]*,[\s]*\)/g, ""); //remove (,)
+  // Delete (,)
+  cname = cname.replace(/\([^a-zA-Z\d\s]*,[\s]*\)/g, "");
   cname = cname.replace(/\(\.0\)/g, "");
   cname = cname.replace(/\(\)/g, "");
   cname = cname.replace(/\/\s\//g, "");
@@ -842,7 +822,7 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   cname = cname.replace(/\(\.\)/g, "");
   cname = cname.replace(/\(&\)/g, "");
 
-  //delete steps
+  // Delete steps
   cname = cname.replace(/\((\d+)steps\)/i, "");
   cname = cname.replace(/\((\d+)\s*steps\)/i, "");
   cname = cname.replace(/\[(\d+)\s*Steps\]/i, "");
@@ -850,7 +830,7 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   cname = cname.replace(/(\d+)\s*steps\b/i, "");
   cname = cname.replace(/(\d+)\s*stepts\b/i, "");
 
-  //delete """
+  // Delete """
   cname = cname.replace(/"{3}/g, '""');
   cname = cname.replace(/\.\""\s""/g, '""');
   cname = cname.replace(/""\. \.""/g, "");
@@ -859,17 +839,17 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
 
   _r = /\[.*\s-\s.*\]/;
   if (!_r.test(cname)) {
-    _r = /(?<!\S)-+(?=\s{2,}|$)/; //old "/ -+(?=\s*\S)/"
+    _r = /(?<!\S)-+(?=\s{2,}|$)/;
     if (!_r.test(cname)) {
       cname = cname.replace(/ -+(?!\s*\S)/, "");
       cname = cname.replace(/ -+$/g, "");
-      cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // eliminar - dentro de ()[]
+      cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, "");
     } else {
       _r = / -+(?=\s*\S)/;
       if (!_r.test(cname)) {
         cname = cname.replace(/(?<=\s)-(?=\s)/g, "");
       }
-      cname = cname.replace(/-(?=\s*$)/, ""); //old : /-(?=[\s]*)$/
+      cname = cname.replace(/-(?=\s*$)/, "");
     }
   } else {
     cname = cname.replace(/ -+(?!\s*\S)/, "");
@@ -881,298 +861,14 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
 
   return { cname, epochs, algorithm, types };
 }
-function generateLinkDescription(supportedSites) {
-  const descriptions = [];
 
-  for (const site in supportedSites) {
-    if (supportedSites.hasOwnProperty(site)) {
-      const links = supportedSites[site];
-
-      const linkDescriptions = links.map(
-        (link) => `[${site}](${link.split(">")[0]})`,
-      );
-      descriptions.push(...linkDescriptions);
-    }
-  }
-
-  return descriptions.length > 0 ? descriptions.join(", ") : "N/A";
-}
-async function updateJSONFile(filePath) {
-  try {
-    const jsonData = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    let content = jsonData.content;
-    if (!content) return;
-    try {
-      if (
-        jsonData.owner === "1150230843214794822" ||
-        jsonData.owner === "1175478584752750715" ||
-        jsonData.owner === "1175436185179521128" ||
-        jsonData.owner === "1175436031705751644" ||
-        jsonData.server === "929985620984602665"
-      ) {
-        console.log(filePath);
-        fs.unlinkSync(filePath);
-        return;
-      }
-    } catch (error) {
-      console.error("Error:", error.message);
-    }
-    if (jsonData.modified && jsonData.modified === true) {
-      console.log(filePath, "No modificable");
-      return;
-    }
-
-    const { cname, epochs, algorithm, types } = extractEpochsAndAlgorithm(
-      jsonData.name,
-      jsonData.tags,
-      jsonData.content,
-    );
-
-    let xtypes = types;
-
-    const currentTags = jsonData.tags;
-    const updatedTags = [];
-
-    for (const tagKey in currentTags) {
-      const tagID = currentTags[tagKey];
-      let updatedTagNames = [];
-
-      for (const tagName in tagsMapping.Tags) {
-        if (tagsMapping.Tags[tagName].includes(parseInt(tagID, 10))) {
-          updatedTagNames.push(tagName);
-          break;
-        }
-      }
-
-      const updatedTagsString = updatedTagNames
-        .filter((tag) => tag !== "")
-        .join(",");
-      if (updatedTagsString) {
-        updatedTags.push(updatedTagsString);
-      }
-    }
-
-    for (const tagKey in currentTags) {
-      const tagID = currentTags[tagKey];
-      let updatedTagNames = [];
-
-      for (const tagName in tagsMapping.Lang) {
-        if (tagsMapping.Lang[tagName].includes(parseInt(tagID, 10))) {
-          updatedTagNames.push(tagName);
-          break;
-        }
-      }
-
-      const updatedTagsString = updatedTagNames
-        .filter((tag) => tag !== "")
-        .join(",");
-      if (updatedTagsString) {
-        updatedTags.push(updatedTagsString);
-      }
-    }
-
-    let owner = "N/A";
-    if (jsonData.owner) {
-      owner = findOwner(jsonData.content, jsonData.owner);
-      jsonData.owner = owner;
-    }
-
-    let image = "N/A";
-
-    let data_attachment =
-      jsonData.attachments && jsonData.attachments[0] !== null
-        ? jsonData.attachments
-        : jsonData.attachment && jsonData.attachment[0] !== null
-          ? jsonData.attachment
-          : null;
-
-    let _regex =
-      /(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/g;
-    content = content.replace(/\n/g, " ");
-    let yturl = content.match(_regex);
-    if (yturl) {
-      for (const OrgUrl of yturl) {
-        if (!data_attachment) break;
-
-        const urlExists = data_attachment.some(
-          (attachment) =>
-            attachment.url.includes(OrgUrl) || attachment.name.includes(OrgUrl),
-        );
-        if (urlExists) {
-          continue;
-        }
-
-        let nameofxxx = "imagefromcontent";
-
-        const contentUrl = await youtubeImage(OrgUrl);
-        if (contentUrl) {
-          console.log(contentUrl, jsonData.id);
-          image = contentUrl;
-          const xxx = {
-            name: OrgUrl,
-            url: image,
-            proxyUrl: image,
-            size: 0,
-            type: "image/xxx",
-          };
-          data_attachment.push(xxx);
-        }
-      }
-    }
-
-    if (data_attachment) {
-      const imageAttachment = data_attachment.find(
-        (attachment) =>
-          (attachment.contentType &&
-            attachment.contentType.startsWith("image/")) ||
-          (attachment.type && attachment.type.startsWith("image/")),
-      );
-      if (imageAttachment) {
-        image = imageAttachment.url;
-      } else {
-        // Intenta encontrar enlaces de imágenes en el contenido
-      }
-    }
-
-    const regex =
-      /https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g;
-    let contentn = content.replace(/<|>|\|\|/g, " ");
-    contentn = contentn.replace(/\[direct-download\]/g, " ");
-    contentn = contentn.replace(/\.zip\)/g, ".zip");
-    contentn = contentn.replace(/\|/g, " ");
-    contentn = contentn.replace(/\*/g, " ");
-    const links = contentn.match(regex);
-
-    const supportedSites = {
-      "huggingface.co": [],
-      "app.kits.ai": [],
-      "mega.nz": [],
-      "drive.google.com": [],
-      "pixeldrain.com": [],
-      "mediafire.com": [],
-      "workupload.com": [],
-      "cdn.discordapp.com": [],
-      "ko-fi.com/s/": [],
-    };
-
-    if (links && links.length > 0) {
-      for (const link of links) {
-        let site = ""; // Por defecto, categorizamos como "otros"
-
-        if (link.includes("huggingface.co")) {
-          site = "huggingface.co";
-        } else if (link.includes("app.kits.ai")) {
-          site = "app.kits.ai";
-        } else if (link.includes("mega.nz")) {
-          site = "mega.nz";
-        } else if (link.includes("drive.google.com")) {
-          site = "drive.google.com";
-        } else if (link.includes("pixeldrain.com")) {
-          site = "pixeldrain.com";
-        } else if (link.includes("mediafire.com")) {
-          site = "mediafire.com";
-        } else if (link.includes("workupload.com")) {
-          site = "workupload.com";
-        } else if (
-          link.includes("cdn.discordapp.com") &&
-          link.includes(".zip")
-        ) {
-          site = "cdn.discordapp.com";
-        } else if (link.includes("ko-fi.com/s/")) {
-          site = "ko-fi.com/s/";
-        }
-
-        if (site) {
-          supportedSites[site].push(link);
-
-          if (site !== "app.kits.ai" && types === "N/A") {
-            xtypes = "RVC";
-          } else if (site === "app.kits.ai" && types === "N/A") {
-            xtypes = "Kits.AI";
-          }
-        } else {
-          //console.log(link, jsonData.id)
-        }
-      }
-    }
-
-    let hasLinks = false;
-    for (const site in supportedSites) {
-      if (supportedSites[site].length > 0) {
-        hasLinks = true;
-        break;
-      }
-    }
-
-    let reorganizedSupportedSites = [];
-
-    if (hasLinks) {
-      for (const site in supportedSites) {
-        for (const linkn of supportedSites[site]) {
-          // Realiza una solicitud HTTP para obtener el tamaño del archivo
-          link = linkn.includes("http") ? linkn : "https://" + linkn;
-          try {
-            reorganizedSupportedSites.push({
-              Cloud: site,
-              Link: link,
-            });
-          } catch (error) {
-            console.error(
-              `Error al obtener el tamaño de ${link}: ${error.message}`,
-            );
-          }
-        }
-      }
-    }
-
-    if (!reorganizedSupportedSites || reorganizedSupportedSites.length === 0)
-      return;
-
-    const seenLinks = {};
-
-    for (const { Cloud: site, Link: link } of reorganizedSupportedSites) {
-      const index = reorganizedSupportedSites.findIndex(
-        (item) => item.Link === link,
-      );
-      if (!seenLinks[link]) {
-        seenLinks[link] = true;
-      } else {
-        reorganizedSupportedSites.splice(index, 1);
-      }
-    }
-
-    reorganizedSupportedSites = reorganizedSupportedSites.filter(
-      (item) => item.Link,
-    );
-
-    const updatedContext = {
-      Name: cname,
-      Type: xtypes !== "N/A" ? xtypes : types,
-      Algorithm: algorithm,
-      Epoch: epochs,
-      Tags: updatedTags,
-      Link: reorganizedSupportedSites[0].Link || None,
-    };
-    jsonData.links = reorganizedSupportedSites;
-
-    jsonData.context = updatedContext;
-
-    // Renombra el archivo temporal al archivo original
-    fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
-
-    //console.log(`[+] ${filePath}`);
-  } catch (error) {
-    console.log(error);
-    console.error(`[-] ${filePath}: ${error}`);
-  }
-}
 
 
 module.exports = {
   extractAlgorithm,
   extractEpochsAndAlgorithm,
   findOwner,
-  enviarMensajeConArchivo,
+  sendMessage,
   tagsMapping,
   youtubeImage,
 };

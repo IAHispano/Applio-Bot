@@ -21,7 +21,6 @@ async function fetchModels({
 } = {}) {
   const endpointUrl = "https://civitai.com/api/v1/models";
 
-  // Filtrar valores nulos
   const params = Object.fromEntries(
     Object.entries({
       limit,
@@ -48,7 +47,7 @@ async function fetchModels({
     const response = await axios.get(endpointUrl, { params });
     return response.data;
   } catch (error) {
-    console.error("Error en la solicitud HTTP:", error.message);
+    console.error("[CIVITAI] Error:", error.message);
     return null;
   }
 }

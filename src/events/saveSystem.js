@@ -428,12 +428,12 @@ module.exports = {
       };
 
       if (Steal === false) {
-        // const { error } = await supabase.from("models").upsert([dataToUpload]);
-        // if (error) {
-        //   console.log(error.message);
-        // } else {
-        //   console.log("Data uploaded correctly");
-        // }
+        fetchedThread.name.toLowerCase()const { error } = await supabase.from("models").upsert([dataToUpload]);
+        fetchedThread.name.toLowerCase()if (error) {
+        fetchedThread.name.toLowerCase()  console.log(error.message);
+        fetchedThread.name.toLowerCase()} else {
+        fetchedThread.name.toLowerCase()  console.log("Data uploaded correctly");
+        fetchedThread.name.toLowerCase()}
       }
       try {
         const embed = new EmbedBuilder()

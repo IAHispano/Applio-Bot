@@ -161,9 +161,10 @@ module.exports = {
         }
       }
 
-      if(fetchedThread.name.toLowerCase().includes("gptsovits")) {
+      if (fetchedThread.name.toLowerCase().includes("gptsovits") || fetchedThread.name.toLowerCase().includes("gpt-sovits") || fetchedThread.name.toLowerCase().includes("vits")) {
         return
       }
+      
 
       const result = {
         id: fetchedThread.id,

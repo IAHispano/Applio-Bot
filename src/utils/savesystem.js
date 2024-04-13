@@ -527,6 +527,9 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   if (algorithm == "N/A") {
     algorithm = "Rmvpe";
   }
+  if (algorithm.toLowerCase().includes("Mangio")) {
+    algorithm = "Crepe";
+  }
 
   // Epochs in name
   const regexPatterns = [

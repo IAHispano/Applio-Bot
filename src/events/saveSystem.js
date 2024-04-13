@@ -20,6 +20,25 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_TOKEN,
 );
+
+async function VerifyModel(title, author_id, link_) {
+  let query = supabase.from('models').select('*').ilike('name', `%${title}%`).order('created_at', { ascending: false });
+  let link = link_.replace(/\?download=true/, '')
+  const { data, error } = await query.range(0, 14);
+  if (error)  {
+    return { result: "Error" };
+  }
+  if (data && data.length > 0) {
+    for (const item of data) {
+        if (item.author_id === author_id && item.link === link) {
+          return { result: "Founded" };
+        } else if (item.link === link && item.author_id != author_id) {
+          return { result: "Steal", authorId: item.author_id };
+        }
+    }
+  }
+  return { result: "Not Found" };
+};
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -142,6 +161,10 @@ module.exports = {
         }
       }
 
+      if(fetchedThread.name.toLowerCase().includes("gptsovits")) {
+        return
+      }
+
       const result = {
         id: fetchedThread.id,
         name: fetchedThread.name,
@@ -258,6 +281,7 @@ module.exports = {
       contentn = contentn.replace(/\.zip\)/g, ".zip");
       contentn = contentn.replace(/\|/g, " ");
       contentn = contentn.replace(/\*/g, " ");
+      contentn = contentn.replace(/\?download=true/, '')
       const links = contentn.match(regex);
 
       const supportedSites = {
@@ -381,6 +405,14 @@ module.exports = {
 
       require("fs").writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
+      let Steal = false
+      const verify = await VerifyModel(jsonData.context.Name, owner, jsonData.context.Link)
+      if (verify.result === "Steal") {
+        Steal = verify.authorId;
+      } else if (verify.result === "Founded") {
+        return;
+      }
+
       const dataToUpload = {
         id: jsonData.id,
         name: jsonData.context.Name,
@@ -394,14 +426,14 @@ module.exports = {
         author_username: jsonData.owner_username,
       };
 
-      const { error } = await supabase.from("models").upsert([dataToUpload]);
-
-      if (error) {
-        console.log(error.message);
-      } else {
-        console.log("Data uploaded correctly");
+      if (Steal === false) {
+        const { error } = await supabase.from("models").upsert([dataToUpload]);
+        if (error) {
+          console.log(error.message);
+        } else {
+          console.log("Data uploaded correctly");
+        }
       }
-
       try {
         const embed = new EmbedBuilder()
           .setTitle(`${jsonData.context.Name}`)
@@ -435,20 +467,28 @@ module.exports = {
               : "https://github.com/IAHispano/Applio-Website/blob/main/public/no_bg_applio_logo.png?raw=true",
           )
           .setFooter({ text: `Fetch from ${test.channel.id}` });
+        if (Steal != false) {
+          embed.addFields({
+            name: "Stolen",
+            value:
+              Steal,
+            inline: false,
+          })
+        }
         const res = await client.shard.broadcastEval(
           (c, context) => {
-            const [embed] = context;
+            const [embed, filePath] = context;
             try {
               const channel = c.channels.cache.get(process.env.LOG_CHANNEL_ID);
               if (channel) {
-                channel.send({ embeds: [embed] });
+                channel.send({ embeds: [embed], files: [filePath] });
               }
             } catch (error) {
               console.log(error);
             }
           },
           {
-            context: [embed],
+            context: [embed, filePath],
           },
         );
       } catch (error) {

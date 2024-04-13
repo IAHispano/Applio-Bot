@@ -154,7 +154,7 @@ module.exports = {
         const selectedModel = data[selectedModelIndex];
 
         const embed = new EmbedBuilder()
-          .setTitle(selectedModel.name)
+          .setTitle(selectedModel.name || "No name")
           .setURL(`https://applio.org/models/${selectedModel.id}`)
           .setAuthor({
             name: firstResult.author_username,

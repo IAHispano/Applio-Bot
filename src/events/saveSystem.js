@@ -21,9 +21,9 @@ const supabase = createClient(
   process.env.SUPABASE_TOKEN,
 );
 
-async function VerifyModel(title, author_id, link_) {
-  let query = supabase.from('models').select('*').ilike('name', `%${title}%`).order('created_at', { ascending: false });
+async function VerifyModel(author_id, link_) {
   let link = link_.replace(/\?download=true/, '')
+  let query = supabase.from('models').select('*').ilike('link', `%${link}%`).order('created_at', { ascending: false });
   const { data, error } = await query.range(0, 14);
   if (error)  {
     return { result: "Error" };
@@ -407,7 +407,7 @@ module.exports = {
       require("fs").writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
       let Steal = false
-      const verify = await VerifyModel(jsonData.context.Name, owner, jsonData.context.Link)
+      const verify = await VerifyModel(owner, jsonData.context.Link)
       if (verify.result === "Steal") {
         Steal = verify.authorId;
       } else if (verify.result === "Founded") {
@@ -428,12 +428,12 @@ module.exports = {
       };
 
       if (Steal === false) {
-        const { error } = await supabase.from("models").upsert([dataToUpload]);
-        if (error) {
-          console.log(error.message);
-        } else {
-          console.log("Data uploaded correctly");
-        }
+        // const { error } = await supabase.from("models").upsert([dataToUpload]);
+        // if (error) {
+        //   console.log(error.message);
+        // } else {
+        //   console.log("Data uploaded correctly");
+        // }
       }
       try {
         const embed = new EmbedBuilder()

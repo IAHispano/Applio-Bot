@@ -8,7 +8,11 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const axios = require("axios");
-
+const { createClient } = require("@supabase/supabase-js");
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_TOKEN,
+);
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("searchuser")
@@ -22,6 +26,7 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("user")
+        .setAutocomplete(true)
         .setNameLocalizations({
           "es-ES": "usuario",
         })
@@ -35,7 +40,25 @@ module.exports = {
         .setRequired(true),
     )
     .setDMPermission(false),
-
+  async autocomplete(interaction) {
+    const focusedValue = interaction.options.getFocused();
+    try {
+      if (focusedValue.length < 3) {
+        return
+      }
+      const { data, error } = await supabase
+        .from('models')
+        .select('author_username')
+        .ilike('author_username', `${focusedValue}%`);
+      const uniqueUsernames = new Set(data.map(user => user.author_username));
+      const choices = Array.from(uniqueUsernames).slice(0, 25);
+      await interaction.respond(
+           choices.map(choice => ({ name: choice, value: choice }))
+      );
+    } catch (error) {
+        console.error('Failed to read or process the JSON file:', error);
+    }
+	},
   async execute(interaction) {
     const user = interaction.options.getString("user");
 
@@ -101,7 +124,7 @@ module.exports = {
           const fields = [
             {
               name: "Epochs",
-              value: `${result.epochs}`,
+              value: `${result.epochs || "NaN"}`,
               inline: true,
             },
             {
@@ -116,14 +139,6 @@ module.exports = {
             },
           ];
 
-          if (result.link.includes("kits.ai")) {
-            embed.addFields({
-              name: "Information",
-              value: `This model can be found on the Kits.AI platform, visit their page for more information.`,
-            });
-          } else {
-            embed.addFields(fields);
-          }
 
           if (result.image_url !== "N/A") {
             embed.setThumbnail(result.image_url);
@@ -221,7 +236,7 @@ module.exports = {
           const fields = [
             {
               name: "Epochs",
-              value: `${selectedResult.epochs}`,
+              value: `${selectedResult.epochs || "NaN"}`,
               inline: true,
             },
             {
@@ -235,15 +250,6 @@ module.exports = {
               inline: true,
             },
           ];
-
-          if (selectedResult.link.includes("kits.ai")) {
-            embed.addFields({
-              name: "Information",
-              value: `This model can be found on the Kits.AI platform, visit their page for more information.`,
-            });
-          } else {
-            embed.addFields(fields);
-          }
 
           if (selectedResult.image_url !== "N/A") {
             embed.setThumbnail(selectedResult.image_url);

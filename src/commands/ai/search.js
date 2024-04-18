@@ -77,14 +77,16 @@ module.exports = {
         .setDescription(
           `- **Uploaded:** <t:${Math.trunc(
             new Date(firstResult.created_at).getTime() / 1000,
-          )}:d>\n` + `- **Likes:** ${firstResult.likes}`,
+          )}:d>\n` +
+          `- **Server:** ${firstResult.server_name}\n` +
+           `- **Likes:** ${firstResult.likes}`,
         )
         .setColor("White")
         .setThumbnail(
           firstResult.image_url !== "N/A" ? firstResult.image_url : null,
         )
         .addFields(
-          { name: "Epochs", value: firstResult.epochs, inline: true },
+          { name: "Epochs", value: firstResult.epochs || "NaN", inline: true },
           { name: "Technology", value: firstResult.type, inline: true },
           { name: "Algorithm", value: firstResult.algorithm, inline: true },
         )
@@ -140,6 +142,7 @@ module.exports = {
         {
           componentType: ComponentType.SELECT_MENU,
           filter: (i) => i.user.id === interaction.user.id,
+          time: 60000,
         },
       );
 
@@ -147,6 +150,7 @@ module.exports = {
         if (!interaction.values || interaction.values.length === 0) {
           return;
         }
+        menuCollector.resetTimer();
 
         const selectedModelIndex = parseInt(
           interaction.values[0].split("-")[0],
@@ -163,14 +167,16 @@ module.exports = {
           .setDescription(
             `- **Uploaded:** <t:${Math.trunc(
               new Date(selectedModel.created_at).getTime() / 1000,
-            )}:d>\n` + `- **Likes:** ${selectedModel.likes}`,
+            )}:d>\n` +
+            `- **Server:** ${selectedModel.server_name}\n` +
+             `- **Likes:** ${selectedModel.likes}`,
           )
           .setColor("White")
           .setThumbnail(
             selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
           )
           .addFields(
-            { name: "Epochs", value: selectedModel.epochs, inline: true },
+            { name: "Epochs", value: selectedModel.epochs || "NaN", inline: true },
             { name: "Technology", value: selectedModel.type, inline: true },
             { name: "Algorithm", value: selectedModel.algorithm, inline: true },
           )
@@ -224,6 +230,7 @@ module.exports = {
       let buttonCollector = interaction.channel.createMessageComponentCollector(
         {
           componentType: ComponentType.Button,
+          time: 60000,
         },
       );
 
@@ -237,6 +244,7 @@ module.exports = {
               await interaction.channel.messages.fetch(originalMessageId);
 
             if (originalMessage && originalMessage.embeds.length > 0) {
+              buttonCollector.resetTimer();
               const savedEmbed = originalMessage.embeds[0];
               const savedComponents = originalMessage.components;
 
@@ -258,27 +266,10 @@ module.exports = {
                   });
                 });
               delete messageIdMap[embedId];
+              
             } else {
             }
           } else {
-          }
-        }
-      });
-      buttonCollector.on("end", async () => {
-        for (const embedId in messageIdMap) {
-          const originalMessageId = messageIdMap[embedId];
-          console.log(originalMessageId);
-          if (originalMessageId) {
-            try {
-              const originalMessage =
-                await interaction.channel.messages.fetch(originalMessageId);
-
-              if (originalMessage && originalMessage.components.length > 0) {
-                delete messageIdMap[embedId];
-              }
-            } catch (error) {
-              console.log(error);
-            }
           }
         }
       });

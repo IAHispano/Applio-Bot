@@ -1,5 +1,4 @@
 const { Events, EmbedBuilder } = require("discord.js");
-const Blacklist = require("../schemas/moderation/blackList.js");
 const client = require("../bot.js");
 
 module.exports = {
@@ -12,29 +11,24 @@ module.exports = {
     const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
 
     try {
-      await handlePermissions(command, interaction, channel);
-      await executeCommand(command, interaction, channel);
+      await handlePermissions(command, interaction);
+      await executeCommand(command, interaction);
     } catch (error) {
       await handleCommandError(error, interaction, channel);
     }
   },
 };
 
-async function handlePermissions(command, interaction, channel) {
+async function handlePermissions(command, interaction) {
   if (
     command.devOnly &&
     !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
   ) {
     interaction.reply("This command is restricted to developers.");
   }
-
-  const blacklistedUser = await Blacklist.findOne({ Id: interaction.user.id });
-  if (blacklistedUser) {
-    throw new Error("You are blacklisted from using this command.");
-  }
 }
 
-async function executeCommand(command, interaction, channel) {
+async function executeCommand(command, interaction) {
   if (!command) {
     console.error(`No command matching ${interaction.commandName} was found.`);
     return;

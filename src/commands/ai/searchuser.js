@@ -50,40 +50,36 @@ module.exports = {
         .from('models')
         .select('author_username')
         .ilike('author_username', `${focusedValue}%`);
-      const uniqueUsernames = new Set(data.map(user => user.author_username));
-      const choices = Array.from(uniqueUsernames).slice(0, 25);
+      const usernames = new Set(data.map(user => user.author_username));
+      const choices = Array.from(usernames).slice(0, 25);
       await interaction.respond(
            choices.map(choice => ({ name: choice, value: choice }))
       );
-    } catch (error) {
-        console.error('Failed to read or process the JSON file:', error);
-    }
+    } catch {}
 	},
   async execute(interaction) {
     const user = interaction.options.getString("user");
-    let messageIdMap = {};
+    let messageIdMap_ = {};
     const loading = await interaction.deferReply();
     const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/user=${user}`;
 
     try {
       const response = await axios.get(url);
-      const data = response.data.slice(0, 25);
+      const data_ = response.data.slice(0, 25);
 
-      const options = data.map((result, index) => ({
+      const options = data_.map((result, index) => ({
         label: `${result.name}`,
-        value: `${index}-${result.id}-${Math.trunc(
-          new Date(result.created_at).getTime() / 1000,
-        )}`,
+        value: `V_D-${index}-${result.id}`,
         description: `${result.type} · Made by ${result.author_username}`,
         emoji: "<:dot:1134526388456669234>",
       }));
 
       const selectMenu = new StringSelectMenuBuilder()
         .setCustomId(interaction.user.id)
-        .setPlaceholder(`👀 Select a result, found ${data.length} results...`)
+        .setPlaceholder(`👀 Select a result, found ${data_.length} results...`)
         .setOptions(options);
 
-      const firstResult = data[0]; // Get the first result
+      const firstResult = data_[0]; // Get the first result
       const initialEmbed = new EmbedBuilder()
         .setTitle(firstResult.name)
         .setURL(`https://applio.org/models/${firstResult.id}`)
@@ -145,7 +141,7 @@ module.exports = {
       );
 
       let new_id = await loading.edit({
-        content: `${interaction.user}, I have found ${data.length} results that match your search!`,
+        content: `${interaction.user}, I have found ${data_.length} results that match your search!`,
         components: [
           rowButtons,
           new ActionRowBuilder().addComponents(selectMenu),
@@ -153,7 +149,7 @@ module.exports = {
         embeds: [initialEmbed],
       });
       new_id = await new_id;
-      messageIdMap[embedId] = new_id.id;
+      messageIdMap_[embedId] = new_id.id;
 
       const menuCollector = interaction.channel.createMessageComponentCollector(
         {
@@ -164,16 +160,14 @@ module.exports = {
       );
 
       menuCollector.on("collect", async (interaction) => {
-        if (!interaction.values || interaction.values.length === 0) {
+        if (!interaction.values || !/V_D-(\d+)/.test(interaction.values[0]) || interaction.values.length === 0) {
           return;
         }
         menuCollector.resetTimer();
-
         const selectedModelIndex = parseInt(
-          interaction.values[0].split("-")[0],
+          interaction.values[0].replace(/V_D-/, '').split("-")[0],
         );
-        const selectedModel = data[selectedModelIndex];
-
+        const selectedModel = data_[selectedModelIndex];
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
           .setURL(`https://applio.org/models/${selectedModel.id}`)
@@ -241,7 +235,7 @@ module.exports = {
             new ActionRowBuilder().addComponents(selectMenu),
           ],
         });
-        messageIdMap[embedId] = interaction.message.id;
+        messageIdMap_[embedId] = interaction.message.id;
       });
 
       let buttonCollector = interaction.channel.createMessageComponentCollector(
@@ -254,7 +248,7 @@ module.exports = {
       buttonCollector.on("collect", async (interaction) => {
         if (interaction.customId.startsWith("save_button_")) {
           const embedId = interaction.customId.replace("save_button_", "");
-          const originalMessageId = messageIdMap[embedId];
+          const originalMessageId = messageIdMap_[embedId];
 
           if (originalMessageId) {
             const originalMessage =
@@ -282,7 +276,7 @@ module.exports = {
                     ephemeral: true,
                   });
                 });
-              delete messageIdMap[embedId];
+              delete messageIdMap_[embedId];
               
             } else {
             }

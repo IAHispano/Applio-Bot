@@ -37,21 +37,18 @@ module.exports = {
   async autocomplete(interaction) {
     const focusedValue = interaction.options.getFocused();
     try {
-
       if (focusedValue.length < 3) {
-        return
+        return;
       }
       const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
       const response = await axios.get(url);
-      const data = response.data
-      const uniqueUsernames = new Set(data.map(result => result.name));
-      const choices = Array.from(uniqueUsernames).slice(0, 25);
+      const rdata = response.data;
+      const mapped = new Set(rdata.map(result => result.name));
+      const choices = Array.from(mapped).slice(0, 25);
       await interaction.respond(
-           choices.map(choice => ({ name: choice, value: choice }))
+        choices.map(choice => ({ name: choice, value: choice }))
       );
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch {}
 	},
   async execute(interaction) {
     const model_name = interaction.options.getString("model");
@@ -166,16 +163,14 @@ module.exports = {
       );
 
       menuCollector.on("collect", async (interaction) => {
-        if (!interaction.values || interaction.values.length === 0) {
+        if (!interaction.values || /V_D-(\d+)/.test(interaction.values[0]) || interaction.values.length === 0) {
           return;
         }
         menuCollector.resetTimer();
-
         const selectedModelIndex = parseInt(
           interaction.values[0].split("-")[0],
         );
         const selectedModel = data[selectedModelIndex];
-
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
           .setURL(`https://applio.org/models/${selectedModel.id}`)

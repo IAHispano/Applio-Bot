@@ -23,6 +23,7 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("model")
+        .setAutocomplete(true)
         .setNameLocalizations({
           "es-ES": "modelo",
         })
@@ -33,7 +34,34 @@ module.exports = {
         .setRequired(true),
     )
     .setDMPermission(false),
+  async autocomplete(interaction) {
+    const focusedValue = interaction.options.getFocused();
+    try {
 
+      if (focusedValue.length < 3) {
+        return
+      } else if (focusedValue.length < 1) {
+        const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/perpage=25/page=1?type=rvc`;
+        const response = await axios.get(url);
+        const data = response.data
+        const uniqueUsernames = new Set(data.map(result => result.name));
+        const choices = Array.from(uniqueUsernames).slice(0, 25);
+        await interaction.respond(
+             choices.map(choice => ({ name: choice, value: choice }))
+        );
+      }
+      const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
+      const response = await axios.get(url);
+      const data = response.data
+      const uniqueUsernames = new Set(data.map(result => result.name));
+      const choices = Array.from(uniqueUsernames).slice(0, 25);
+      await interaction.respond(
+           choices.map(choice => ({ name: choice, value: choice }))
+      );
+    } catch (error) {
+      //console.error(error);
+    }
+	},
   async execute(interaction) {
     const model_name = interaction.options.getString("model");
     const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${model_name}&type=rvc`;

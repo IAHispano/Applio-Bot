@@ -83,6 +83,7 @@ module.exports = {
         .setOptions(options);
 
       const firstResult = data[0]; // Get the first result
+      const createdDate = firstResult.created_at && !isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000)) ? `<t:${Math.trunc(new Date(firstResult.created_at).getTime() / 1000)}:d>` : "Unknown";
       const initialEmbed = new EmbedBuilder()
         .setTitle(firstResult.name)
         .setURL(`https://applio.org/models/${firstResult.id}`)
@@ -91,9 +92,7 @@ module.exports = {
           url: `https://applio.org/user/${firstResult.author_username}`,
         })
         .setDescription(
-          `- **Uploaded:** <t:${Math.trunc(
-            new Date(firstResult.created_at).getTime() / 1000,
-          )}:d>\n` +
+          `- **Uploaded:** ${createdDate}\n` +
           `- **Server:** ${firstResult.server_name}\n` +
            `- **Likes:** ${firstResult.likes}`,
         )
@@ -171,17 +170,19 @@ module.exports = {
           interaction.values[0].split("-")[0],
         );
         const selectedModel = data[selectedModelIndex];
+        if (!selectedModel) {
+          return
+        }
+        const createdDate = selectedModel.created_at && !isNaN(Math.trunc(new Date(selectedModel.created_at).getTime() / 1000)) ? `<t:${Math.trunc(new Date(selectedModel.created_at).getTime() / 1000)}:d>` : "Unknown";
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
           .setURL(`https://applio.org/models/${selectedModel.id}`)
           .setAuthor({
-            name: firstResult.author_username,
-            url: `https://applio.org/user/${firstResult.author_username}`,
+            name: selectedModel.author_username,
+            url: `https://applio.org/user/${selectedModel.author_username}`,
           })
           .setDescription(
-            `- **Uploaded:** <t:${Math.trunc(
-              new Date(selectedModel.created_at).getTime() / 1000,
-            )}:d>\n` +
+            `- **Uploaded:** ${createdDate}\n` +
             `- **Server:** ${selectedModel.server_name}\n` +
              `- **Likes:** ${selectedModel.likes}`,
           )

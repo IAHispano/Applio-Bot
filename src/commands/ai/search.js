@@ -37,9 +37,19 @@ module.exports = {
   async autocomplete(interaction) {
     const focusedValue = interaction.options.getFocused();
     try {
-      if (focusedValue.length < 3) {
+      if(focusedValue.length === 0) {
+        const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/perpage=25/page=1?type=rvc`;
+        const response = await axios.get(url);
+        const rdata = response.data;
+        const mapped = new Set(rdata.map(result => result.name));
+        const choices = Array.from(mapped).slice(0, 25);
+        await interaction.respond(
+          choices.map(choice => ({ name: choice, value: choice }))
+        );
         return;
-      }
+      } else if (focusedValue.length < 3) {
+        return;
+      } 
       const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
       const response = await axios.get(url);
       const rdata = response.data;

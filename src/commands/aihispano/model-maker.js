@@ -75,7 +75,7 @@ module.exports = {
       embed.addFields(fields);
 
       const channel = interaction.guild?.channels.cache.get(
-        "1143700303930196028",
+        "1143229673996816535",
       );
       const embed_exito = new EmbedBuilder()
       .setDescription(`Application successfully submitted!`)

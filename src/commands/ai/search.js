@@ -111,7 +111,7 @@ module.exports = {
           firstResult.image_url !== "N/A" ? firstResult.image_url : null,
         )
         .addFields(
-          { name: "Epochs", value: firstResult.epochs || "NaN", inline: true },
+          { name: "Epochs", value: firstResult.epochs || "Unknown", inline: true },
           { name: "Technology", value: firstResult.type, inline: true },
           { name: "Algorithm", value: firstResult.algorithm, inline: true },
         )
@@ -201,7 +201,7 @@ module.exports = {
             selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
           )
           .addFields(
-            { name: "Epochs", value: selectedModel.epochs || "NaN", inline: true },
+            { name: "Epochs", value: selectedModel.epochs || "Unknown", inline: true },
             { name: "Technology", value: selectedModel.type, inline: true },
             { name: "Algorithm", value: selectedModel.algorithm, inline: true },
           )

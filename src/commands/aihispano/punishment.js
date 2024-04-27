@@ -31,6 +31,12 @@ module.exports = {
         .setNameLocalizations({
           "es-ES": "razón",
         })
+        .addChoices(
+          { name: "Bot Spam", value: "Bot Spam" },
+          { name: "Chat Spamming", value: "Chat Spamming" },
+          { name: "WallText", value: "Walltext" },
+          { name: "Misbehavior", value: "Misbehavior" },
+        )
         .setDescription("Reason for the sanction.")
         .setDescriptionLocalizations({
           "es-ES": "Razón de la sanción.",

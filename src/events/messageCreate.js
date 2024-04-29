@@ -12,8 +12,6 @@ module.exports = {
     if (!args[1] || !args[1].trim()) {
       
       return
-    } else if (!args[1].toLowerCase().includes("search")) {
-      return
     }
     const command = message.client.commands.get(args[1]);
     const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
@@ -63,7 +61,8 @@ async function executeCommand(command, message, channel) {
     await sentMessage.edit(messageOptions);
   };
   message.user = message.author
-  if (!command) {
+
+  if (!command && !/^searchuser\b|^search\b/i.test(content)) {
     const command = message.client.commands.get("chat");
     await command.execute(message, client);
     return;

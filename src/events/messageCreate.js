@@ -62,7 +62,7 @@ async function executeCommand(command, message, channel) {
   };
   message.user = message.author
 
-  if (!command && !/^searchuser\b|^search\b/i.test(content)) {
+  if (!command || !/^searchuser\b|^search\b/i.test(content)) {
     const command = message.client.commands.get("chat");
     await command.execute(message, client);
     return;

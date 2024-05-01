@@ -1,19 +1,33 @@
 const { Events, EmbedBuilder } = require("discord.js");
 
 const client = require("../bot.js");
-const prefix = "<@1144714449563955302>"
+const prefix = `<@${process.env.BOT_ID}>`
 module.exports = {
   name: "messageCreate",
   once: false,
   async execute(message) {
-    if (!message.content.startsWith(prefix) || message.author.bot || message.content.length < 1) return;
-
-    let args = message.content.toLowerCase().substring(prefix.length).split(" ");
-    if (!args[1] || !args[1].trim()) {
+    if (message.author.bot || message.content.length < 1) return;
+    let command
+    if (message.type === 19 && message.reference) {
+      const msg = await message.fetchReference()
+      if(msg.author.id === process.env.BOT_ID) {
+        new_ = `What you said before: ${msg.content} What I answer: ${message.content}`
+        message.content = new_
+        command = message.client.commands.get("chat");
+      } else {
+        return
+      }
       
-      return
+    } else {
+      if (!message.content.startsWith(prefix)) return
+      let args = message.content.toLowerCase().substring(prefix.length).split(" ");
+      if (!args[1] || !args[1].trim()) {
+      
+        return
+      }
+      command = message.client.commands.get(args[1]);
     }
-    const command = message.client.commands.get(args[1]);
+    
     const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
     
 
@@ -62,7 +76,7 @@ async function executeCommand(command, message, channel) {
   };
   message.user = message.author
 
-  if (!command || !/^searchuser\b|^search\b/i.test(content)) {
+  if (!command || !/^searchuser\b|^search\b/i.test(content) || command.data.name === "chat") {
     const command = message.client.commands.get("chat");
     await command.execute(message, client);
     return;

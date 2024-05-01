@@ -46,6 +46,7 @@ module.exports = {
         .setDMPermission(false),
 
     async execute(interaction) {
+        interaction.channel.sendTyping()
         const prompt = interaction.options.getString("prompt");
         const chatCompletion = await getGroqChatCompletion(prompt);
 

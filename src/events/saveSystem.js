@@ -445,7 +445,7 @@ module.exports = {
         author_username: jsonData.owner_username,
         server_id: jsonData.server,
         server_name: jsonData.server_name,
-        tags: jsonData.context.Tags,
+        tags: jsonData.context.Tags.join(','),
       };
 
       if (Steal === false) {

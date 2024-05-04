@@ -42,6 +42,24 @@ async function VerifyModel(author_id, link_) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+function uuid(number) {
+  const a = "0123456789abcdefghijklmnopqrstuvwxyz";
+  const b = a.length;
+  const c = [96, 64, 32, 0].map(i => (number >>> i) & 0xFFFFFFFF);
+  const d = [];
+  c.forEach(seccion => {
+      while (seccion > 0) {
+          const residuo = seccion % b;
+          d.unshift(a[residuo]);
+          seccion = Math.floor(seccion / b);
+      }
+  });
+  let e = `${c[0].toString(16).padStart(8, '0')}-${c[1].toString(16).padStart(4, '0')}-`;
+  const f = d.slice(1);
+  const g = f.length;
+  e += f.join('') + (g <= 12 ? a[0].repeat(12 - g) : '');
+  return e;
+}
 module.exports = {
   name: Events.ThreadCreate,
   once: false,
@@ -416,6 +434,7 @@ module.exports = {
 
       const dataToUpload = {
         id: jsonData.id,
+        id_: uuid(jsonData.id),
         name: jsonData.context.Name,
         link: reorganizedSupportedSites[0].Link,
         image_url: image,

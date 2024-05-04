@@ -45,20 +45,19 @@ function sleep(ms) {
 function uuid(number) {
   const a = "0123456789abcdefghijklmnopqrstuvwxyz";
   const b = a.length;
-  const c = [96, 64, 32, 0].map(i => (number >>> i) & 0xFFFFFFFF);
+  const c = [96, 64, 32, 0].map(i => BigInt(number) >> BigInt(i) & BigInt(0xFFFFFFFF));
   const d = [];
-  c.forEach(seccion => {
+  for (let seccion of c) {
       while (seccion > 0) {
-          const residuo = seccion % b;
+          const residuo = Number(seccion % BigInt(b));
           d.unshift(a[residuo]);
-          seccion = Math.floor(seccion / b);
+          seccion = seccion / BigInt(b);
       }
-  });
-  let e = `${c[0].toString(16).padStart(8, '0')}-${c[1].toString(16).padStart(4, '0')}-`;
+  }
+  const e = [0, 1].map(i => parseInt(d.slice(i*8, (i+1)*8).join(''), b).toString(16).padStart(i === 0 ? 8 : 4, '0')).join('-') + '-';
   const f = d.slice(1);
   const g = f.length;
-  e += f.join('') + (g <= 12 ? a[0].repeat(12 - g) : '');
-  return e;
+  return e + f.join('') + (g <= 12 ? a[0].repeat(12 - g) : '');
 }
 module.exports = {
   name: Events.ThreadCreate,

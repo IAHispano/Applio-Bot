@@ -426,7 +426,8 @@ module.exports = {
         author_id: owner,
         author_username: jsonData.owner_username,
         server_id: jsonData.server,
-        server_name: jsonData.server_name
+        server_name: jsonData.server_name,
+        tags: jsonData.tags,
       };
 
       if (Steal === false) {

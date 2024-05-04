@@ -8,7 +8,18 @@ const {
   SlashCommandBuilder,
 } = require("discord.js");
 const axios = require("axios");
-
+function GetTag(text) {
+  let Langs = ['ES', 'EN', 'JP', 'KR', 'PT', 'FR', 'TR', 'RU', 'IT', 'PL', 'OTHER']
+  let partes = text.split(",");
+  
+  for (let parte of partes) {
+    if (Langs.includes(parte)) {
+      return parte;
+    }
+  }
+  
+  return "Unknown";
+}
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("search")
@@ -104,7 +115,8 @@ module.exports = {
         .setDescription(
           `- **Uploaded:** ${createdDate}\n` +
           `- **Server:** ${firstResult.server_name}\n` +
-           `- **Likes:** ${firstResult.likes}`,
+           `- **Likes:** ${firstResult.likes}\n` +
+           `- **Lang:** ${GetTag(firstResult.tags)}`,
         )
         .setColor("White")
         .setThumbnail(
@@ -194,7 +206,8 @@ module.exports = {
           .setDescription(
             `- **Uploaded:** ${createdDate}\n` +
             `- **Server:** ${selectedModel.server_name}\n` +
-             `- **Likes:** ${selectedModel.likes}`,
+             `- **Likes:** ${selectedModel.likes}\n` +
+             `- **Lang:** ${GetTag(selectedModel.tags)}`,
           )
           .setColor("White")
           .setThumbnail(

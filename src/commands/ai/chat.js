@@ -1,9 +1,15 @@
 const Groq = require("groq-sdk");
 const { SlashCommandBuilder } = require("discord.js");
+const axios = require("axios");
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
 
+async function getMarkdownContent(url) {
+    const response = await axios.get(`https://r.jina.ai/${url}`);
+    const markdownContent = response.data.match(/Markdown Content:(.*)/s)[1].trim();
+    return markdownContent;
+}
 
 async function getGroqChatCompletion(prompt) {
     return groq.chat.completions.create({
@@ -23,12 +29,9 @@ async function getGroqChatCompletion(prompt) {
     });
 }
 
-
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("chat")
-
         .setDescription("Info » Chat with Applio.")
         .setDescriptionLocalizations({
             "es-ES": "Info » Habla con Applio.",
@@ -39,17 +42,26 @@ module.exports = {
                 .setDescription(
                     "The message you want to send to Applio.",
                 )
+                .setDescriptionLocalizations({
+                    "es-ES": "El mensaje que quieres enviar a Applio.",
+                })
                 .setMaxLength(256)
                 .setRequired(true),
-
         )
         .setDMPermission(false),
 
     async execute(interaction) {
         interaction.channel.sendTyping()
-        const prompt = interaction.options.getString("prompt");
+        let prompt = interaction.options.getString("prompt");
+        const urlRegex = /\b(https?:\/\/[^\s]+)/g;
+        const urls = prompt.match(urlRegex);
+        if (urls) {
+            for (const url of urls) {
+                const markdownContent = await getMarkdownContent(url);
+                prompt += `\nWeb content: ${markdownContent}`;
+            }
+        }
         const chatCompletion = await getGroqChatCompletion(prompt);
-        console.log(prompt)
         let sanitizedContent = chatCompletion.choices[0]?.message?.content
             .replaceAll("@everyone", "everyone")
             .replaceAll("@here", "here");

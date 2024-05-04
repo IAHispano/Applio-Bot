@@ -1,11 +1,11 @@
 const { Client, GatewayIntentBits, Events } = require("discord.js");
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, 
+	intents: [GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildVoiceStates,
 	GatewayIntentBits.GuildMessages,
 	GatewayIntentBits.MessageContent,
-	GatewayIntentBits.GuildMembers,],
+	GatewayIntentBits.GuildMembers],
 });
 module.exports = client;
 
@@ -13,10 +13,10 @@ require("./deployment/registerCommands.js");
 require("./deployment/registerEvents.js");
 
 client.login(process.env.BOT_TOKEN).catch((error) => {
-  console.log(
-    "[ERROR] Could not log into the bot, check your token and try again." +
-      error,
-  );
+	console.log(
+		"[ERROR] Could not log into the bot, check your token and try again." +
+		error,
+	);
 });
 
 client.on(Events.InteractionCreate, async interaction => {

@@ -10,29 +10,28 @@ module.exports = {
     let command
     if (message.type === 19 && message.reference) {
       const msg = await message.fetchReference()
-      if(msg.author.id === process.env.BOT_ID) {
+      if (msg.author.id === process.env.BOT_ID) {
         new_ = `What you said before: ${msg.content} What I answer: ${message.content}`
         message.content = new_
         command = message.client.commands.get("chat");
       } else {
         return
       }
-      
+
     } else {
       if (!message.content.startsWith(prefix)) return
       let args = message.content.toLowerCase().substring(prefix.length).split(" ");
       if (!args[1] || !args[1].trim()) {
-      
+
         return
       }
       command = message.client.commands.get(args[1]);
     }
-    
+
     const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
-    
+
 
     try {
-      await handlePermissions(command, message, channel);
       await executeCommand(command, message, channel);
     } catch (error) {
       await handleCommandError(error, message, channel);
@@ -40,10 +39,6 @@ module.exports = {
   },
 };
 
-async function handlePermissions(command, message, channel) {
-
-
-}
 
 async function executeCommand(command, message, channel) {
   let content = message.content.slice(prefix.length).trim();
@@ -54,23 +49,23 @@ async function executeCommand(command, message, channel) {
   // message.reply = function(messageOptions) {
   //   return this.channel.send(messageOptions);
   // };
-  message.followUp = function(messageOptions) {
+  message.followUp = function (messageOptions) {
     return this.channel.send(messageOptions);
   };
-  message.deferReply = async function(messageOptions) {
-    const sentMessage = await this.channel.send({content: "Loading...", reply: { messageReference: message.id }});
-    this.sentMessageId = sentMessage.id; 
+  message.deferReply = async function (messageOptions) {
+    const sentMessage = await this.channel.send({ content: "Loading...", reply: { messageReference: message.id } });
+    this.sentMessageId = sentMessage.id;
     return sentMessage;
   };
-  message.deferReply.edit = async function(messageOptions) {
+  message.deferReply.edit = async function (messageOptions) {
     if (!this.sentMessageId) {
-        console.error("Dont Found.");
-        return;
+      console.error("Unknown message id.");
+      return;
     }
     const sentMessage = await this.channel.messages.fetch(this.sentMessageId);
     if (!sentMessage) {
-        console.error("Dont Found.");
-        return;
+      console.error("Unknown message.");
+      return;
     }
     await sentMessage.edit(messageOptions);
   };

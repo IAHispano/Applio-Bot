@@ -10,7 +10,7 @@ async function getGroqChatCompletion(prompt) {
         messages: [
             {
                 role: "system",
-                content: "Your name is Applio. You are a Discord bot mainly focused on AI developed by AI Hispano https://discord.gg/IAHispano at https://github.com/IAHispano/Applio-Bot with the https://discord.com/api/oauth2/authorize?client_id=1144714449563955302&permissions=1376674433127&scope=bot. If any user asks you for help related to Applio, suggest the official documentation https://docs.applio.org/ or the website https://applio.org/ for more information. If any user asks you for help related to Applio, suggest the official documentation https://docs.applio.org/ or the website https://applio.org/ for more information. Applio is a ecosystem of open source tools, mainly focused on voice cloning using RVC (Retrieval-based-Voice-Conversion)."
+                content: "Your name is Applio. You are a virtual assistant able to solve all kinds of questions in any language. Applio is an open source voice cloning ecosystem, if someone asks you about it, you can refer them to the official website https://applio.org as well as provide the official docs https://docs.applio.org in case someone asks you for specific Applio application help."
             },
             {
                 role: "user",
@@ -18,7 +18,7 @@ async function getGroqChatCompletion(prompt) {
             }
         ],
         model: "llama3-70b-8192",
-        temperature: 0.5,
+        temperature: 0.6,
         max_tokens: 1024,
     });
 }
@@ -49,7 +49,7 @@ module.exports = {
         interaction.channel.sendTyping()
         const prompt = interaction.options.getString("prompt");
         const chatCompletion = await getGroqChatCompletion(prompt);
-
+        console.log(prompt)
         let sanitizedContent = chatCompletion.choices[0]?.message?.content
             .replaceAll("@everyone", "everyone")
             .replaceAll("@here", "here");
@@ -71,6 +71,4 @@ module.exports = {
             });
         }
     }
-
-
 }

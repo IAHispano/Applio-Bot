@@ -110,7 +110,7 @@ module.exports = {
         .setURL(`https://applio.org/models/${firstResult.id}`)
         .setAuthor({
           name: firstResult.author_username,
-          url: `https://applio.org/user/${firstResult.author_username}`,
+          url: firstResult.author_username && !firstResult.author_username.includes(' ') ? `https://applio.org/user/${firstResult.author_username}` : undefined
         })
         .setDescription(
           `- **Uploaded:** ${createdDate}\n` +
@@ -201,7 +201,7 @@ module.exports = {
           .setURL(`https://applio.org/models/${selectedModel.id}`)
           .setAuthor({
             name: selectedModel.author_username,
-            url: `https://applio.org/user/${selectedModel.author_username}`,
+            url: selectedModel.author_username && !selectedModel.author_username.includes(' ') ? `https://applio.org/user/${selectedModel.author_username}` : undefined
           })
           .setDescription(
             `- **Uploaded:** ${createdDate}\n` +

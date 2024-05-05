@@ -69,6 +69,7 @@ async function executeCommand(command, message, channel) {
     }
     await sentMessage.edit(messageOptions);
   };
+  message.update = message.edit
   message.user = message.author
 
   if (!command || !/^searchuser\b|^search\b/i.test(content) || command.data.name === "chat") {

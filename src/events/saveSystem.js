@@ -427,9 +427,10 @@ module.exports = {
       const verify = await VerifyModel(owner, jsonData.context.Link)
       if (verify.result === "Steal") {
         Steal = verify.authorId;
-      } else if (verify.result === "Founded") {
-        return;
       }
+      // else if (verify.result === "Founded") {
+      //   //return;
+      // }
 
       const dataToUpload = {
         id: jsonData.id,
@@ -447,8 +448,17 @@ module.exports = {
         server_name: jsonData.server_name,
         tags: jsonData.context.Tags.join(','),
       };
-
-      if (Steal === false) {
+      if (verify.result === "Founded") {
+        const { error } = await supabase
+           .from('models')
+           .update(dataToUpload)
+           .eq('id', jsonData.id)
+        if (error) {
+          console.log(error.message);
+        } else {
+          console.log("Data uploaded correctly");
+        }
+      } else if (Steal === false) {
         const { error } = await supabase.from("models").upsert([dataToUpload]);
         if (error) {
           console.log(error.message);

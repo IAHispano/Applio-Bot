@@ -1,9 +1,7 @@
 const Groq = require("groq-sdk");
 const { SlashCommandBuilder } = require("discord.js");
 const axios = require("axios");
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY
-});
+const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 
 async function getMarkdownContent(url) {
     const response = await axios.get(`https://r.jina.ai/${url}`);
@@ -12,21 +10,31 @@ async function getMarkdownContent(url) {
 }
 
 async function getGroqChatCompletion(prompt) {
-    return groq.chat.completions.create({
-        messages: [
-            {
-                role: "system",
-                content: "Your name is Applio. You are a virtual assistant able to solve all kinds of questions in any language. Applio is an open source voice cloning ecosystem, if someone asks you about it, you can refer them to the official website https://applio.org as well as provide the official docs https://docs.applio.org in case someone asks you for specific Applio application help."
-            },
-            {
-                role: "user",
-                content: prompt
+    for (let i = 0; i < API_KEYS.length; i++) {
+        try {
+            const groq = new Groq({ apiKey: API_KEYS[i] });
+            return await groq.chat.completions.create({
+                messages: [
+                    {
+                        role: "system",
+                        content: "Your name is Applio. You are a virtual assistant able to solve all kinds of questions in any language. Applio is an open source voice cloning ecosystem, if someone asks you about it, you can refer them to the official website https://applio.org as well as provide the official docs https://docs.applio.org in case someone asks you for specific Applio application help."
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                model: "llama3-70b-8192",
+                temperature: 0.6,
+                max_tokens: 1024,
+            });
+        } catch (error) {
+            console.log(`Error with API key ${i + 1}: ${error}`);
+            if (i === API_KEYS.length - 1) {
+                throw new Error('All API keys failed');
             }
-        ],
-        model: "llama3-70b-8192",
-        temperature: 0.6,
-        max_tokens: 1024,
-    });
+        }
+    }
 }
 
 module.exports = {

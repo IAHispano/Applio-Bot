@@ -31,7 +31,7 @@ async function VerifyModel(author_id, link_) {
   if (data && data.length > 0) {
     for (const item of data) {
         if (item.author_id === author_id && item.link === link) {
-          return { result: "Founded" };
+          return { result: "Founded" , model: item.id };
         } else if (item.link === link && item.author_id != author_id) {
           return { result: "Steal", authorId: item.author_id };
         }
@@ -296,10 +296,12 @@ module.exports = {
       const regex =
         /https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g;
       let contentn = content.replace(/<|>|\|\|/g, "");
-      contentn = contentn.replace(/\.zip\)/g, ".zip");
-      contentn = contentn.replace(/\|/g, " ");
-      contentn = contentn.replace(/\*/g, " ");
-      contentn = contentn.replace(/\?download=true/, '')
+      contentn = contentn.replace(/\bdownload=true\)/gi, "download=true");
+      contentn = contentn.replace(/\?download=true/gi, "");
+      contentn = contentn.replace(/\[direct-download\]/g, " ");
+      contentn = contentn.replace(/\.zip\)/g, '.zip')
+      contentn = contentn.replace(/\|/g, ' ');
+      contentn = contentn.replace(/\*/g, ' ');
       const links = contentn.match(regex);
 
       const supportedSites = {
@@ -449,14 +451,15 @@ module.exports = {
         tags: jsonData.context.Tags.join(','),
       };
       if (verify.result === "Founded") {
-        const { error } = await supabase
+        const { error: error_ } = await supabase
            .from('models')
-           .update(dataToUpload)
-           .eq('id', jsonData.id)
+           .delete()
+           .eq('id', verify.model)
+        const { error } = await supabase.from("models").upsert([dataToUpload]);
         if (error) {
           console.log(error.message);
         } else {
-          console.log("Data uploaded correctly");
+          console.log(`Data reuploaded correctly, Org: ${verify.model}`);
         }
       } else if (Steal === false) {
         const { error } = await supabase.from("models").upsert([dataToUpload]);

@@ -255,14 +255,16 @@ module.exports = {
           botInviteButton,
         );
 
-        await interaction.update({
-          embeds: [embed],
-          components: [
-            rowButtons,
-            new ActionRowBuilder().addComponents(selectMenu),
-          ],
-        });
-        messageIdMap[embedId] = interaction.message.id;
+        try {
+          await interaction.update({
+            embeds: [embed],
+            components: [
+              rowButtons,
+              new ActionRowBuilder().addComponents(selectMenu),
+            ],
+          });
+          messageIdMap[embedId] = interaction.message.id;
+        } catch {}
       });
 
       let buttonCollector = interaction.channel.createMessageComponentCollector(
@@ -286,19 +288,19 @@ module.exports = {
               const savedEmbed = originalMessage.embeds[0];
               const savedComponents = originalMessage.components;
 
-              interaction.user
+              await interaction.user
                 .send({
                   embeds: [savedEmbed],
                   components: savedComponents,
                 })
-                .then(() => {
-                  interaction.reply({
+                .then(async () => {
+                  await interaction.reply({
                     content: `💾 ${interaction.user}, sent you a DM with the model information!`,
                     ephemeral: true,
                   });
                 })
-                .catch(() => {
-                  interaction.reply({
+                .catch(async () => {
+                  await interaction.reply({
                     content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
                     ephemeral: true,
                   });
@@ -312,7 +314,7 @@ module.exports = {
         }
       });
     } catch (error) {
-      loading.edit({
+      await loading.edit({
         embeds: [
           new EmbedBuilder()
             .setTitle("An error occurred")

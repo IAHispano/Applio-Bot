@@ -99,6 +99,10 @@ module.exports = {
         let sanitizedContent = chatCompletion.choices[0]?.message?.content
             .replaceAll("@everyone", "everyone")
             .replaceAll("@here", "here");
+        
+        if (sanitizedContent.includes("<@&")) {
+            sanitizedContent = sanitizedContent.replaceAll("<@&", "<@&\u200B");
+        }
 
         if (sanitizedContent.length > 2000) {
             const firstPart = sanitizedContent.slice(0, 2000);

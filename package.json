@@ -19,6 +19,7 @@
     "moment": "^2.29.4",
     "node-cron": "^3.0.2",
     "node-fetch": "^2.6.7",
+    "pdf-parse": "^1.1.1",
     "progress": "^2.0.3",
     "soycanvas": "^1.0.4",
     "translate-google": "^1.5.0",

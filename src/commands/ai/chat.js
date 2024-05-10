@@ -2,11 +2,29 @@ const Groq = require("groq-sdk");
 const { SlashCommandBuilder } = require("discord.js");
 const axios = require("axios");
 const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
+const pdfParse = require('pdf-parse');
 
 async function getMarkdownContent(url) {
     const response = await axios.get(`https://r.jina.ai/${url}`);
     const markdownContent = response.data.match(/Markdown Content:(.*)/s)[1].trim();
     return markdownContent;
+}
+async function getTextFromPDFLink(url) {
+    try {
+        if (url.includes('pdf')) {
+            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            const buffer = Buffer.from(response.data, 'binary');
+            let pdfData = await pdfParse(buffer).then((pdfData) => {
+                return pdfData.text.slice(0, 3500);
+            });
+            return pdfData;
+        } else {
+            return null
+        }
+    } catch (error) {
+        console.log(error)
+        return null
+    }
 }
 
 async function getGroqChatCompletion(prompt) {
@@ -65,7 +83,15 @@ module.exports = {
         const urls = prompt.match(urlRegex);
         if (urls) {
             for (const url of urls) {
-                const markdownContent = await getMarkdownContent(url);
+                let markdownContent
+                if (url.includes('pdf')) {
+                    markdownContent = await getTextFromPDFLink(url);
+                } else {
+                    markdownContent = await getMarkdownContent(url);
+                }
+
+                if (!markdownContent) continue;
+                
                 prompt += `\nWeb content: ${markdownContent}`;
             }
         }

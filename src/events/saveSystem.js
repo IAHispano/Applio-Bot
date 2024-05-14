@@ -481,7 +481,7 @@ module.exports = {
           if (!image === "N/A") {
             let outputBuffer
             const bufferimage = await download(image)
-            let imgw = sharp(image_path);
+            let imgw = sharp(bufferimage);
             if (image.includes("gif")) {
               outputBuffer = await imgw.webp({ quality: 85 }).toBuffer();
             } else {

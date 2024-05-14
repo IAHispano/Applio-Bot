@@ -483,9 +483,9 @@ module.exports = {
             const bufferimage = await download(image)
             let imgw = sharp(image_path);
             if (image.includes("gif")) {
-              outputBuffer = await image.webp({ quality: 85 }).toBuffer();
+              outputBuffer = await imgw.webp({ quality: 85 }).toBuffer();
             } else {
-              outputBuffer = await image.webp({ quality: 70 }).toBuffer();
+              outputBuffer = await imgw.webp({ quality: 70 }).toBuffer();
             }
             
             const { data, error: error_ } = await supabase

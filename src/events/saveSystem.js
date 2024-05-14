@@ -478,7 +478,7 @@ module.exports = {
       } else if (Steal === false) {
         const { error } = await supabase.from("models").upsert([dataToUpload]);
         try {
-          if (!image === "N/A") {
+          if (image !== "N/A") {
             let outputBuffer
             const bufferimage = await download(image)
             let imgw = sharp(bufferimage);

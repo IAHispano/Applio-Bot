@@ -15,7 +15,7 @@ const fetchUser = async (id) => {
   const user = await rest.get(Routes.user(id));
   return user;
 };
-
+const sharp = require('sharp');
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_TOKEN,

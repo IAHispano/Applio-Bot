@@ -20,6 +20,15 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_TOKEN,
 );
+const download = async (Url) => {
+  try {
+      const response = await axios.get(Url, { responseType: 'arraybuffer' });
+      const buffer = Buffer.from(response.data, 'binary');
+      return buffer;
+  } catch (error) {
+      console.error(`Error al descargar la imagen: ${error}`);
+  }
+}
 
 async function VerifyModel(author_id, link_) {
   let link = link_.replace(/\?download=true/, '')
@@ -460,9 +469,39 @@ module.exports = {
           console.log(error.message);
         } else {
           console.log(`Data reuploaded correctly, Org: ${verify.model}`);
+          const { data: data_, error: error__ } = await supabase
+          .storage
+          .from('Images')
+          .move(`${verify.model}.webp`, `${jsonData.id}.webp`);
+          console.log(data_, error__)
         }
       } else if (Steal === false) {
         const { error } = await supabase.from("models").upsert([dataToUpload]);
+        try {
+          if (!image === "N/A") {
+            let outputBuffer
+            const bufferimage = await download(image)
+            let imgw = sharp(image_path);
+            if (image.includes("gif")) {
+              outputBuffer = await image.webp({ quality: 85 }).toBuffer();
+            } else {
+              outputBuffer = await image.webp({ quality: 70 }).toBuffer();
+            }
+            
+            const { data, error: error_ } = await supabase
+            .storage
+            .from('Images')
+            .upload(`${jsonData.id}.webp`, outputBuffer, {
+                  cacheControl: '3600',
+                  contentType: 'image/webp',
+                  upsert: false 
+                  })
+            console.log(data, error_)
+          } 
+        } catch (error) {
+          console.log(error)
+        }
+        
         if (error) {
           console.log(error.message);
         } else {

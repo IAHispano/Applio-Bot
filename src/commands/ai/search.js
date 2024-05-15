@@ -120,7 +120,7 @@ module.exports = {
         )
         .setColor("White")
         .setThumbnail(
-          firstResult.image_url !== "N/A" ? firstResult.image_url : null,
+          `https://cjtfqzjfdimgpvpwhzlv.supabase.co/storage/v1/object/public/Images/${firstResult.id}.webp`,
         )
         .addFields(
           { name: "Epochs", value: firstResult.epochs || "Unknown", inline: true },
@@ -211,7 +211,7 @@ module.exports = {
           )
           .setColor("White")
           .setThumbnail(
-            selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
+            `https://cjtfqzjfdimgpvpwhzlv.supabase.co/storage/v1/object/public/Images/${selectedModel.id}.webp`,
           )
           .addFields(
             { name: "Epochs", value: selectedModel.epochs || "Unknown", inline: true },
@@ -288,7 +288,8 @@ module.exports = {
               const savedEmbed = originalMessage.embeds[0];
               const savedComponents = originalMessage.components;
 
-              await interaction.user
+              try {
+                await interaction.user
                 .send({
                   embeds: [savedEmbed],
                   components: savedComponents,
@@ -305,8 +306,9 @@ module.exports = {
                     ephemeral: true,
                   });
                 });
-              delete messageIdMap[embedId];
-              
+                delete messageIdMap[embedId];
+              } catch {}
+
             } else {
             }
           } else {

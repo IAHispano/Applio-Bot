@@ -113,18 +113,22 @@ module.exports = {
         if (sanitizedContent.length > 2000) {
             const firstPart = sanitizedContent.slice(0, 2000);
             const secondPart = sanitizedContent.slice(2000);
-
-            await interaction.reply({
-                content: firstPart,
-            });
-
-            await interaction.followUp({
-                content: secondPart,
-            });
+            try {
+                await interaction.reply({
+                    content: firstPart,
+                });
+    
+                await interaction.followUp({
+                    content: secondPart,
+                });
+            } catch {}
         } else {
-            await interaction.reply({
-                content: sanitizedContent,
-            });
+            try {
+                await interaction.reply({
+                    content: sanitizedContent,
+                });
+            } catch {}
+            
         }
     }
 }

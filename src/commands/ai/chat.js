@@ -5,10 +5,16 @@ const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 const pdfParse = require('pdf-parse');
 
 async function getMarkdownContent(url) {
-    const response = await axios.get(`https://r.jina.ai/${url}`);
-    const markdownContent = response.data.match(/Markdown Content:(.*)/s)[1].trim();
-    return markdownContent;
+    try {
+        const response = await axios.get(`https://r.jina.ai/${url}`);
+        const markdownContent = response.data.match(/Markdown Content:(.*)/s)[1].trim();
+        return markdownContent;
+    } catch (error) {
+        console.log(error);
+        return "";
+    }
 }
+
 async function getTextFromPDFLink(url) {
     try {
         if (url.includes('pdf')) {
@@ -91,7 +97,7 @@ module.exports = {
                 }
 
                 if (!markdownContent) continue;
-                
+
                 prompt += `\nWeb content: ${markdownContent}`;
             }
         }
@@ -99,7 +105,7 @@ module.exports = {
         let sanitizedContent = chatCompletion.choices[0]?.message?.content
             .replaceAll("@everyone", "everyone")
             .replaceAll("@here", "here");
-        
+
         if (sanitizedContent.includes("<@&")) {
             sanitizedContent = sanitizedContent.replaceAll("<@&", "<@&\u200B");
         }

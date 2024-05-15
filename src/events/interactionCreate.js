@@ -1,4 +1,5 @@
 const { Events, EmbedBuilder } = require("discord.js");
+
 const client = require("../bot.js");
 
 module.exports = {
@@ -11,7 +12,8 @@ module.exports = {
     const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
 
     try {
-      await handlePermissions(command, interaction);
+      const noperms = await handlePermissions(command, interaction);
+      if (noperms) return;
       await executeCommand(command, interaction);
     } catch (error) {
       await handleCommandError(error, interaction, channel);
@@ -22,9 +24,10 @@ module.exports = {
 async function handlePermissions(command, interaction) {
   if (
     command.devOnly &&
-    !process.env.OWNER_IDS.split(",").includes(interaction.user.id)
+    !process.env.OWNER_ID.split(",").includes(interaction.user.id)
   ) {
     interaction.reply("This command is restricted to developers.");
+    return true;
   }
 }
 

@@ -24,7 +24,8 @@
     "sharp": "^0.33.3",
     "soycanvas": "^1.0.4",
     "translate-google": "^1.5.0",
-    "whatwg-url": "^14.0.0"
+    "whatwg-url": "^14.0.0",
+    "child_process": "^1.0.2"
   },
   "devDependencies": {
     "prettier": "3.0.3"

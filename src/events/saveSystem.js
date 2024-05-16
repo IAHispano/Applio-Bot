@@ -15,6 +15,7 @@ const fetchUser = async (id) => {
   const user = await rest.get(Routes.user(id));
   return user;
 };
+const { exec } = require('child_process');
 const sharp = require('sharp');
 const supabase = createClient(
   process.env.SUPABASE_URL,

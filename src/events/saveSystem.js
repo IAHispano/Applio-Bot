@@ -51,6 +51,63 @@ async function VerifyModel(author_id, link_) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+async function GetResolution(image_path) {
+  return new Promise((resolve, reject) => {
+    exec(`/home/container/node_modules/ffmpeg-static/ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${image_path}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error getting GIF resolution: ${error}`);
+        reject(error);
+      } else {
+        const [width, height] = stdout.trim().split('x').map(Number);
+        resolve({ width, height });
+      }
+    });
+  });
+}
+
+async function GetSize(image_path) {
+  return new Promise((resolve, reject) => {
+    fs.stat(image_path, (error, stats) => {
+      if (error) {
+        console.error(`Error getting file size: ${error}`);
+        reject(error);
+      } else {
+        resolve(stats.size);
+      }
+    });
+  });
+}
+async function GIFToWebP(image_path, optimized_image_path) {
+  try {
+    const { width, height } = await GetResolution(image_path);
+    const fileSize = await GetSize(image_path);
+    console.log(`GIF resolution: ${width}x${height}`);
+    console.log(`GIF file size: ${(fileSize / (1024 * 1024)).toFixed(2)} MB`);
+
+    let scaleOption = '';
+    if (width > 800 && height > 600 && fileSize > 10 * 1024 * 1024) {
+      const newWidth = 800;
+      const newHeight = Math.round(height * (800 / width));
+      scaleOption = `-vf scale=${newWidth}:${newHeight}`;
+    }
+
+    return new Promise((resolve, reject) => {
+      exec(`/home/container/node_modules/ffmpeg-static/ffmpeg -y -i ${image_path} -vcodec libwebp -lossless 0 -quality 65 -compression_level 6 -loop 0 ${scaleOption} ${optimized_image_path}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error converting GIF to WebP: ${error}`);
+          reject(error);
+        } else {
+          console.log(`GIF converted to WebP successfully: ${stdout}`);
+          resolve(stdout);
+        }
+      });
+    });
+  } catch (error) {
+    console.error(`Error in conversion process: ${error}`);
+    throw error;
+  }
+}
+
 function uuid(number) {
   const a = "0123456789abcdefghijklmnopqrstuvwxyz";
   const b = a.length;
@@ -482,20 +539,39 @@ module.exports = {
             const bufferimage = await download(image)
             let imgw = sharp(bufferimage);
             if (image.includes("gif")) {
-              outputBuffer = await imgw.webp({ quality: 85 }).toBuffer();
+              try {
+                let writer = fs.createWriteStream(`${jsonData.id}.gif`);
+                writer.write(bufferimage);
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+                writer.end();
+                await GIFToWebP(`${jsonData.id}.gif`, `${jsonData.id}.webp`)
+                await sleep(500)
+                outputBuffer = fs.readFileSync(`${jsonData.id}.webp`);  
+                console.log('Image has been written to disk');
+              } catch {}
             } else {
-              outputBuffer = await imgw.webp({ quality: 70 }).toBuffer();
+              try {
+                outputBuffer = await imgw.webp({ quality: 70 }).toBuffer();
+              } catch {
+                outputBuffer = bufferimage;
+              }
+              
+            }
+            if (outputBuffer) {
+              const { data, error: error_ } = await supabase
+              .storage
+              .from('Images')
+              .upload(`${jsonData.id}.webp`, outputBuffer, {
+                    cacheControl: '3600',
+                    contentType: 'image/webp',
+                    upsert: false 
+                    })
+              console.log(data, error_)
             }
             
-            const { data, error: error_ } = await supabase
-            .storage
-            .from('Images')
-            .upload(`${jsonData.id}.webp`, outputBuffer, {
-                  cacheControl: '3600',
-                  contentType: 'image/webp',
-                  upsert: false 
-                  })
-            console.log(data, error_)
           } 
         } catch (error) {
           console.log(error)

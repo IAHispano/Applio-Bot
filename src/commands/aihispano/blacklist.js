@@ -28,13 +28,7 @@ const {
       .addStringOption((option => 
         option
         .setName('method')
-        .setNameLocalizations({
-            "es-ES": "Metodo",
-          })
         .setDescription('Add Or Delete')
-        .setDescriptionLocalizations({
-            "es-ES": "Añadir o Eliminar.",
-          })
         .setRequired(true)
         .addChoices(
             { name: 'Add', value: 'Add' },

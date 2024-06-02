@@ -1,9 +1,10 @@
 const Groq = require("groq-sdk");
-const { SlashCommandBuilder } = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, ComponentType, ButtonStyle, SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const axios = require("axios");
 const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 const pdfParse = require('pdf-parse');
-
+const { CreateMsg } = require('../../utils/message');
+const { IsInBlacklist } = require("../../utils/blacklist");
 async function getMarkdownContent(url) {
     try {
         const response = await axios.get(`https://r.jina.ai/${url}`);
@@ -41,7 +42,7 @@ async function getGroqChatCompletion(prompt) {
                 messages: [
                     {
                         role: "system",
-                        content: "Your name is Applio. You are a virtual assistant able to solve all kinds of questions in any language. Applio is an open source voice cloning ecosystem, if someone asks you about it, you can refer them to the official website https://applio.org as well as provide the official docs https://docs.applio.org in case someone asks you for specific Applio application help."
+                        content: "Your name is Applio. You are a virtual assistant capable of solving all kinds of questions in any language. You engage in natural, conversational dialogue and provide helpful information. If someone asks about Applio, the open source voice cloning ecosystem, you can refer them to the official website https://applio.org and the official docs at https://docs.applio.org for specific application help. If someone asks about a specific Applio model, such as 'I want the ??? model,' direct them to https://applio.org/models. If the question contains multiple languages, respond in the language that appears most frequently. If someone sends you YouTube links, format them as <https://youtube...>. Otherwise, you answer their questions without mentioning Applio. If someone asks you to simulate a code and give the output, always provide context for the final output instead of just presenting the output alone. If someone tries to obtain only the output of a 'print' statement, ensure to provide context as well."
                     },
                     {
                         role: "user",
@@ -49,7 +50,7 @@ async function getGroqChatCompletion(prompt) {
                     }
                 ],
                 model: "llama3-70b-8192",
-                temperature: 0.6,
+                temperature: 0.75,
                 max_tokens: 1024,
             });
         } catch (error) {
@@ -83,12 +84,29 @@ module.exports = {
         .setDMPermission(false),
 
     async execute(interaction) {
+        const userId = interaction.user.id;
+        if (IsInBlacklist(userId)) {
+            await interaction.reply({
+              embeds: [
+                new EmbedBuilder()
+                  .setTitle("Access Denied")
+                  .setDescription("You are blacklisted and cannot use this command.")
+                  .setColor("Red"),
+              ], ephemeral: true
+            });
+            return;
+        }
         interaction.channel.sendTyping()
         let prompt = interaction.options.getString("prompt");
         const urlRegex = /\b(https?:\/\/[^\s]+)/g;
         const urls = prompt.match(urlRegex);
         if (urls) {
-            for (const url of urls) {
+            for (let url of urls) {
+                if (url.endsWith(',')) {
+                    url = url.slice(0, -1);
+                }
+                url = url.replace(/\/,$/, '/');
+                if (url.includes("applio.org")) continue;
                 let markdownContent
                 if (url.includes('pdf')) {
                     markdownContent = await getTextFromPDFLink(url);
@@ -109,26 +127,58 @@ module.exports = {
         if (sanitizedContent.includes("<@&")) {
             sanitizedContent = sanitizedContent.replaceAll("<@&", "<@&\u200B");
         }
-
-        if (sanitizedContent.length > 2000) {
-            const firstPart = sanitizedContent.slice(0, 2000);
-            const secondPart = sanitizedContent.slice(2000);
-            try {
+        try {
+            const Llama = new ButtonBuilder()
+            .setLabel("🦙 Llama")
+            .setStyle(ButtonStyle.Secondary)
+            .setCustomId(`chat_l_${interaction.user.id}`)
+            //.setDisabled(true);
+            const Gemma = new ButtonBuilder()
+            .setLabel("💎 Gemma")
+            .setStyle(ButtonStyle.Secondary)
+            .setCustomId(`chat_g_${interaction.user.id}`);
+            const Mixtral = new ButtonBuilder()
+            .setLabel("⛵ Mixtral")
+            .setStyle(ButtonStyle.Secondary)
+            .setCustomId(`chat_m_${interaction.user.id}`);
+            const row = new ActionRowBuilder()
+			.addComponents(Llama, Gemma, Mixtral);
+            if (sanitizedContent.length > 2000) {
+                const firstPart = sanitizedContent.slice(0, 2000);
+                const secondPart = sanitizedContent.slice(2000);
                 await interaction.reply({
-                    content: firstPart,
+                    content: firstPart, allowedMentions: { parse: [] },
                 });
     
                 await interaction.followUp({
-                    content: secondPart,
+                    content: secondPart, allowedMentions: { parse: [] },
+                    components: [row],
                 });
-            } catch {}
-        } else {
-            try {
+            } else {
                 await interaction.reply({
-                    content: sanitizedContent,
+                    content: sanitizedContent, allowedMentions: { parse: [] },
+                    components: [row],
                 });
-            } catch {}
+            }
             
-        }
+            const collector = interaction.channel.createMessageComponentCollector(
+                {
+                  componentType: ComponentType.Button,
+                  filter: (i) => i.user.id === interaction.user.id,
+                  time: 60000,
+                },
+            );
+            collector.on('collect', i => {
+                console.log(`Collected`, i.customId);
+                if (i.customId === `chat_l_${interaction.user.id}`) {
+                    console.log('Llama')
+                } else if (i.customId === `chat_g_${interaction.user.id}`) {
+                    console.log('Gemma')
+                } else if (i.customId === `chat_m_${interaction.user.id}`) {
+                    console.log('Mixtral')
+                }
+            });
+        } catch (error) {console.log(error)}
+        
     }
 }

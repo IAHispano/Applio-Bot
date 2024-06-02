@@ -2,7 +2,7 @@ const {
     SlashCommandBuilder,
     EmbedBuilder,
   } = require("discord.js");
-  const { AddBlackList } = require("../../utils/blacklist"); // Ajusta la ruta según tu estructura de proyecto
+  const { AddBlackList, IsInBlacklist, RemoveBlackList } = require("../../utils/blacklist"); 
   
   module.exports = {
     devOnly: true,
@@ -24,21 +24,80 @@ const {
             "es-ES": "El usuario a añadir a la lista negra.",
           })
           .setRequired(true),
-      ),
-  
-    async execute(interaction) {
-      const user = interaction.options.getUser("user");
-      const userId = user.id;
+      )
+      .addStringOption((option => 
+        option
+        .setName('method')
+        .setNameLocalizations({
+            "es-ES": "Metodo",
+          })
+        .setDescription('Add Or Delete')
+        .setDescriptionLocalizations({
+            "es-ES": "Añadir o Eliminar.",
+          })
+        .setRequired(true)
+        .addChoices(
+            { name: 'Add', value: 'Add' },
+            { name: 'Delete', value: 'Delete' },
+        )
+      )),
+
+  async execute(interaction) {
+    const user = interaction.options.getUser("user");
+    const userId = user.id;
+    const method = interaction.options.getString("method");
+
+    if (method === 'Add') {
+      if (IsInBlacklist(userId)) {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("Already Blacklisted")
+              .setDescription(`${user.username} is already in the blacklist.`)
+              .setColor("Yellow"),
+          ],
+          ephemeral: true,
+        });
+        return;
+      }
+
       await AddBlackList(userId);
-  
+
       await interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setTitle("User Blacklisted")
             .setDescription(`${user.username} has been added to the blacklist.`)
             .setColor("Green"),
-        ], ephemeral: true
+        ],
+        ephemeral: true,
       });
-    },
-  };
-  
+
+    } else if (method === 'Delete') {
+      if (!IsInBlacklist(userId)) {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("Not Blacklisted")
+              .setDescription(`${user.username} is not in the blacklist.`)
+              .setColor("Yellow"),
+          ],
+          ephemeral: true,
+        });
+        return;
+      }
+
+      await RemoveBlackList(userId);
+
+      await interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("User Removed from Blacklist")
+            .setDescription(`${user.username} has been removed from the blacklist.`)
+            .setColor("Green"),
+        ],
+        ephemeral: true,
+      });
+    }
+  },
+};

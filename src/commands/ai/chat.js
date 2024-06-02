@@ -86,14 +86,6 @@ module.exports = {
     async execute(interaction) {
         const userId = interaction.user.id;
         if (IsInBlacklist(userId)) {
-            await interaction.reply({
-              embeds: [
-                new EmbedBuilder()
-                  .setTitle("Access Denied")
-                  .setDescription("You are blacklisted and cannot use this command.")
-                  .setColor("Red"),
-              ], ephemeral: true
-            });
             return;
         }
         interaction.channel.sendTyping()

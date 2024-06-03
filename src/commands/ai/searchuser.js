@@ -44,19 +44,19 @@ module.exports = {
     const focusedValue = interaction.options.getFocused();
     try {
       if (focusedValue.length < 3) {
-        return
+        return;
       }
       const { data, error } = await supabase
-        .from('models')
-        .select('author_username')
-        .ilike('author_username', `${focusedValue}%`);
-      const usernames = new Set(data.map(user => user.author_username));
+        .from("models")
+        .select("author_username")
+        .ilike("author_username", `${focusedValue}%`);
+      const usernames = new Set(data.map((user) => user.author_username));
       const choices = Array.from(usernames).slice(0, 25);
       await interaction.respond(
-           choices.map(choice => ({ name: choice, value: choice }))
+        choices.map((choice) => ({ name: choice, value: choice })),
       );
     } catch {}
-	},
+  },
   async execute(interaction) {
     const user = interaction.options.getString("user");
     let messageIdMap_ = {};
@@ -80,7 +80,13 @@ module.exports = {
         .setOptions(options);
 
       const firstResult = data_[0]; // Get the first result
-      const createdDate = firstResult.created_at && !isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000)) ? `<t:${Math.trunc(new Date(firstResult.created_at).getTime() / 1000)}:d>` : "Unknown";
+      const createdDate =
+        firstResult.created_at &&
+        !isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000))
+          ? `<t:${Math.trunc(
+              new Date(firstResult.created_at).getTime() / 1000,
+            )}:d>`
+          : "Unknown";
       const initialEmbed = new EmbedBuilder()
         .setTitle(firstResult.name)
         .setURL(`https://applio.org/models/${firstResult.id}`)
@@ -90,15 +96,19 @@ module.exports = {
         })
         .setDescription(
           `- **Uploaded:** ${createdDate}\n` +
-          `- **Server:** ${firstResult.server_name}\n` +
-           `- **Likes:** ${firstResult.likes}`,
+            `- **Server:** ${firstResult.server_name}\n` +
+            `- **Likes:** ${firstResult.likes}`,
         )
         .setColor("White")
         .setThumbnail(
           firstResult.image_url !== "N/A" ? firstResult.image_url : null,
         )
         .addFields(
-          { name: "Epochs", value: firstResult.epochs || "Unknown", inline: true },
+          {
+            name: "Epochs",
+            value: firstResult.epochs || "Unknown",
+            inline: true,
+          },
           { name: "Technology", value: firstResult.type, inline: true },
           { name: "Algorithm", value: firstResult.algorithm, inline: true },
         )
@@ -159,18 +169,30 @@ module.exports = {
       );
 
       menuCollector.on("collect", async (interaction) => {
-        if (!interaction.values || !/V_D-(\d+)/.test(interaction.values[0]) || interaction.values.length === 0) {
+        if (
+          !interaction.values ||
+          !/V_D-(\d+)/.test(interaction.values[0]) ||
+          interaction.values.length === 0
+        ) {
           return;
         }
         menuCollector.resetTimer();
         const selectedModelIndex = parseInt(
-          interaction.values[0].replace(/V_D-/, '').split("-")[0],
+          interaction.values[0].replace(/V_D-/, "").split("-")[0],
         );
         const selectedModel = data_[selectedModelIndex];
         if (!selectedModel) {
-          return
+          return;
         }
-        const createdDate = selectedModel.created_at && !isNaN(Math.trunc(new Date(selectedModel.created_at).getTime() / 1000)) ? `<t:${Math.trunc(new Date(selectedModel.created_at).getTime() / 1000)}:d>` : "Unknown";
+        const createdDate =
+          selectedModel.created_at &&
+          !isNaN(
+            Math.trunc(new Date(selectedModel.created_at).getTime() / 1000),
+          )
+            ? `<t:${Math.trunc(
+                new Date(selectedModel.created_at).getTime() / 1000,
+              )}:d>`
+            : "Unknown";
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
           .setURL(`https://applio.org/models/${selectedModel.id}`)
@@ -180,15 +202,19 @@ module.exports = {
           })
           .setDescription(
             `- **Uploaded:** ${createdDate}\n` +
-            `- **Server:** ${selectedModel.server_name}\n` +
-             `- **Likes:** ${selectedModel.likes}`,
+              `- **Server:** ${selectedModel.server_name}\n` +
+              `- **Likes:** ${selectedModel.likes}`,
           )
           .setColor("White")
           .setThumbnail(
             selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
           )
           .addFields(
-            { name: "Epochs", value: selectedModel.epochs || "Unknown", inline: true },
+            {
+              name: "Epochs",
+              value: selectedModel.epochs || "Unknown",
+              inline: true,
+            },
             { name: "Technology", value: selectedModel.type, inline: true },
             { name: "Algorithm", value: selectedModel.algorithm, inline: true },
           )
@@ -278,7 +304,6 @@ module.exports = {
                   });
                 });
               delete messageIdMap_[embedId];
-              
             } else {
             }
           } else {
@@ -290,9 +315,7 @@ module.exports = {
         embeds: [
           new EmbedBuilder()
             .setTitle("An error occurred")
-            .setDescription(
-              `Sorry, I could not find models from "${user}"`,
-            )
+            .setDescription(`Sorry, I could not find models from "${user}"`)
             .setColor("Red"),
         ],
         components: [

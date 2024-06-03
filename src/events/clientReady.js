@@ -13,7 +13,6 @@ module.exports = {
 
     try {
       console.log(`[CLIENT] Starting the bot as ${client.user.tag}...`);
-
     } catch (error) {
       console.log(`[ERROR] ${error}`);
     }

@@ -17,7 +17,7 @@ async function GetPixiv(url) {
     if (!originalImageUrl) {
       const regex = new RegExp(
         `{"id":"${id}","title":".*?","illustType":\\d+,"xRestrict":\\d+,"restrict":\\d+,"sl":4,"url":"(.*?)"`,
-        "g"
+        "g",
       );
       const imageDataMatch = body.match(regex);
       if (imageDataMatch && imageDataMatch.length > 0) {

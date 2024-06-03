@@ -86,7 +86,7 @@ module.exports = {
           "es-ES": "El mensaje que quieres enviar a Applio.",
         })
         .setMaxLength(256)
-        .setRequired(true)
+        .setRequired(true),
     )
     .setDMPermission(false),
 
@@ -133,12 +133,11 @@ module.exports = {
         .setCustomId("ai")
         .setDisabled(true);
 
-        const User = new ButtonBuilder()
+      const User = new ButtonBuilder()
         .setLabel(`👤 ${interaction.user.username}`)
         .setStyle(ButtonStyle.Secondary)
         .setCustomId("user")
         .setDisabled(true);
-
 
       const row = new ActionRowBuilder().addComponents(AI, User);
       if (sanitizedContent.length > 2000) {

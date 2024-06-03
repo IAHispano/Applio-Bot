@@ -1,21 +1,20 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const blacklistPath = path.join(__dirname, 'blacklist.json');
+const blacklistPath = path.join(__dirname, "blacklist.json");
 
 function loadBlacklist() {
   try {
-    const data = fs.readFileSync(blacklistPath, 'utf-8');
+    const data = fs.readFileSync(blacklistPath, "utf-8");
     return JSON.parse(data);
   } catch (err) {
-    if (err.code === 'ENOENT') {
+    if (err.code === "ENOENT") {
       return [];
     } else {
       throw err;
     }
   }
 }
-
 
 function saveBlacklist(blacklist) {
   fs.writeFileSync(blacklistPath, JSON.stringify(blacklist, null, 2));
@@ -31,7 +30,7 @@ async function AddBlackList(value) {
 }
 
 async function RemoveBlackList(value) {
-  blacklist = blacklist.filter(item => item !== value);
+  blacklist = blacklist.filter((item) => item !== value);
   saveBlacklist(blacklist);
 }
 
@@ -42,5 +41,5 @@ function IsInBlacklist(value) {
 module.exports = {
   AddBlackList,
   RemoveBlackList,
-  IsInBlacklist
+  IsInBlacklist,
 };

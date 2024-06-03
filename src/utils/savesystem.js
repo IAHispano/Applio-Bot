@@ -190,7 +190,6 @@ function RemoveHopFromAlgorithm(cnamen) {
           firstChar.toUpperCase() + restChars.toLowerCase(),
       );
 
-
       if (algorithm.toLowerCase() === "rmvpe_gpu") {
         cnamen = cnamen.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
         return cnamen;
@@ -373,7 +372,7 @@ async function youtubeImage(url) {
         if (response.status === 200) {
           return thumbnailUrl;
         }
-      } catch (error) { }
+      } catch (error) {}
     }
   }
   return false;
@@ -493,7 +492,6 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
   } else {
     cname = modifiedCname;
   }
-
 
   cname = cname.replace(
     new RegExp(`\\s*\\(${types}\\)|\\s*${types}`, "gi"),
@@ -670,7 +668,6 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
     cname = cname.replace(/ -+$/g, "");
     cname = cname.replace(/\s-\s(?![\w\d])/g, "");
   }
-
 
   cname = cname.replace(/,\s*$/, "");
   cname = cname.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); //remove / ()[]
@@ -864,8 +861,6 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
 
   return { cname, epochs, algorithm, types };
 }
-
-
 
 module.exports = {
   extractAlgorithm,

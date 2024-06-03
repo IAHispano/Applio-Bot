@@ -15,54 +15,61 @@ const fetchUser = async (id) => {
   const user = await rest.get(Routes.user(id));
   return user;
 };
-const { exec } = require('child_process');
-const sharp = require('sharp');
+const { exec } = require("child_process");
+const sharp = require("sharp");
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_TOKEN,
 );
 const download = async (Url) => {
   try {
-      const response = await axios.get(Url, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
-      return buffer;
+    const response = await axios.get(Url, { responseType: "arraybuffer" });
+    const buffer = Buffer.from(response.data, "binary");
+    return buffer;
   } catch (error) {
-      console.error(`Error al descargar la imagen: ${error}`);
+    console.error(`Error al descargar la imagen: ${error}`);
   }
-}
+};
 
 async function VerifyModel(author_id, link_) {
-  let link = link_.replace(/\?download=true/, '')
-  let query = supabase.from('models').select('*').ilike('link', `%${link}%`).order('created_at', { ascending: false });
+  let link = link_.replace(/\?download=true/, "");
+  let query = supabase
+    .from("models")
+    .select("*")
+    .ilike("link", `%${link}%`)
+    .order("created_at", { ascending: false });
   const { data, error } = await query.range(0, 14);
-  if (error)  {
+  if (error) {
     return { result: "Error" };
   }
   if (data && data.length > 0) {
     for (const item of data) {
-        if (item.author_id === author_id && item.link === link) {
-          return { result: "Founded" , model: item.id };
-        } else if (item.link === link && item.author_id != author_id) {
-          return { result: "Steal", authorId: item.author_id };
-        }
+      if (item.author_id === author_id && item.link === link) {
+        return { result: "Founded", model: item.id };
+      } else if (item.link === link && item.author_id != author_id) {
+        return { result: "Steal", authorId: item.author_id };
+      }
     }
   }
   return { result: "Not Found" };
-};
+}
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 async function GetResolution(image_path) {
   return new Promise((resolve, reject) => {
-    exec(`/home/container/node_modules/ffmpeg-static/ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${image_path}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error getting GIF resolution: ${error}`);
-        reject(error);
-      } else {
-        const [width, height] = stdout.trim().split('x').map(Number);
-        resolve({ width, height });
-      }
-    });
+    exec(
+      `/home/container/node_modules/ffmpeg-static/ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${image_path}`,
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error getting GIF resolution: ${error}`);
+          reject(error);
+        } else {
+          const [width, height] = stdout.trim().split("x").map(Number);
+          resolve({ width, height });
+        }
+      },
+    );
   });
 }
 
@@ -85,7 +92,7 @@ async function GIFToWebP(image_path, optimized_image_path) {
     console.log(`GIF resolution: ${width}x${height}`);
     console.log(`GIF file size: ${(fileSize / (1024 * 1024)).toFixed(2)} MB`);
 
-    let scaleOption = '';
+    let scaleOption = "";
     if (width > 800 && height > 600 && fileSize > 10 * 1024 * 1024) {
       const newWidth = 800;
       const newHeight = Math.round(height * (800 / width));
@@ -93,15 +100,18 @@ async function GIFToWebP(image_path, optimized_image_path) {
     }
 
     return new Promise((resolve, reject) => {
-      exec(`/home/container/node_modules/ffmpeg-static/ffmpeg -y -i ${image_path} -vcodec libwebp -lossless 0 -quality 65 -compression_level 6 -loop 0 ${scaleOption} ${optimized_image_path}`, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error converting GIF to WebP: ${error}`);
-          reject(error);
-        } else {
-          console.log(`GIF converted to WebP successfully: ${stdout}`);
-          resolve(stdout);
-        }
-      });
+      exec(
+        `/home/container/node_modules/ffmpeg-static/ffmpeg -y -i ${image_path} -vcodec libwebp -lossless 0 -quality 65 -compression_level 6 -loop 0 ${scaleOption} ${optimized_image_path}`,
+        (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error converting GIF to WebP: ${error}`);
+            reject(error);
+          } else {
+            console.log(`GIF converted to WebP successfully: ${stdout}`);
+            resolve(stdout);
+          }
+        },
+      );
     });
   } catch (error) {
     console.error(`Error in conversion process: ${error}`);
@@ -112,19 +122,28 @@ async function GIFToWebP(image_path, optimized_image_path) {
 function uuid(number) {
   const a = "0123456789abcdefghijklmnopqrstuvwxyz";
   const b = a.length;
-  const c = [96, 64, 32, 0].map(i => BigInt(number) >> BigInt(i) & BigInt(0xFFFFFFFF));
+  const c = [96, 64, 32, 0].map(
+    (i) => (BigInt(number) >> BigInt(i)) & BigInt(0xffffffff),
+  );
   const d = [];
   for (let seccion of c) {
-      while (seccion > 0) {
-          const residuo = Number(seccion % BigInt(b));
-          d.unshift(a[residuo]);
-          seccion = seccion / BigInt(b);
-      }
+    while (seccion > 0) {
+      const residuo = Number(seccion % BigInt(b));
+      d.unshift(a[residuo]);
+      seccion = seccion / BigInt(b);
+    }
   }
-  const e = [0, 1].map(i => parseInt(d.slice(i*8, (i+1)*8).join(''), b).toString(16).padStart(i === 0 ? 8 : 4, '0')).join('-') + '-';
+  const e =
+    [0, 1]
+      .map((i) =>
+        parseInt(d.slice(i * 8, (i + 1) * 8).join(""), b)
+          .toString(16)
+          .padStart(i === 0 ? 8 : 4, "0"),
+      )
+      .join("-") + "-";
   const f = d.slice(1);
   const g = f.length;
-  return e + f.join('') + (g <= 12 ? a[0].repeat(12 - g) : '');
+  return e + f.join("") + (g <= 12 ? a[0].repeat(12 - g) : "");
 }
 module.exports = {
   name: Events.ThreadCreate,
@@ -244,10 +263,13 @@ module.exports = {
         }
       }
 
-      if (fetchedThread.name.toLowerCase().includes("gptsovits") || fetchedThread.name.toLowerCase().includes("gpt-sovits") || fetchedThread.name.toLowerCase().includes("vits")) {
-        return
+      if (
+        fetchedThread.name.toLowerCase().includes("gptsovits") ||
+        fetchedThread.name.toLowerCase().includes("gpt-sovits") ||
+        fetchedThread.name.toLowerCase().includes("vits")
+      ) {
+        return;
       }
-      
 
       const result = {
         id: fetchedThread.id,
@@ -334,8 +356,8 @@ module.exports = {
         jsonData.attachments && jsonData.attachments[0] !== null
           ? jsonData.attachments
           : jsonData.attachment && jsonData.attachment[0] !== null
-            ? jsonData.attachment
-            : null;
+          ? jsonData.attachment
+          : null;
 
       if (data_attachment) {
         const imageExtensions = [
@@ -365,9 +387,9 @@ module.exports = {
       contentn = contentn.replace(/\bdownload=true\)/gi, "download=true");
       contentn = contentn.replace(/\?download=true/gi, "");
       contentn = contentn.replace(/\[direct-download\]/g, " ");
-      contentn = contentn.replace(/\.zip\)/g, '.zip')
-      contentn = contentn.replace(/\|/g, ' ');
-      contentn = contentn.replace(/\*/g, ' ');
+      contentn = contentn.replace(/\.zip\)/g, ".zip");
+      contentn = contentn.replace(/\|/g, " ");
+      contentn = contentn.replace(/\*/g, " ");
       const links = contentn.match(regex);
 
       const supportedSites = {
@@ -491,8 +513,8 @@ module.exports = {
 
       require("fs").writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
-      let Steal = false
-      const verify = await VerifyModel(owner, jsonData.context.Link)
+      let Steal = false;
+      const verify = await VerifyModel(owner, jsonData.context.Link);
       if (verify.result === "Steal") {
         Steal = verify.authorId;
       }
@@ -514,44 +536,43 @@ module.exports = {
         author_username: jsonData.owner_username,
         server_id: jsonData.server,
         server_name: jsonData.server_name,
-        tags: jsonData.context.Tags.join(','),
+        tags: jsonData.context.Tags.join(","),
       };
       if (verify.result === "Founded") {
         const { error: error_ } = await supabase
-           .from('models')
-           .delete()
-           .eq('id', verify.model)
+          .from("models")
+          .delete()
+          .eq("id", verify.model);
         const { error } = await supabase.from("models").upsert([dataToUpload]);
         if (error) {
           console.log(error.message);
         } else {
           console.log(`Data reuploaded correctly, Org: ${verify.model}`);
-          const { data: data_, error: error__ } = await supabase
-          .storage
-          .from('Images')
-          .move(`${verify.model}.webp`, `${jsonData.id}.webp`);
-          console.log(data_, error__)
+          const { data: data_, error: error__ } = await supabase.storage
+            .from("Images")
+            .move(`${verify.model}.webp`, `${jsonData.id}.webp`);
+          console.log(data_, error__);
         }
       } else if (Steal === false) {
         const { error } = await supabase.from("models").upsert([dataToUpload]);
         try {
           if (image !== "N/A") {
-            let outputBuffer
-            const bufferimage = await download(image)
+            let outputBuffer;
+            const bufferimage = await download(image);
             let imgw = sharp(bufferimage);
             if (image.includes("gif")) {
               try {
                 let writer = fs.createWriteStream(`${jsonData.id}.gif`);
                 writer.write(bufferimage);
                 await new Promise((resolve, reject) => {
-                    writer.on('finish', resolve);
-                    writer.on('error', reject);
+                  writer.on("finish", resolve);
+                  writer.on("error", reject);
                 });
                 writer.end();
-                await GIFToWebP(`${jsonData.id}.gif`, `${jsonData.id}.webp`)
-                await sleep(500)
-                outputBuffer = fs.readFileSync(`${jsonData.id}.webp`);  
-                console.log('Image has been written to disk');
+                await GIFToWebP(`${jsonData.id}.gif`, `${jsonData.id}.webp`);
+                await sleep(500);
+                outputBuffer = fs.readFileSync(`${jsonData.id}.webp`);
+                console.log("Image has been written to disk");
               } catch {}
             } else {
               try {
@@ -559,25 +580,22 @@ module.exports = {
               } catch {
                 outputBuffer = bufferimage;
               }
-              
             }
             if (outputBuffer) {
-              const { data, error: error_ } = await supabase
-              .storage
-              .from('Images')
-              .upload(`${jsonData.id}.webp`, outputBuffer, {
-                    cacheControl: '3600',
-                    contentType: 'image/webp',
-                    upsert: false 
-                    })
-              console.log(data, error_)
+              const { data, error: error_ } = await supabase.storage
+                .from("Images")
+                .upload(`${jsonData.id}.webp`, outputBuffer, {
+                  cacheControl: "3600",
+                  contentType: "image/webp",
+                  upsert: false,
+                });
+              console.log(data, error_);
             }
-            
-          } 
+          }
         } catch (error) {
-          console.log(error)
+          console.log(error);
         }
-        
+
         if (error) {
           console.log(error.message);
         } else {
@@ -620,10 +638,9 @@ module.exports = {
         if (Steal != false) {
           embed.addFields({
             name: "Stolen",
-            value:
-              Steal,
+            value: Steal,
             inline: false,
-          })
+          });
         }
         const res = await client.shard.broadcastEval(
           (c, context) => {

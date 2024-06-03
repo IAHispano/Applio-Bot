@@ -9,15 +9,27 @@ const {
 } = require("discord.js");
 const axios = require("axios");
 function GetTag(text) {
-  let Langs = ['ES', 'EN', 'JP', 'KR', 'PT', 'FR', 'TR', 'RU', 'IT', 'PL', 'OTHER']
+  let Langs = [
+    "ES",
+    "EN",
+    "JP",
+    "KR",
+    "PT",
+    "FR",
+    "TR",
+    "RU",
+    "IT",
+    "PL",
+    "OTHER",
+  ];
   let partes = text.split(",");
-  
+
   for (let parte of partes) {
     if (Langs.includes(parte)) {
       return parte;
     }
   }
-  
+
   return "Unknown";
 }
 module.exports = {
@@ -48,29 +60,29 @@ module.exports = {
   async autocomplete(interaction) {
     const focusedValue = interaction.options.getFocused();
     try {
-      if(focusedValue.length === 0) {
+      if (focusedValue.length === 0) {
         const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/perpage=25/page=1?type=rvc`;
         const response = await axios.get(url);
         const rdata = response.data;
-        const mapped = new Set(rdata.map(result => result.name));
+        const mapped = new Set(rdata.map((result) => result.name));
         const choices = Array.from(mapped).slice(0, 25);
         await interaction.respond(
-          choices.map(choice => ({ name: choice, value: choice }))
+          choices.map((choice) => ({ name: choice, value: choice })),
         );
         return;
       } else if (focusedValue.length < 3) {
         return;
-      } 
+      }
       const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
       const response = await axios.get(url);
       const rdata = response.data;
-      const mapped = new Set(rdata.map(result => result.name));
+      const mapped = new Set(rdata.map((result) => result.name));
       const choices = Array.from(mapped).slice(0, 25);
       await interaction.respond(
-        choices.map(choice => ({ name: choice, value: choice }))
+        choices.map((choice) => ({ name: choice, value: choice })),
       );
     } catch {}
-	},
+  },
   async execute(interaction) {
     const model_name = interaction.options.getString("model");
     const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${model_name}&type=rvc`;
@@ -104,26 +116,40 @@ module.exports = {
         .setOptions(options);
 
       const firstResult = data[0]; // Get the first result
-      const createdDate = firstResult.created_at && !isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000)) ? `<t:${Math.trunc(new Date(firstResult.created_at).getTime() / 1000)}:d>` : "Unknown";
+      const createdDate =
+        firstResult.created_at &&
+        !isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000))
+          ? `<t:${Math.trunc(
+              new Date(firstResult.created_at).getTime() / 1000,
+            )}:d>`
+          : "Unknown";
       const initialEmbed = new EmbedBuilder()
         .setTitle(firstResult.name)
         .setURL(`https://applio.org/models/${firstResult.id}`)
         .setAuthor({
           name: firstResult.author_username,
-          url: firstResult.author_username && !firstResult.author_username.includes(' ') ? `https://applio.org/user/${firstResult.author_username}` : undefined
+          url:
+            firstResult.author_username &&
+            !firstResult.author_username.includes(" ")
+              ? `https://applio.org/user/${firstResult.author_username}`
+              : undefined,
         })
         .setDescription(
           `- **Uploaded:** ${createdDate}\n` +
-          `- **Server:** ${firstResult.server_name}\n` +
-           `- **Likes:** ${firstResult.likes}\n` +
-           `- **Lang:** ${GetTag(firstResult.tags)}`,
+            `- **Server:** ${firstResult.server_name}\n` +
+            `- **Likes:** ${firstResult.likes}\n` +
+            `- **Lang:** ${GetTag(firstResult.tags)}`,
         )
         .setColor("White")
         .setThumbnail(
           `https://cjtfqzjfdimgpvpwhzlv.supabase.co/storage/v1/object/public/Images/${firstResult.id}.webp`,
         )
         .addFields(
-          { name: "Epochs", value: firstResult.epochs || "Unknown", inline: true },
+          {
+            name: "Epochs",
+            value: firstResult.epochs || "Unknown",
+            inline: true,
+          },
           { name: "Technology", value: firstResult.type, inline: true },
           { name: "Algorithm", value: firstResult.algorithm, inline: true },
         )
@@ -184,7 +210,11 @@ module.exports = {
       );
 
       menuCollector.on("collect", async (interaction) => {
-        if (!interaction.values || /V_D-(\d+)/.test(interaction.values[0]) || interaction.values.length === 0) {
+        if (
+          !interaction.values ||
+          /V_D-(\d+)/.test(interaction.values[0]) ||
+          interaction.values.length === 0
+        ) {
           return;
         }
         menuCollector.resetTimer();
@@ -193,28 +223,44 @@ module.exports = {
         );
         const selectedModel = data[selectedModelIndex];
         if (!selectedModel) {
-          return
+          return;
         }
-        const createdDate = selectedModel.created_at && !isNaN(Math.trunc(new Date(selectedModel.created_at).getTime() / 1000)) ? `<t:${Math.trunc(new Date(selectedModel.created_at).getTime() / 1000)}:d>` : "Unknown";
+        const createdDate =
+          selectedModel.created_at &&
+          !isNaN(
+            Math.trunc(new Date(selectedModel.created_at).getTime() / 1000),
+          )
+            ? `<t:${Math.trunc(
+                new Date(selectedModel.created_at).getTime() / 1000,
+              )}:d>`
+            : "Unknown";
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
           .setURL(`https://applio.org/models/${selectedModel.id}`)
           .setAuthor({
             name: selectedModel.author_username,
-            url: selectedModel.author_username && !selectedModel.author_username.includes(' ') ? `https://applio.org/user/${selectedModel.author_username}` : undefined
+            url:
+              selectedModel.author_username &&
+              !selectedModel.author_username.includes(" ")
+                ? `https://applio.org/user/${selectedModel.author_username}`
+                : undefined,
           })
           .setDescription(
             `- **Uploaded:** ${createdDate}\n` +
-            `- **Server:** ${selectedModel.server_name}\n` +
-             `- **Likes:** ${selectedModel.likes}\n` +
-             `- **Lang:** ${GetTag(selectedModel.tags)}`,
+              `- **Server:** ${selectedModel.server_name}\n` +
+              `- **Likes:** ${selectedModel.likes}\n` +
+              `- **Lang:** ${GetTag(selectedModel.tags)}`,
           )
           .setColor("White")
           .setThumbnail(
             `https://cjtfqzjfdimgpvpwhzlv.supabase.co/storage/v1/object/public/Images/${selectedModel.id}.webp`,
           )
           .addFields(
-            { name: "Epochs", value: selectedModel.epochs || "Unknown", inline: true },
+            {
+              name: "Epochs",
+              value: selectedModel.epochs || "Unknown",
+              inline: true,
+            },
             { name: "Technology", value: selectedModel.type, inline: true },
             { name: "Algorithm", value: selectedModel.algorithm, inline: true },
           )
@@ -290,25 +336,24 @@ module.exports = {
 
               try {
                 await interaction.user
-                .send({
-                  embeds: [savedEmbed],
-                  components: savedComponents,
-                })
-                .then(async () => {
-                  await interaction.reply({
-                    content: `💾 ${interaction.user}, sent you a DM with the model information!`,
-                    ephemeral: true,
+                  .send({
+                    embeds: [savedEmbed],
+                    components: savedComponents,
+                  })
+                  .then(async () => {
+                    await interaction.reply({
+                      content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+                      ephemeral: true,
+                    });
+                  })
+                  .catch(async () => {
+                    await interaction.reply({
+                      content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
+                      ephemeral: true,
+                    });
                   });
-                })
-                .catch(async () => {
-                  await interaction.reply({
-                    content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
-                    ephemeral: true,
-                  });
-                });
                 delete messageIdMap[embedId];
               } catch {}
-
             } else {
             }
           } else {

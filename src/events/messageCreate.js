@@ -38,20 +38,20 @@ module.exports = {
         let embed = new EmbedBuilder()
           .setTitle("Applio Bot")
           .setDescription(
-            "Applio is a Voice Conversion based on VITS focused on simplicity, quality and performance, if you need to know more about it, you can check [Website](https://applio.org) or [Github](https://github.com/IAHispano/Applio). \n Commands: \n - </search:1229146911483760781>\n- </searchuser:1232443891513561141>\n- </chat:1234277316994007040> \n*And More...*",
+            "Applio is a Voice Conversion based on VITS focused on simplicity, quality and performance, if you need to know more about it, you can check [Website](https://applio.org) or [Github](https://github.com/IAHispano/Applio). \n Commands: \n - </search:1229146911483760781>\n- </searchuser:1232443891513561141>\n- </chat:1234277316994007040> \n*And More...*"
           );
         const invite = new ButtonBuilder()
-          .setStyle(5)
+          .setStyle(ButtonStyle.Link)
           .setURL("https://discord.gg/IAHispano")
-          .setLabel("Discord Support")
-          .setEmoji("⚙️");
+          .setLabel("Support")
+          .setEmoji("🤔");
         const inviteBot = new ButtonBuilder()
-          .setStyle(5)
+          .setStyle(ButtonStyle.Link)
           .setURL(
-            "https://discord.com/api/oauth2/authorize?client_id=1144714449563955302&permissions=1376674433127&scope=bot",
+            "https://discord.com/api/oauth2/authorize?client_id=1144714449563955302&permissions=1376674433127&scope=bot"
           )
           .setLabel("Invite")
-          .setEmoji("🪛");
+          .setEmoji("📤");
 
         const row = new ActionRowBuilder().addComponents(invite, inviteBot);
         await message.channel.send({ embeds: [embed], components: [row] });
@@ -81,9 +81,6 @@ async function executeCommand(command, message, channel) {
   message.options = {
     getString: () => content,
   };
-  // message.reply = function(messageOptions) {
-  //   return this.channel.send(messageOptions);
-  // };
   message.followUp = function (messageOptions) {
     return this.channel.send(messageOptions);
   };
@@ -128,7 +125,7 @@ async function executeCommand(command, message, channel) {
     await command.execute(message, client);
   } catch (error) {
     console.error(
-      `An error occurred while executing ${message}: ${error.stack}`,
+      `An error occurred while executing ${message}: ${error.stack}`
     );
   }
 }
@@ -144,7 +141,7 @@ async function handleCommandError(error, message, channel) {
       .setDescription("An error occurred while executing the command.")
       .addFields(
         { name: "Error stack", value: `\`\`\`${error.stack}\`\`\`` },
-        { name: "Error message", value: `\`\`\`${error.message}\`\`\`` },
+        { name: "Error message", value: `\`\`\`${error.message}\`\`\`` }
       );
 
     await channel.send({ embeds: [error_embed] });

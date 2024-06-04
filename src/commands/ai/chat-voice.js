@@ -73,7 +73,7 @@ async function getGroqChatCompletion(prompt) {
           {
             role: "system",
             content:
-              "Your name is Applio, a virtual assistant focused on short and precise audio conversations.",
+              "Your name is Applio, a virtual assistant focused on short and precise audio conversations. Sometimes add human expressions such as “Oh!”, “Emmm...?”, “Ah!” etc.",
           },
           {
             role: "user",

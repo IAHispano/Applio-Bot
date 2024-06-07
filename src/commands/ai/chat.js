@@ -5,12 +5,12 @@ const {
   ComponentType,
   ButtonStyle,
   SlashCommandBuilder,
+  AttachmentBuilder
 } = require("discord.js");
 const axios = require("axios");
 const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 const pdfParse = require("pdf-parse");
 const { IsInBlacklist } = require("../../utils/blacklist");
-
 async function getMarkdownContent(url) {
   try {
     const response = await axios.get(`https://r.jina.ai/${url}`);
@@ -60,7 +60,6 @@ async function getGroqChatCompletion(prompt) {
         ],
         model: "llama3-70b-8192",
         temperature: 0.75,
-        max_tokens: 1024,
       });
     } catch (error) {
       console.log(`Error with API key ${i + 1}: ${error}`);
@@ -71,6 +70,25 @@ async function getGroqChatCompletion(prompt) {
   }
 }
 
+async function SplitMessage(interaction, content, components) {
+  for (let i = 0; i < content.length; i += 2000) {
+    const part = content.slice(i, i + 2000);
+    if (i === 0) {
+      await interaction.editReply({
+        content: part,
+        allowedMentions: { parse: [] },
+        components: content.length <= 2000 ? components : [],
+      });
+    } else {
+      console.log(part)
+      await interaction.followUp({
+        content: part,
+        allowedMentions: { parse: [] },
+        components: i + 2000 >= content.length ? components : [],
+      });
+    }
+  }
+}
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("chat")
@@ -118,6 +136,7 @@ module.exports = {
         prompt += `\nWeb content: ${markdownContent}`;
       }
     }
+    await interaction.deferReply()
     const chatCompletion = await getGroqChatCompletion(prompt);
     let sanitizedContent = chatCompletion.choices[0]?.message?.content
       .replaceAll("@everyone", "everyone")
@@ -135,26 +154,15 @@ module.exports = {
 
       const User = new ButtonBuilder()
         .setLabel(`👤 ${interaction.user.username}`)
-        .setStyle(ButtonStyle.Secondary)
+        .setStyle(ButtonStyle.Danger)
         .setCustomId("user")
         .setDisabled(true);
 
       const row = new ActionRowBuilder().addComponents(AI, User);
       if (sanitizedContent.length > 2000) {
-        const firstPart = sanitizedContent.slice(0, 2000);
-        const secondPart = sanitizedContent.slice(2000);
-        await interaction.reply({
-          content: firstPart,
-          allowedMentions: { parse: [] },
-        });
-
-        await interaction.followUp({
-          content: secondPart,
-          allowedMentions: { parse: [] },
-          components: [row],
-        });
+        await SplitMessage(interaction, sanitizedContent, [row]);
       } else {
-        await interaction.reply({
+        await interaction.editReply({
           content: sanitizedContent,
           allowedMentions: { parse: [] },
           components: [row],
@@ -162,7 +170,7 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
-      await interaction.reply({
+      await interaction.editReply({
         content: "An error occurred while processing the message.",
         ephemeral: true,
       });

@@ -3,6 +3,7 @@ const {
   EmbedBuilder,
   ButtonBuilder,
   ActionRowBuilder,
+  ButtonStyle
 } = require("discord.js");
 
 const client = require("../bot.js");
@@ -81,8 +82,20 @@ async function executeCommand(command, message, channel) {
   message.options = {
     getString: () => content,
   };
-  message.followUp = function (messageOptions) {
-    return this.channel.send(messageOptions);
+  message.followUp = async function (messageOptions) {
+    if (!this.sentMessageId) {
+      console.error("Unknown message id.");
+      return this.channel.send(messageOptions);
+    }
+    const sentMessage = await this.channel.messages.fetch(this.sentMessageId);
+    if (!sentMessage) {
+      console.error("Unknown message.");
+      return this.channel.send(messageOptions);
+    }
+    return this.channel.send({
+      ...messageOptions,
+      reply: { messageReference: sentMessage.id }
+    });
   };
   message.deferReply = async function (messageOptions) {
     const sentMessage = await this.channel.send({
@@ -104,6 +117,7 @@ async function executeCommand(command, message, channel) {
     }
     await sentMessage.edit(messageOptions);
   };
+  message.editReply = message.deferReply.edit
   message.update = message.edit;
   message.user = message.author;
 

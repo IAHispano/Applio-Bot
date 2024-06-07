@@ -142,7 +142,7 @@ module.exports = {
         )
         .setColor("White")
         .setThumbnail(
-          `https://cjtfqzjfdimgpvpwhzlv.supabase.co/storage/v1/object/public/Images/${firstResult.id}.webp`,
+          firstResult.image_url !== "N/A" ? firstResult.image_url : null,
         )
         .addFields(
           {
@@ -253,7 +253,7 @@ module.exports = {
           )
           .setColor("White")
           .setThumbnail(
-            `https://cjtfqzjfdimgpvpwhzlv.supabase.co/storage/v1/object/public/Images/${selectedModel.id}.webp`,
+            selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
           )
           .addFields(
             {

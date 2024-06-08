@@ -12,6 +12,8 @@ const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 const pdfParse = require("pdf-parse");
 const { IsInBlacklist } = require("../../utils/blacklist");
 const { getAudioAnswer } = require("../../utils/voice") 
+const { getUserPreference, setUserPreference, removeUserPreference } = require('../../utils/preferences');
+
 async function getMarkdownContent(url) {
   try {
     const response = await axios.get(`https://r.jina.ai/${url}`);
@@ -159,19 +161,62 @@ module.exports = {
         .setCustomId("user")
         .setDisabled(true);
       let Voice = new ButtonBuilder()
-        .setLabel(`🗣️ Voice`)
+        .setLabel(`🗣️ Chat-To-Voice`)
         .setStyle(ButtonStyle.Primary)
-        .setCustomId(`audio_${interaction.id}`)
+        .setCustomId(`chat_${interaction.user.id}`)
+      let Chat = new ButtonBuilder()
+        .setLabel(`🗣️ Voice-To-Chat`)
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId(`voice_${interaction.user.id}`)
+      const profile = getUserPreference(interaction.user.id, 'ChatToVoice')
+      let row
+      if (profile) {
+        row = new ActionRowBuilder().addComponents(AI, User, Chat);
+      } else {
+        row = new ActionRowBuilder().addComponents(AI, User, Voice);
+      }
       if (sanitizedContent.length > 2000) {
-        const row = new ActionRowBuilder().addComponents(AI, User);
         await SplitMessage(interaction, sanitizedContent, [row]);
       } else {
-        const row = new ActionRowBuilder().addComponents(AI, User, Voice);
-        await interaction.editReply({
-          content: sanitizedContent,
-          allowedMentions: { parse: [] },
-          components: [row],
-        });
+        if(profile) {
+          const Loading = new ButtonBuilder()
+          .setLabel("🔄 Loading")
+          .setStyle(ButtonStyle.Danger)
+          .setCustomId("loading_audio")
+          .setDisabled(true);
+          row = new ActionRowBuilder().addComponents(Loading);
+          await interaction.editReply({
+            content: "Creating audio",
+            allowedMentions: { parse: [] },
+            components: [row],
+          });
+          const audioFilePath = await getAudioAnswer(
+            chatCompletion.choices[0]?.message?.content
+          );
+          Voice.setLabel('🗣️ Made by Edge').setStyle(ButtonStyle.Success).setCustomId(`edge_tts`).setDisabled(true);
+          row = new ActionRowBuilder().addComponents(AI, User, Voice, Chat);
+          const attachment = new AttachmentBuilder(audioFilePath).setName("applio.mp4")
+          await interaction.followUp({
+            files: [attachment],
+            allowedMentions: { parse: [] },
+            components: [row],
+          });
+          Loading.setLabel('✅ Success').setStyle(ButtonStyle.Success).setDisabled(true);
+          row = new ActionRowBuilder().addComponents(Loading);
+          await interaction.editReply({
+            content: "Audio created correctly",
+            allowedMentions: { parse: [] },
+            components: [row],
+          });
+
+        } else {
+          await interaction.editReply({
+            content: sanitizedContent,
+            allowedMentions: { parse: [] },
+            components: [row],
+          });
+        }
+        
 
         const collector = interaction.channel.createMessageComponentCollector(
           {
@@ -182,24 +227,14 @@ module.exports = {
         );
 
         collector.on('collect', async i => {
-          console.log(`Collected`, i.customId);
-          if (i.customId === `audio_${interaction.id}`) {
-              console.log('Yei')
-              Voice.setLabel('🗣️ Voice').setDisabled(true);
-              let row = new ActionRowBuilder().addComponents(AI, User, Voice);
-              await i.update({ components: [row]});
-              collector.stop();
-              const audioFilePath = await getAudioAnswer(
-                chatCompletion.choices[0]?.message?.content
-              );
-              Voice.setLabel('🗣️ Made by Edge').setStyle(ButtonStyle.Success).setDisabled(true);
-              row = new ActionRowBuilder().addComponents(AI, User, Voice);
-              const attachment = new AttachmentBuilder(audioFilePath).setName("applio.mp4")
-              await interaction.followUp({
-                files: [attachment],
-                allowedMentions: { parse: [] },
-                components: [row],
-              });
+          if (i.customId === `chat_${interaction.user.id}`) {
+            await interaction.followUp({content: `Now your next conversations will be converted to audio. <@${interaction.user.id}>`})
+            collector.stop()
+            setUserPreference(interaction.user.id, 'ChatToVoice', true)
+          } else if (i.customId === `voice_${interaction.user.id}`) {
+            await interaction.followUp({content: `Now your next conversations will be in text. <@${interaction.user.id}>`})
+            collector.stop()
+            removeUserPreference(interaction.user.id, 'ChatToVoice')
           }
         });
       }

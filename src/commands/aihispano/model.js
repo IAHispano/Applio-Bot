@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, Colors } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -47,31 +47,6 @@ module.exports = {
         })
         .setRequired(true),
     )
-
-    .addStringOption((option) =>
-      option
-        .setName("technology")
-        .setNameLocalizations({
-          "es-ES": "tecnología",
-        })
-        .setDescription(
-          "Select the technology where you have created the model.",
-        )
-        .setDescriptionLocalizations({
-          "es-ES": "Seleccione la tecnología donde ha creado el modelo.",
-        })
-        .addChoices(
-          {
-            name: "Kits.AI",
-            value: "Kits.AI",
-          },
-          {
-            name: "RVC",
-            value: "RVC",
-          },
-        )
-        .setRequired(true),
-    )
     .addStringOption((option) =>
       option
         .setName("algorithm")
@@ -94,10 +69,7 @@ module.exports = {
           { name: "Dio", value: "Dio" },
           { name: "Crepe", value: "Crepe" },
           { name: "Crepe-tiny", value: "Crepe-tiny" },
-          { name: "Mangio-crepe", value: "Mangio-crepe" },
-          { name: "Mangio-crepe-tiny", value: "Mangio-crepe-tiny" },
           { name: "Rmvpe", value: "Rmvpe" },
-          { name: "Rmvpe_gpu", value: "Rmvpe_gpu" },
         )
         .setRequired(true),
     )
@@ -169,8 +141,9 @@ module.exports = {
     .setDMPermission(false),
 
   async execute(interaction) {
+
+    if(interaction.channel.parentId !== "1103055144339382372" ) return await interaction.reply({ content: "No Channel Allowed", ephemeral: true})
     let algoritmo = interaction.options.getString("algorithm");
-    const tecnología = interaction.options.getString("technology");
     const idioma = interaction.options.getString("language");
     const etiquetas = interaction.options.getString("tags");
     const epochs = interaction.options.getString("epochs");
@@ -180,7 +153,7 @@ module.exports = {
     const imagenURL = imagen?.attachment?.url
       ? imagen.attachment.url
       : null ||
-        "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.pngx";
+        "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png";
 
     const audio = interaction.options.get("audio");
     const audioURL = audio?.attachment?.url ? audio.attachment.url : null;
@@ -188,32 +161,32 @@ module.exports = {
     const autor_id = interaction.user.id;
     const autor = interaction.user.username;
 
-    if (enlace.includes("kits.ai") && tecnología === "Kits.AI") {
-      const embed_kits = new EmbedBuilder()
-        .setTitle(`New model of ${autor}`)
-        .setDescription(
-          `
-              \`\`\`${nombre} (${tecnología})\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n > **Audio:** [Click here to download the audio sample!](${audioURL})
-              `,
-        )
-        .setImage(imagenURL || audioURL)
+    const View_Audio = new ButtonBuilder()
+    .setLabel("🎵 View Audio")
+    .setStyle(ButtonStyle.Link)
+    .setURL(`https://audio-player-qtacpmvp5-deiants-projects.vercel.app/?link=${audioURL}`)
+    const EditEmbed = new ButtonBuilder()
+    .setLabel("🔨 Edit Post")
+    .setStyle(ButtonStyle.Danger)
+    .setCustomId(`epost_${interaction.user.id}`)
+    const row = new ActionRowBuilder().addComponents(View_Audio, EditEmbed);
 
+    const embed = new EmbedBuilder()
+        .setTitle(`New model of ${autor}`)
+        .addFields(
+          { name: "Title", value: nombre, inline: true },
+          { name: "Epochs", value: epochs || "Unknown", inline: true },
+          { name: "Algorithm", value: algoritmo, inline: true },
+          { name: "Link", value: enlace, inline: true },
+        )
+        .setDescription(
+          `### Model Information\n\`\`\`${nombre} (RVC [${algoritmo}] - ${epochs} Epochs)\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n`,
+        )
+        .setImage(imagenURL)
         .setColor("Blurple")
         .setFooter({ text: "Thank you for submitting your model!" })
         .setTimestamp();
-      await interaction.reply({ embeds: [embed_kits] });
-    } else {
-      const embed = new EmbedBuilder()
-        .setTitle(`New model of ${autor}`)
-        .setDescription(
-          `\`\`\`${nombre} (${tecnología} [${algoritmo}] - ${epochs} Epochs)\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n > **Audio:** [Click here to download the audio sample!](${audioURL})\n`,
-        )
-        .setImage(imagenURL || audioURL)
-        .setColor("Blurple")
-        .setFooter({ text: "Thank you for submitting your model!" })
-        .setTimestamp();
 
-      await interaction.reply({ embeds: [embed] });
-    }
+    await interaction.reply({ embeds: [embed], components: [row]});
   },
 };

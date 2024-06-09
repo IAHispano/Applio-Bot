@@ -13,9 +13,11 @@ module.exports = {
   once: false,
   async execute(message) {
     if (message.author.bot || message.content.length < 1) return;
+    
     let command;
     if (message.type === 19 && message.reference) {
       const msg = await message.fetchReference();
+      if (msg.embeds.length > 0) return
       message.applioReplied = message.content;
       message.applioReference = msg.content;
       if (msg.author.id === process.env.BOT_ID) {

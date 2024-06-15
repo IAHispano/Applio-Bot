@@ -4,14 +4,14 @@ const {
   FormatThread,
   uuid
 } = require("../utils/savesystem.js");
+
 const { createClient } = require("@supabase/supabase-js");
 const client = require("../bot.js");
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_TOKEN,
 );
-
-
 async function VerifyModel(author_id, link_) {
   let link = link_.replace(/\?download=true/, "");
   let query = supabase
@@ -34,9 +34,8 @@ async function VerifyModel(author_id, link_) {
   }
   return { Result: "Not Found" };
 }
-
 module.exports = {
-  name: Events.ThreadCreate,
+  name: Events.ThreadUpdate,
   once: false,
   async execute(thread) {
     try {
@@ -77,7 +76,7 @@ module.exports = {
           await new Promise((resolve) => setTimeout(resolve, 5000));
         }
       }
-
+      
       if (
         fetchedThread.name.toLowerCase().includes("gptsovits") ||
         fetchedThread.name.toLowerCase().includes("gpt-sovits") ||
@@ -86,7 +85,19 @@ module.exports = {
         return;
       }
 
-      const { contentToSave, result: jsonData } = await JsonThread(fetchedThread, test, option)
+      let save = false
+      var urlRegex = /\bhttp\b/gi;
+      var zipRegex = /\.zip\b/gi;
+      var driveRegex = /\bdrive\.google\.com\b/gi
+      const savesecureURL = test.content.match(urlRegex);
+      const savesecureZIP = test.content.match(zipRegex);
+      const savesecureDrive = test.content.match(driveRegex);
+      if ((savesecureURL && savesecureZIP) || savesecureDrive) {
+          save = true
+      }
+
+      const { contentToSave, result: jsonData } = await JsonThread(fetchedThread, test, option, save)
+
       if (
         jsonData.owner === "1150230843214794822" ||
         jsonData.owner === "1175478584752750715" ||
@@ -108,9 +119,6 @@ module.exports = {
       if (verify.Result === "Steal") {
         Steal = verify.AuthorID;
       }
-      // else if (verify.result === "Founded") {
-      //   //return;
-      // }
 
       const dataToUpload = {
         id: FormatResult.Data.id,
@@ -128,24 +136,16 @@ module.exports = {
         server_name: FormatResult.Data.server_name,
         tags: FormatResult.Data.context.Tags.join(","),
       };
-      if (verify.result === "Founded") {
-        const { error: error_ } = await supabase
-          .from("models")
-          .delete()
-          .eq("id", verify.ModelID);
-        const { error } = await supabase.from("models").upsert([dataToUpload]);
-        if (error) {
-          console.log(error.message);
-        } else {
-          console.log(`Data reuploaded correctly, Org: ${verify.ModelID}`);
-        }
-      } else if (Steal === false) {
-        const { error } = await supabase.from("models").upsert([dataToUpload]);
-        if (error) {
-          console.log(error.message);
-        } else {
-          console.log("Data uploaded correctly");
-        }
+
+      const { error } = await supabase
+      .from('models')
+      .update(dataToUpload)
+      .eq('id', jsonData.id)
+
+      if (error) {
+        console.log(error.message);
+      } else {
+        console.log("Data updated correctly");
       }
       try {
         const embed = new EmbedBuilder()
@@ -179,7 +179,7 @@ module.exports = {
               ? FormatResult.Image
               : "https://github.com/IAHispano/Applio-Website/blob/main/public/no_bg_applio_logo.png?raw=true",
           )
-          .setFooter({ text: `Fetch From ${FormatResult.Data.id}` });
+          .setFooter({ text: `Updated ${FormatResult.Data.id}` });
 
         const ThreadButton = new ButtonBuilder()
           .setStyle(5)

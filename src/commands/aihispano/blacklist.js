@@ -49,7 +49,7 @@ module.exports = {
             new EmbedBuilder()
               .setTitle("Already Blacklisted")
               .setDescription(`${user.username} is already in the blacklist.`)
-              .setColor("Yellow"),
+              .setColor("White"),
           ],
           ephemeral: true,
         });
@@ -63,7 +63,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle("User Blacklisted")
             .setDescription(`${user.username} has been added to the blacklist.`)
-            .setColor("Green"),
+            .setColor("White"),
         ],
         ephemeral: true,
       });
@@ -74,7 +74,7 @@ module.exports = {
             new EmbedBuilder()
               .setTitle("Not Blacklisted")
               .setDescription(`${user.username} is not in the blacklist.`)
-              .setColor("Yellow"),
+              .setColor("White"),
           ],
           ephemeral: true,
         });
@@ -90,7 +90,7 @@ module.exports = {
             .setDescription(
               `${user.username} has been removed from the blacklist.`,
             )
-            .setColor("Green"),
+            .setColor("White"),
         ],
         ephemeral: true,
       });

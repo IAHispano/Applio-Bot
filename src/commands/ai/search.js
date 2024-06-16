@@ -368,7 +368,7 @@ module.exports = {
             .setDescription(
               `Sorry, I could not find models that match your search "${model_name}"`,
             )
-            .setColor("Red"),
+            .setColor("White"),
         ],
         components: [
           new ActionRowBuilder().addComponents(

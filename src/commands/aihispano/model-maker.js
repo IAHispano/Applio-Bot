@@ -22,7 +22,7 @@ module.exports = {
       const embed_fail = new EmbedBuilder()
         .setTitle(`Application not successfully submitted.`)
         .setDescription(`You already have the role of <@&1142911409202675752>.`)
-        .setColor("DarkNavy")
+        .setColor("White")
         .setTimestamp();
       await interaction.reply({
         embeds: [embed_fail],
@@ -47,7 +47,7 @@ module.exports = {
               5 - Number(result.length)
             }`,
           )
-          .setColor("DarkNavy")
+          .setColor("White")
           .setTimestamp();
 
         await interaction.reply({
@@ -61,7 +61,7 @@ module.exports = {
           .setDescription(
             `To obtain the role of <@&1142911409202675752> you have to have 5 models and you have not created any model.`,
           )
-          .setColor("DarkNavy")
+          .setColor("White")
           .setTimestamp();
 
         await interaction.reply({
@@ -73,7 +73,7 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setTitle("New application by " + autor)
         .setDescription(`Application sent by ${interaction.user}`)
-        .setColor("Blurple")
+        .setColor("White")
         .setTimestamp();
 
       let fields = result
@@ -96,7 +96,7 @@ module.exports = {
       );
       const embed_exito = new EmbedBuilder()
         .setDescription(`Application successfully submitted!`)
-        .setColor("Blurple")
+        .setColor("White")
         .setTimestamp();
       await interaction
         .reply({

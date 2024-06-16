@@ -316,7 +316,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle("An error occurred")
             .setDescription(`Sorry, I could not find models from "${user}"`)
-            .setColor("Red"),
+            .setColor("White"),
         ],
         components: [
           new ActionRowBuilder().addComponents(

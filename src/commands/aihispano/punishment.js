@@ -106,7 +106,7 @@ module.exports = {
           { name: "Time", value: `${time}`, inline: true },
         )
         .setImage(proofImg)
-        .setColor("Blurple")
+        .setColor("White")
         .setTimestamp();
 
       let timeoutMilliseconds = 0;
@@ -138,7 +138,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setDescription(`Punishment awarded to user ${user} for ${time}.`)
-        .setColor("Blurple")
+        .setColor("White")
         .setTimestamp();
 
       return interaction.reply({

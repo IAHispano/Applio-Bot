@@ -99,7 +99,7 @@ module.exports = {
         text: `Requested by ${interaction.user.tag}`,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setColor("Blurple")
+      .setColor("White")
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });

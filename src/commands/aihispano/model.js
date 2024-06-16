@@ -183,7 +183,7 @@ module.exports = {
           `### Model Information\n\`\`\`${nombre} (RVC [${algoritmo}] - ${epochs} Epochs)\n${enlace}\n\nModel created by <@${autor_id}>\`\`\`\n> **Tags:** ${idioma}, ${etiquetas}\n`,
         )
         .setImage(imagenURL)
-        .setColor("Blurple")
+        .setColor("White")
         .setFooter({ text: "Thank you for submitting your model!" })
         .setTimestamp();
 

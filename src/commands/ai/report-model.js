@@ -55,13 +55,13 @@ module.exports = {
       )
       .setDescription(`Model reported by ${interaction.user}`)
 
-      .setColor("Blurple")
+      .setColor("White")
       .setTimestamp();
     const channel = interaction.guild.channels.cache.get("1135012781679181935");
 
     const embed_exito = new EmbedBuilder()
       .setDescription(`Successfully submitted!`)
-      .setColor("Blurple")
+      .setColor("White")
       .setTimestamp();
 
     await interaction

@@ -88,7 +88,7 @@ module.exports = {
     if (model.length <= 2) {
       const embed = new EmbedBuilder()
         .setDescription("Please enter a model name with at least 2 characters.")
-        .setColor("Red");
+        .setColor("White");
       await interaction.reply({ embeds: [embed], ephemeral: true });
       return;
     }
@@ -360,7 +360,7 @@ module.exports = {
       console.log(error);
       const embed = new EmbedBuilder()
         .setDescription(`No results found for the search ${model}...`)
-        .setColor("Red")
+        .setColor("White")
         .setFooter({
           text: `Powered by Applio — Make sure you spelled it correctly!`,
         });

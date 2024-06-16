@@ -20,7 +20,7 @@ module.exports = {
   async execute(interaction) {
     const user = interaction.options.getUser("user") || interaction.user;
     const embed = new EmbedBuilder()
-      .setColor("Blurple")
+      .setColor("White")
       .setTitle(`${user.tag}'s avatar`)
       .setImage(user.displayAvatarURL({ dynamic: true, size: 4096 }))
       .setFooter({

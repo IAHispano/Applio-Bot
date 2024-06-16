@@ -46,7 +46,7 @@ module.exports = {
             .setDescription(
               `Successfully executed the code, no errors were found.`,
             )
-            .setColor("Green"),
+            .setColor("White"),
         ],
         files: [
           new AttachmentBuilder(
@@ -67,7 +67,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle("Error")
             .setDescription(`Something went wrong while executing your code.`)
-            .setColor("Red"),
+            .setColor("White"),
         ],
         files: [
           new AttachmentBuilder(Buffer.from(`${error}`, "utf-8"), {

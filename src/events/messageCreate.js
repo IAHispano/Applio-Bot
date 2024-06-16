@@ -151,7 +151,7 @@ async function handleCommandError(error, message, channel) {
 
   try {
     const error_embed = new EmbedBuilder()
-      .setColor("Red")
+      .setColor("White")
       .setTimestamp()
       .setTitle("Command Execution Error")
       .setDescription("An error occurred while executing the command.")

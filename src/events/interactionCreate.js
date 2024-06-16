@@ -107,38 +107,37 @@ async function ButtonInt(interaction) {
   //   await interaction.reply({ content: `You need to be in the server for a week to use this command`, ephemeral: true })
   //   return;
   // }
-  // if ($id.startsWith("star_")) {
-  //   const [_, star, threadId] = interaction.customId.split("_");
-  //   console.log(`Add ${star} stars from user ${interaction.user.id} to ${threadId}`)
-  //   await interaction.deferReply({ ephemeral: true });
-  //   const { data: ratings, error: errorratings } = await supabase
-  //     .from('rating')
-  //     .select("*")
-  //     .eq('id', threadId);
+  if ($id.startsWith("star_")) {
+    const [_, star, threadId] = interaction.customId.split("_");
+    console.log(`Add ${star} stars from user ${interaction.user.id} to ${threadId}`)
+    await interaction.deferReply({ ephemeral: true });
+    const { data: ratings, error: errorratings } = await supabase
+      .from('rating')
+      .select("*")
+      .eq('id', threadId);
 
-  //   if (errorratings) {
-  //     await interaction.editReply({ content: `An error occurred while checking previous ratings: ${errorRatings.message}`, ephemeral: true });
-  //     return;
-  //   }
-  //   const ratingInfo = ratings.find(rating => Object.values(rating).flat().includes(interaction.user.id));
-  //   if (ratingInfo) {
-  //     const ratedColumn = Object.keys(ratingInfo).find(key => Array.isArray(ratingInfo[key]) && ratingInfo[key].includes(interaction.user.id));
-  //     await interaction.editReply({ content: `You have already rated this model with ${ratedColumn} stars`, ephemeral: true });
-  //     return;
-  //   }
+    if (errorratings) {
+      await interaction.editReply({ content: `An error occurred while checking previous ratings: ${errorRatings.message}`, ephemeral: true });
+      return;
+    }
+    const ratingInfo = ratings.find(rating => Object.values(rating).flat().includes(interaction.user.id));
+    if (ratingInfo) {
+      const ratedColumn = Object.keys(ratingInfo).find(key => Array.isArray(ratingInfo[key]) && ratingInfo[key].includes(interaction.user.id));
+      await interaction.editReply({ content: `You have already rated this model with ${ratedColumn} stars`, ephemeral: true });
+      return;
+    }
 
-  //   const { data, error } = await supabase.rpc('add_rating', {
-  //     rating_id: threadId,
-  //     column_name: star,
-  //     new_id: interaction.user.id
-  //   });
-  //   if (error || data.status === "Error") {
-  //     await interaction.editReply({ content: `An error occurred while updating the rating: ${data.message}`, ephemeral: true });
-  //   } else {
-  //     await interaction.editReply({ content: `You have rated the model with ${star} stars`, ephemeral: true });
-  //   }
-  // } else 
-  if ($id.startsWith("epost_")) {
+    const { data, error } = await supabase.rpc('add_rating', {
+      rating_id: threadId,
+      column_name: star,
+      new_id: interaction.user.id
+    });
+    if (error || data.status === "Error") {
+      await interaction.editReply({ content: `An error occurred while updating the rating: ${data.message}`, ephemeral: true });
+    } else {
+      await interaction.editReply({ content: `You have rated the model with ${star} stars`, ephemeral: true });
+    }
+  } else if ($id.startsWith("epost_")) {
     const [_, user] = $id.split("_");
     if (interaction.user.id !== user) return interaction.reply({content: "Only the one executing the command has permission to access"})
     const data = interaction.message.embeds[0];

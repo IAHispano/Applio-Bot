@@ -40,6 +40,36 @@ module.exports = {
   once: false,
   async execute(thread) {
     try {
+      if (thread.parentId === "1184575112784134225" || thread.parentId === "1160799273546416188") {
+        let embed = new EmbedBuilder()
+        .setTitle("➤ Rating")
+        .setDescription("You could support the creator of the model by giving him a like")
+        .setFooter({ text: "Applio", iconURL: "https://media.discordapp.net/attachments/1160798451911626763/1243682039765405798/no_bg_applio_logo.png?ex=665456e8&is=66530568&hm=ab17fc6ecc9ab749733a3b244bc505f4d12f718c0f0d72bfd8743d533d63de31&format=webp&quality=lossless&width=625&height=625&" });
+
+        const staremoji = [
+          "<:1stars:1231356778441343116>",
+          "<:2stars:1231356776847245413>",
+          "<:3stars:1231356774536319147>",
+          "<:4stars:1231356772833431662>",
+          "<:5stars:1231356771017297920>"
+        ];
+
+        const row = new ActionRowBuilder();
+        staremoji.forEach((emoji, index) => {
+          row.addComponents(
+            new ButtonBuilder()
+              .setCustomId(`star_${index + 1}_${thread.id}`)
+              .setStyle(ButtonStyle.Secondary)
+              .setEmoji(emoji)
+          );
+        });
+
+        thread.send({ embeds: [embed], components: [row] });
+      }
+    } catch (error) {
+      console.error('Error al enviar el mensaje:', error);
+    }
+    try {
       const threadsChannels = [
         "1159289700490694666",
         "1124570199018967075",

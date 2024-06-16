@@ -364,9 +364,9 @@ module.exports = {
       await loading.edit({
         embeds: [
           new EmbedBuilder()
-            .setTitle("An error occurred")
+            .setTitle("Oops...")
             .setDescription(
-              `Sorry, I could not find models that match your search "${model_name}"`,
+              `Sorry, but I could not find models that match your search "${model_name}"`,
             )
             .setColor("White"),
         ],

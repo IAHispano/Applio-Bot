@@ -314,8 +314,8 @@ module.exports = {
       loading.edit({
         embeds: [
           new EmbedBuilder()
-            .setTitle("An error occurred")
-            .setDescription(`Sorry, I could not find models from "${user}"`)
+            .setTitle("Oops...")
+            .setDescription(`Sorry, but I could not find models from "${user}"`)
             .setColor("White"),
         ],
         components: [

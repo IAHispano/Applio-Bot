@@ -9,29 +9,39 @@ const {
 } = require("discord.js");
 const axios = require("axios");
 function GetTag(text) {
-  let Langs = [
-    "ES",
-    "EN",
-    "JP",
-    "KR",
-    "PT",
-    "FR",
-    "TR",
-    "RU",
-    "IT",
-    "PL",
-    "OTHER",
-  ];
-  let partes = text.split(",");
-
-  for (let parte of partes) {
-    if (Langs.includes(parte)) {
-      return parte;
+  let Langs = {
+    "ES": "Spanish",
+    "EN": "English",
+    "JP": "Japanese",
+    "KR": "Korean",
+    "PT": "Portuguese",
+    "FR": "French",
+    "TR": "Turkish",
+    "RU": "Russian",
+    "IT": "Italian",
+    "PL": "Polish",
+    "OTHER": "Other"
+  };
+  let parts = text.split(",");
+  for (let part of parts) {
+    let trim = part.trim(); 
+    if (Langs.hasOwnProperty(trim)) {
+      return Langs[trim];
     }
   }
-
   return "Unknown";
 }
+
+async function AdMsg(msg) {
+  try {
+    await msg.channel.send({
+      content: "If you want to support applio's project, you can do it through <https://applio.org/premium> !",
+      reply: { messageReference: msg.id },
+    });
+  } catch {}
+  
+}
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("search")
@@ -198,7 +208,13 @@ module.exports = {
         ],
         embeds: [initialEmbed],
       });
+
       new_id = await new_id;
+      let r = Math.random() * 100;
+      if (r < 33) {
+        await AdMsg(new_id)
+      }
+      
       messageIdMap[embedId] = new_id.id;
 
       const menuCollector = interaction.channel.createMessageComponentCollector(

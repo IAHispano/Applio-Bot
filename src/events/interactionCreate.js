@@ -129,9 +129,26 @@ async function Modal(interaction) {
     deleteModel,
     linkModel,
   );
-  const channel = interaction.guild.channels.cache.get("1135012781679181935");
+  let content = { embeds: [embed], components: [rowButtons] }
+  await client.shard.broadcastEval(
+    (c, context) => {
+      const [content] = context;
+      try {
+        const channel = c.channels.cache.get("1135012781679181935");
+        if (channel) {
+          channel.send(content);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    {
+      context: [content],
+    },
+  );
+  //const channel = interaction.guild.channels.cache.get("1135012781679181935");
   await interaction.deferUpdate()
-  await channel.send({ embeds: [embed], components: [rowButtons] })
+  //await channel.send({ embeds: [embed], components: [rowButtons] })
 }
 }
 

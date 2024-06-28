@@ -130,7 +130,7 @@ async function Modal(interaction) {
     deleteModel,
     linkModel,
   );
-  const channel = interaction.guild.channels.cache.get("1165094519608463401");
+  const channel = interaction.guild.channels.cache.get("1135012781679181935");
   await interaction.deferUpdate()
   await channel.send({ embeds: [embed], components: [rowButtons] })
 }

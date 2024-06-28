@@ -182,7 +182,7 @@ module.exports = {
         .setURL(`https://applio.org/models/download/${firstResult.id}`);
 
       const likeButton = new ButtonBuilder()
-        .setLabel("👍 Like")
+        .setLabel("👍 Rate")
         .setStyle(ButtonStyle.Link)
         .setURL(`https://applio.org/models/${firstResult.id}`);
 
@@ -192,12 +192,20 @@ module.exports = {
         .setURL(
           `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
         );
+      const reportButton = new ButtonBuilder()
+        .setLabel("🚩 Report")
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId(`mreport_${firstResult.id}`);
 
       const rowButtons = new ActionRowBuilder().addComponents(
         saveButton,
         downloadButton,
+        reportButton,
         likeButton,
-        botInviteButton,
+        
+        
+        //botInviteButton,
+        
       );
 
       let new_id = await loading.edit({
@@ -299,7 +307,7 @@ module.exports = {
           .setURL(`https://applio.org/models/download/${selectedModel.id}`);
 
         const likeButton = new ButtonBuilder()
-          .setLabel("👍 Like")
+          .setLabel("👍 Rate")
           .setStyle(ButtonStyle.Link)
           .setURL(`https://applio.org/models/${selectedModel.id}`);
 
@@ -309,12 +317,18 @@ module.exports = {
           .setURL(
             `https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
           );
+        const reportButton = new ButtonBuilder()
+          .setLabel("🚩 Report")
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId(`mreport_${selectedModel.id}`);
 
         const rowButtons = new ActionRowBuilder().addComponents(
           saveButton,
           downloadButton,
+          reportButton,
           likeButton,
-          botInviteButton,
+          //botInviteButton,
+          
         );
 
         try {

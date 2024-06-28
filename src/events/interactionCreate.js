@@ -1,4 +1,4 @@
-const { Events, EmbedBuilder, ModalBuilder, TextInputBuilder, ActionRowBuilder, SnowflakeUtil } = require("discord.js");
+const { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle} = require("discord.js");
 
 const client = require("../bot.js");
 const { createClient } = require("@supabase/supabase-js");
@@ -59,45 +59,81 @@ function VerifyUser(m) {
 }
 
 async function Modal(interaction) {
-  const embed = interaction.message.embeds[0];
-  if (!embed || !embed.fields) {
-    return interaction.reply({ content: 'No embed fields found', ephemeral: true });
-  }
-  const newValues = {
-    Title: interaction.fields.getTextInputValue('Title'),
-    Epochs: interaction.fields.getTextInputValue('Epochs'),
-    Algorithm: interaction.fields.getTextInputValue('Algorithm'),
-    Link: interaction.fields.getTextInputValue('Link'),
-  };
-
-  const tagsIndex = embed.description.indexOf('\n> **Tags:**');
-  const descriptionBeforeTags = tagsIndex !== -1 
-    ? embed.description.substring(0, tagsIndex).split('\n```')[0] 
-    : '### Model Information\n';
-  const tagsPart = tagsIndex !== -1 
-    ? embed.description.substring(tagsIndex) 
-    : '';
-  embed.data.description = `${descriptionBeforeTags}\n\`\`\`${newValues.Title} (RVC [${newValues.Algorithm}] - ${newValues.Epochs} Epochs)\n${newValues.Link}\n\nModel created by <@${interaction.user.id}>\`\`\`${tagsPart}`;
-  embed.fields.forEach((field) => {
-    switch (field.name) {
-      case 'Title':
-        field.value = newValues.Title || field.value;
-        break;
-      case 'Epochs':
-        field.value = newValues.Epochs || field.value;
-        break;
-      case 'Algorithm':
-        field.value = newValues.Algorithm || field.value;
-        break;
-      case 'Link':
-        field.value = newValues.Link || field.value;
-        break;
-      default:
-        break;
+  const $id = interaction.customId
+  if ($id.startsWith("mpost")) {
+    const embed = interaction.message.embeds[0];
+    if (!embed || !embed.fields) {
+      return interaction.reply({ content: 'No embed fields found', ephemeral: true });
     }
-  });
-  await interaction.update({ embeds: [embed]})
-  await interaction.followUp({content: "Post Updated"})
+    const newValues = {
+      Title: interaction.fields.getTextInputValue('Title'),
+      Epochs: interaction.fields.getTextInputValue('Epochs'),
+      Algorithm: interaction.fields.getTextInputValue('Algorithm'),
+      Link: interaction.fields.getTextInputValue('Link'),
+    };
+  
+    const tagsIndex = embed.description.indexOf('\n> **Tags:**');
+    const descriptionBeforeTags = tagsIndex !== -1 
+      ? embed.description.substring(0, tagsIndex).split('\n```')[0] 
+      : '### Model Information\n';
+    const tagsPart = tagsIndex !== -1 
+      ? embed.description.substring(tagsIndex) 
+      : '';
+    embed.data.description = `${descriptionBeforeTags}\n\`\`\`${newValues.Title} (RVC [${newValues.Algorithm}] - ${newValues.Epochs} Epochs)\n${newValues.Link}\n\nModel created by <@${interaction.user.id}>\`\`\`${tagsPart}`;
+    embed.fields.forEach((field) => {
+      switch (field.name) {
+        case 'Title':
+          field.value = newValues.Title || field.value;
+          break;
+        case 'Epochs':
+          field.value = newValues.Epochs || field.value;
+          break;
+        case 'Algorithm':
+          field.value = newValues.Algorithm || field.value;
+          break;
+        case 'Link':
+          field.value = newValues.Link || field.value;
+          break;
+        default:
+          break;
+      }
+    });
+    await interaction.update({ embeds: [embed]})
+    await interaction.followUp({content: "Post Updated"})
+  } else if ($id.startsWith("sreport")) {
+    const [_, model] = $id.split("_");
+    const ebd = interaction.message.embeds[0];
+    console.log(ebd)
+    let title = "Unknown"
+    if (ebd && ebd.data.title) {
+      title = ebd.data.title
+    }
+    const embed = new EmbedBuilder()
+    .setTitle("New report for " + model)
+    .addFields(
+      { name: "**Model**", value: `${title}`, inline: true },
+      { name: "**Reason**", value: `${interaction.fields.getTextInputValue('Reason')}`, inline: true },
+    )
+    .setDescription(`Model reported by ${interaction.user}`)
+    .setColor("White")
+    .setTimestamp();
+  const deleteModel = new ButtonBuilder()
+    .setLabel("🗑️ Delete")
+    .setStyle(ButtonStyle.Primary)
+    .setCustomId(`mdelete_${model}`);
+
+  const linkModel = new ButtonBuilder()
+    .setLabel("📤 Model")
+    .setStyle(ButtonStyle.Link)
+    .setURL(`https://applio.org/models/${model}`);
+  const rowButtons = new ActionRowBuilder().addComponents(
+    deleteModel,
+    linkModel,
+  );
+  const channel = interaction.guild.channels.cache.get("1165094519608463401");
+  await interaction.deferUpdate()
+  await channel.send({ embeds: [embed], components: [rowButtons] })
+}
 }
 
 async function ButtonInt(interaction) {
@@ -214,8 +250,85 @@ async function ButtonInt(interaction) {
     });
 
     await createInteractionResponse(interaction, modalBody);
-  }
+  } else if ($id.startsWith("mreport")) {
+    const [_, model] = $id.split("_");
+    const modal = `sreport_${model}`;
+    const modalBody = JSON.stringify({
+      type: INTERACTION_CALLBACK_TYPE_MODAL,
+      data: {
+        title: "Report Model",
+        custom_id: modal,
+        components: [
+          {
+            type: 1,
+            components: [
+              {
+                type: 4,
+                custom_id: `Reason`,
+                label: 'Reason',
+                placeholder: "Mention the reason for the report",
+                style: 2,
+                min_length: 2,
+                max_length: 1024,
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+    });
 
+    await createInteractionResponse(interaction, modalBody);
+  } else if ($id.startsWith("mdelete")) {
+    if (!interaction.member.roles.cache.has("1101979880570224741")) {
+      return await interaction.reply({
+        content: 'No Allowed',
+        ephemeral: true,
+      });
+    }
+    const [_, model] = $id.split("_");
+    const row = new ActionRowBuilder()
+    .addComponents(
+        new ButtonBuilder()
+            .setCustomId('confirm')
+            .setLabel('Confirm')
+            .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+            .setCustomId('cancel')
+            .setLabel('Cancel')
+            .setStyle(ButtonStyle.Danger),
+    );
+
+    await interaction.reply({
+      content: 'Do you confirm this action?',
+      components: [row],
+      ephemeral: true,
+    });
+
+    const filter = (i) => i.user.id === interaction.user.id && i.member.roles.cache.has("1101979880570224741");
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
+
+    collector.on('collect', async i => {
+      if (i.customId === 'confirm') {
+          await i.update({ content: 'Action confirmed!', components: [] });
+          const { error: error } = await supabase
+           .from('models')
+           .delete()
+           .eq('id', model)
+          collector.stop()
+      } else if (i.customId === 'cancel') {
+          await i.update({ content: 'Action canceled!', components: [] });
+          collector.stop()
+      }
+    });
+
+    collector.on('end', collected => {
+      if (collected.size === 0) {
+          confirmMessage.edit({ content: 'No response received in time!', components: [] });
+      }
+    });
+
+  }
 }
 
 async function handlePermissions(command, interaction) {

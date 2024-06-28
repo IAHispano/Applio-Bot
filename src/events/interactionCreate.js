@@ -103,7 +103,6 @@ async function Modal(interaction) {
   } else if ($id.startsWith("sreport")) {
     const [_, model] = $id.split("_");
     const ebd = interaction.message.embeds[0];
-    console.log(ebd)
     let title = "Unknown"
     if (ebd && ebd.data.title) {
       title = ebd.data.title

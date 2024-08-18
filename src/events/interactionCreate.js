@@ -315,7 +315,7 @@ async function ButtonInt(interaction) {
             .setStyle(ButtonStyle.Danger),
     );
 
-    await interaction.reply({
+    const message = await interaction.reply({
       content: 'Do you confirm this action?',
       components: [row],
       ephemeral: true,
@@ -327,6 +327,21 @@ async function ButtonInt(interaction) {
     collector.on('collect', async i => {
       if (i.customId === 'confirm') {
           await i.update({ content: 'Action confirmed!', components: [] });
+          const rows = interaction.message.components.map(row => {
+            return new ActionRowBuilder().addComponents(
+              row.components.map(button => {
+                const builder = ButtonBuilder.from(button);
+                if (builder.data.custom_id === $id) {
+                  builder.setDisabled(true);
+                }
+                return builder;
+              })
+            );
+          });
+          await interaction.message.edit({
+            components: rows,
+          });
+
           const { error: error } = await supabase
            .from('models')
            .delete()
@@ -340,7 +355,7 @@ async function ButtonInt(interaction) {
 
     collector.on('end', collected => {
       if (collected.size === 0) {
-          confirmMessage.edit({ content: 'No response received in time!', components: [] });
+          message.edit({ content: 'No response received in time!', components: [] });
       }
     });
 

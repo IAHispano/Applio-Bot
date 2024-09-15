@@ -35,6 +35,7 @@ module.exports = {
   name: Events.InteractionCreate,
   once: false,
   async execute(interaction) {
+    if (interaction.channel && interaction.channel.id === '1159514067187277865') return;
     if (interaction.type === 3) { ButtonInt(interaction); return; }
     if (interaction.isModalSubmit()) { Modal(interaction); return;}
     if (!interaction.isChatInputCommand()) return;
@@ -211,6 +212,7 @@ async function ButtonInt(interaction) {
                 placeholder: data.fields[0].value,
                 style: 2,
                 min_length: 2,
+                max_length: 1000,
                 required: true,
               },
             ],

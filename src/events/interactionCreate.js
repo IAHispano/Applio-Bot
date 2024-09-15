@@ -1,4 +1,4 @@
-const { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle} = require("discord.js");
+const { Events, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, AttachmentBuilder} = require("discord.js");
 
 const client = require("../bot.js");
 const { createClient } = require("@supabase/supabase-js");
@@ -211,7 +211,6 @@ async function ButtonInt(interaction) {
                 placeholder: data.fields[0].value,
                 style: 2,
                 min_length: 2,
-                max_length: 1000,
                 required: true,
               },
             ],
@@ -253,10 +252,10 @@ async function ButtonInt(interaction) {
                 type: 4,
                 custom_id: `Link`,
                 label: 'Link',
-                placeholder: data.fields[3].value,
+                placeholder: 'Link',
                 style: 2,
                 min_length: 2,
-                max_length: 1000,
+                max_length: 2000,
                 required: true,
               },
             ],
@@ -359,6 +358,93 @@ async function ButtonInt(interaction) {
       }
     });
 
+  } else if ($id.startsWith("muploadedit")) {
+    if (!interaction.member.roles.cache.has("1101979880570224741")) {
+      return await interaction.reply({
+        content: 'No Allowed',
+        ephemeral: true,
+      });
+    }
+    try {
+      const threadId = interaction.message.content.match(/<#(\d+)>/)[1];
+      const thread = interaction.client.channels.cache.get(threadId);
+      if (!thread) throw new Error('Thread not found');
+      const firstMessage = await thread.fetchStarterMessage();
+      if (!firstMessage) return;
+      const embed = interaction.message.embeds[0].data;
+      const fields = embed.fields.reduce((acc, field) => {
+        acc[field.name] = field.value;
+        return acc;
+      }, {});
+      const Word = str => str.charAt(0).toUpperCase() + str.slice(1);
+      let clean = embed.description.replace("### Model Information\n```", "");
+      clean = clean.substring(clean.indexOf("\n") + 1).split("```\n>")[0].trim();
+      await firstMessage.edit({ content: clean });
+      await thread.setName(`${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`);
+      await interaction.update({ 
+        content: `Thread: <#${thread.id}> | ${thread.name}`, 
+        components: interaction.message.components
+      });
+    } catch (error) {
+      await interaction.update({ 
+        content: `Error editing thread`, 
+        components: interaction.message.components
+      });
+    }
+  } else if ($id.startsWith("mupload")) {
+    if (!interaction.member.roles.cache.has("1101979880570224741")) {
+      return await interaction.reply({
+        content: 'No Allowed',
+        ephemeral: true,
+      });
+    }
+    try {
+      const embed = interaction.message.embeds[0].data;
+      const fields = embed.fields.reduce((acc, field) => {
+        acc[field.name] = field.value;
+        return acc;
+      }, {});
+      const Word = str => str.charAt(0).toUpperCase() + str.slice(1);
+      let clean = embed.description.replace("### Model Information\n```", "");
+      clean = clean.substring(clean.indexOf("\n") + 1).split("```\n>")[0].trim();
+      const imageUrl = embed.image.url;
+      const response = await fetch(imageUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const file = new AttachmentBuilder(buffer).setName('image.webp');
+      const threadChannel = interaction.client.channels.cache.get('1184575112784134225');
+      if (!threadChannel) {
+        throw new Error('Thread channel not found');
+      }
+      const thread = await threadChannel.threads.create({
+        name: `${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`,
+        message: {
+          content: clean,
+          files: [file]
+        }
+      });
+      const rows = interaction.message.components.map(row => {
+        return new ActionRowBuilder().addComponents(
+          row.components.map(button => {
+            const builder = ButtonBuilder.from(button);
+            if (builder.data.custom_id === 'mupload') {
+              builder.setCustomId('muploadedit');
+            }
+            return builder;
+          })
+        );
+      });
+      await interaction.update({ 
+        content: `Thread: <#${thread.id}> | ${thread.name}`, 
+        components: rows 
+      });
+    } catch {
+      await interaction.update({ 
+        content: `Error upload thread`, 
+        components: interaction.message.components
+      });
+    }
+    
   }
 }
 

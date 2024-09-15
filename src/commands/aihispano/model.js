@@ -169,7 +169,11 @@ module.exports = {
     .setLabel("🔨 Edit Post")
     .setStyle(ButtonStyle.Danger)
     .setCustomId(`epost_${interaction.user.id}`)
-    const row = new ActionRowBuilder().addComponents(View_Audio, EditEmbed);
+    const Upload = new ButtonBuilder()
+    .setLabel("Upload Model")
+    .setStyle(ButtonStyle.Primary)
+    .setCustomId(`mupload`)
+    const row = new ActionRowBuilder().addComponents(View_Audio, EditEmbed, Upload);
 
     const embed = new EmbedBuilder()
         .setTitle(`New model of ${autor}`)

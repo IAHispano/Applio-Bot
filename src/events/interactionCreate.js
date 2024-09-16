@@ -387,7 +387,7 @@ async function ButtonInt(interaction) {
         content: `Thread: <#${thread.id}> | ${thread.name}`, 
         components: interaction.message.components
       });
-      await interaction.reply({ content: `Model successfully edited in thread <#${thread.id}>.`});
+      await interaction.followUp({ content: `Model successfully edited in thread <#${thread.id}>.`});
     } catch (error) {
       await interaction.update({ 
         content: `Error editing thread`, 
@@ -441,7 +441,7 @@ async function ButtonInt(interaction) {
         content: `Thread: <#${thread.id}> | ${thread.name}`, 
         components: rows 
       });
-      await interaction.reply({ content: `Model successfully created in thread <#${thread.id}>.`});
+      await interaction.followUp({ content: `Model successfully created in thread <#${thread.id}>.`});
     } catch {
       await interaction.update({ 
         content: `Error upload thread`, 

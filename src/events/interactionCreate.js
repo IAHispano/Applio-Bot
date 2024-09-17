@@ -13,7 +13,23 @@ const headers = {
 };
 
 const INTERACTION_CALLBACK_TYPE_MODAL = 9;
-
+const Word = str => str.charAt(0).toUpperCase() + str.slice(1);
+const removeEmojis = (str) => str.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF]|[\u0023-\u0039]\uFE0F?\u20E3|[\u2194-\u21AA]|[\u2B05-\u2B07]|[\u2934-\u2935]|[\u3030]|[\u3297\u3299]|[\u203C-\u2049]|[\u25AA-\u25FE]|[\u2600-\u26FF]|\uD83D[\uDE00-\uDE4F]|\uD83D[\uDC00-\uDDFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDDFF])/g, '');
+const tagMap = {
+  'English': '1184575297228636190',
+  'Spanish': '1184575337691099268',
+  'Latin America': '1233521366037172384',
+  'Other language...': '1185171001223426068',
+  'TITAN-Medium': '1233521117113876570', 
+  'Instrument': '1184575427403075614',
+  'High-Quality': '1233521475806298172',
+  'Meme': '1184575464442953748',
+  'Character': '1184866755336749106',
+  'Artist': '1185170437680922644', 
+  'Anime': '1185170724055420988',
+  'TTS': '1233521567422746686',
+  'w-okada': '1233521669365305465',
+};
 async function createInteractionResponse(interaction, body) {
   try {
     const res = await fetch(
@@ -378,10 +394,15 @@ async function ButtonInt(interaction) {
         acc[field.name] = field.value;
         return acc;
       }, {});
-      const Word = str => str.charAt(0).toUpperCase() + str.slice(1);
       let clean = embed.description.replace("### Model Information\n```", "");
       clean = clean.substring(clean.indexOf("\n") + 1).split("```\n>")[0].trim();
       await firstMessage.edit({ content: clean });
+      const tagsMatch = removeEmojis(embed.description).match(/> \*\*Tags:\*\* (.+)/);
+      const extractedTags = tagsString.split(", ").map(tag => tag.trim());
+      const appliedTags = extractedTags.map(tag => {
+        const matchingTag = Object.keys(tagMap).find(key => lowerCaseTag.includes(key.toLowerCase()));
+        return tagId;
+      }).filter(tagId => tagId !== undefined);
       await thread.setName(`${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`);
       await interaction.update({ 
         content: `Thread: <#${thread.id}> | ${thread.name}`, 
@@ -407,7 +428,6 @@ async function ButtonInt(interaction) {
         acc[field.name] = field.value;
         return acc;
       }, {});
-      const Word = str => str.charAt(0).toUpperCase() + str.slice(1);
       let clean = embed.description.replace("### Model Information\n```", "");
       clean = clean.substring(clean.indexOf("\n") + 1).split("```\n>")[0].trim();
       const imageUrl = embed.image.url;
@@ -419,6 +439,15 @@ async function ButtonInt(interaction) {
       if (!threadChannel) {
         throw new Error('Thread channel not found');
       }
+      const tagsMatch = removeEmojis(embed.description).match(/> \*\*Tags:\*\* (.+)/);
+      const tagsString = tagsMatch ? tagsMatch[1] : "";
+      const extractedTags = tagsString.split(", ").map(tag => tag.trim());
+      const appliedTags = extractedTags.map(tag => {
+        const lowerCaseTag = tag.toLowerCase();
+        const matchingTag = Object.keys(tagMap).find(key => lowerCaseTag.includes(key.toLowerCase()));
+        const tagId = matchingTag ? tagMap[matchingTag] : undefined;
+        return tagId;
+      }).filter(tagId => tagId !== undefined);
       const thread = await threadChannel.threads.create({
         name: `${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`,
         message: {
@@ -426,6 +455,7 @@ async function ButtonInt(interaction) {
           files: [file]
         }
       });
+      await thread.setAppliedTags(appliedTags, "Tags applied");
       const rows = interaction.message.components.map(row => {
         return new ActionRowBuilder().addComponents(
           row.components.map(button => {

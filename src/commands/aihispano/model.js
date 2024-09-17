@@ -108,11 +108,10 @@ module.exports = {
           "es-ES": "Seleccione el idioma del modelo.",
         })
         .addChoices(
-          { name: "🇪🇸 Spanish (Spain)", value: "🇪🇸 Spanish (Spain)" },
-          { name: "🇲🇽 Spanish (Latin)", value: "🇲🇽 Spanish (Latin)" },
-          { name: "🇰🇷 Korean", value: "🇰🇷 Korean" },
-          { name: "🇯🇵 Japanese", value: "🇯🇵 Japanese" },
-          { name: "🏴 Other languages...", value: "🏴 Other languages..." },
+          { name: "🇺🇸 English", value: "🇺🇸 English" },
+          { name: "🇪🇸 Spanish", value: "🇪🇸 Spanish" },
+          { name: "🇲🇽 Latin America", value: "🇲🇽 Latin America" }, 
+          { name: "🌎 Other language...", value: "🌎 Other languages..." },
         )
         .setRequired(true),
     )
@@ -127,14 +126,15 @@ module.exports = {
           "es-ES": "Selecciona la etiqueta que mejor describa a tu modelo.",
         })
         .addChoices(
-          { name: "😂 Meme", value: "😂 Meme" },
-          { name: "🎤 Rapper", value: "🎤 Rapper" },
-          { name: "🎶 Singer", value: "🎶 Singer" },
-          { name: "😶 Personal voice", value: "😶 Personal voice" },
-          { name: "💃 Actor", value: "💃 Actor" },
-          { name: "🎰 Anime", value: "🎰 Anime" },
-          { name: "🪄 Character", value: "🪄 Character" },
+          { name: "🤣 Meme", value: "🤣 Meme" },
+          { name: "🎤 Artist", value: "🎤 Artist" }, 
+          { name: "👀 Character", value: "👀 Character" }, 
           { name: "🎷 Instrument", value: "🎷 Instrument" },
+          { name: "🪁 Anime", value: "🪁 Anime" },
+          { name: "🛡️ TITAN-Medium", value: "🛡️ TITAN-Medium" }, 
+          { name: "🔝 High-Quality", value: "🔝 High-Quality" },
+          { name: "📑 TTS", value: "📑 TTS" },
+          { name: "⚡ w-okada", value: "⚡ w-okada" }
         )
         .setRequired(true),
     )

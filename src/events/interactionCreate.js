@@ -398,12 +398,16 @@ async function ButtonInt(interaction) {
       clean = clean.substring(clean.indexOf("\n") + 1).split("```\n>")[0].trim();
       await firstMessage.edit({ content: clean });
       const tagsMatch = removeEmojis(embed.description).match(/> \*\*Tags:\*\* (.+)/);
+      const tagsString = tagsMatch ? tagsMatch[1] : "";
       const extractedTags = tagsString.split(", ").map(tag => tag.trim());
       const appliedTags = extractedTags.map(tag => {
+        const lowerCaseTag = tag.toLowerCase();
         const matchingTag = Object.keys(tagMap).find(key => lowerCaseTag.includes(key.toLowerCase()));
+        const tagId = matchingTag ? tagMap[matchingTag] : undefined;
         return tagId;
       }).filter(tagId => tagId !== undefined);
       await thread.setName(`${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`);
+      await thread.setAppliedTags(appliedTags, "Tags applied");
       await interaction.update({ 
         content: `Thread: <#${thread.id}> | ${thread.name}`, 
         components: interaction.message.components

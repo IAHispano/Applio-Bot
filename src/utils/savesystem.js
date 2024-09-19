@@ -131,7 +131,8 @@ function uuid(number) {
 
 function findOwner(content, item) {
   content = content.replace(/\*\*/g, '');
-  const regexPatterns = [
+  
+  const Patterns = [
     /(?<!\bdataset\s)made by: <@(\d+)>/i,
     /(?<!\bdataset\s)made by <@(\d+)>/i,
     /Author: <@(\d+)>/i,
@@ -141,12 +142,19 @@ function findOwner(content, item) {
     /created by <@(\d+)>/i,
     /Entrenado por <@(\d+)>/i,
     /por <@(\d+)>/,
-    /By <@(\d+)>/i,
-    /(?:pretrained\s+by\s*)?(?<!pretrained\s)by\s+<@(\d+)>/i,//old : /By <@(\d+)>/,
-    // Otras expresiones regulares aquí...
+    /credit me <@(\d+)>/i
   ];
 
-  for (const pattern of regexPatterns) {
+  if (/request|pretrained/i.test(content)) {
+    Patterns.push(
+      /(?<!\brequest\w*\s)by\s+<@(\d+)>/i,
+      /(?:pretrained\s+by\s*)?(?<!pretrained\s)by\s+<@(\d+)>/i
+    );
+  } else {
+    Patterns.push(/By <@(\d+)>/i);
+  }
+
+  for (const pattern of Patterns) {
     const match = content.match(pattern);
     if (match) {
       return match[1];
@@ -155,6 +163,7 @@ function findOwner(content, item) {
 
   return item; 
 }
+
 
 function ConvertN(value) { //function convertirAbreviacionANumero(value) {
   const multiplicadores = { 'k': 1e3, 'm': 1e6, 'bn': 1e9 };
@@ -860,10 +869,10 @@ async function JsonThread(thread, firstmessage, option, save=true) {
       attachments: firstmessage.attachments,
   };
 
-  if(save === true) {
-    const filePath = path.join("models", `${thread.id}.json`);
-    await fs.writeFile(filePath, JSON.stringify(result, null, 2));
-  }
+  //if(save === true) {
+    //const filePath = path.join("models", `${thread.id}.json`);
+    //await fs.writeFile(filePath, JSON.stringify(result, null, 2));
+  //}
   const contentToSave = `Old: ${origmessage}\nNew: ${messageContent !== "" ? messageContent : 'Nothing'}`;
   return { contentToSave, result };
 }
@@ -929,8 +938,12 @@ async function FormatThread(jsonData) {
   }
 
   const regex = /https?:\/\/(?!.*(?:youtu\.be|youtube|soundcloud)\b)[^\s]+|(?:huggingface\.co|app\.kits\.ai|mega\.nz|drive\.google\.com|pixeldrain\.com)\/[^\s]+|[a-zA-Z0-9.-]+\/[\w.%-]+\.zip/g
-  let contentn = content.replace(/<|>|\|\|/g, '')
+  let contentn = content.replace(/<|>|\|\|/g, ' ')
+  contentn = contentn.replace(/\bdownload=true\)/gi, "download=true");
+  contentn = contentn.replace(/\?download=true/gi, "");
+  contentn = contentn.replace(/\[direct-download\]/g, " ");
   contentn = contentn.replace(/\.zip\)/g, '.zip')
+  contentn = contentn.replace(/\.zip\]/g, ".zip");
   contentn = contentn.replace(/\|/g, ' ');
   contentn = contentn.replace(/\*/g, ' ');
   const links = contentn.match(regex);
@@ -1044,8 +1057,8 @@ async function FormatThread(jsonData) {
     jsonData.owner_username = user.username;
   }
 
-  const filePath = path.join("models", `${jsonData.id}.json`);
-  require("fs").writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
+  //const filePath = path.join("models", `${jsonData.id}.json`);
+  //require("fs").writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
   return {"Status": "Success", "Data": jsonData, "Image": image}
 }

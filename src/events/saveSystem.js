@@ -87,18 +87,25 @@ module.exports = {
       }
 
       const { contentToSave, result: jsonData } = await JsonThread(fetchedThread, test, option)
+      if (!contentToSave || !jsonData) return;
+      const ignoredOwners = [
+        "1150230843214794822",
+        "1175478584752750715",
+        "1175436185179521128",
+        "1175436031705751644",
+        "1137921689133514793",
+        "1184615269793013780",
+      ];
+      const ignoredServers = ["929985620984602665"];
       if (
-        jsonData.owner === "1150230843214794822" ||
-        jsonData.owner === "1175478584752750715" ||
-        jsonData.owner === "1175436185179521128" ||
-        jsonData.owner === "1175436031705751644" ||
-        jsonData.owner === "1137921689133514793" ||
-        jsonData.owner === "1184615269793013780" ||
-        jsonData.server === "929985620984602665"
+        ignoredOwners.includes(jsonData.owner) ||
+        ignoredServers.includes(jsonData.server) ||
+        (test.author.bot && jsonData.owner !== "1144714449563955302") 
       ) {
         return;
       }
-      if (!contentToSave || !jsonData) return;
+      
+      
       const FormatResult = await FormatThread(jsonData);
 
       if(FormatResult.Status === "Failed") return;
@@ -205,7 +212,7 @@ module.exports = {
               try {
                 const channel = c.channels.cache.get(process.env.LOG_CHANNEL_ID);
                 if (channel) {
-                  channel.send({ content: `<@&1101979880570224741>`, embeds: [embed], files: [filePath], components: [row] });
+                  channel.send({ content: `<@989772388508000306>`, embeds: [embed], components: [row] });
                 }
               } catch (error) {
                 console.log(error);
@@ -222,7 +229,7 @@ module.exports = {
               try {
                 const channel = c.channels.cache.get(process.env.LOG_CHANNEL_ID);
                 if (channel) {
-                  channel.send({ embeds: [embed], files: [filePath], components: [row] });
+                  channel.send({ embeds: [embed], components: [row] });
                 }
               } catch (error) {
                 console.log(error);

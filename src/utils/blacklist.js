@@ -1,45 +1,59 @@
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
 
 const blacklistPath = path.join(__dirname, "blacklist.json");
+let blacklist = [];
 
-function loadBlacklist() {
+async function loadBlacklist() {
 	try {
-		const data = fs.readFileSync(blacklistPath, "utf-8");
-		return JSON.parse(data);
+		const data = await fs.readFile(blacklistPath, "utf-8");
+		blacklist = JSON.parse(data);
 	} catch (err) {
 		if (err.code === "ENOENT") {
-			return [];
+			blacklist = [];
 		} else {
 			throw err;
 		}
 	}
 }
 
-function saveBlacklist(blacklist) {
-	fs.writeFileSync(blacklistPath, JSON.stringify(blacklist, null, 2));
-}
-
-let blacklist = loadBlacklist();
-
-async function AddBlackList(value) {
-	if (!blacklist.includes(value)) {
-		blacklist.push(value);
-		saveBlacklist(blacklist);
+async function saveBlacklist() {
+	try {
+		await fs.writeFile(blacklistPath, JSON.stringify(blacklist, null, 2));
+	} catch (err) {
+		console.error("Error saving blacklist:", err);
 	}
 }
 
-async function RemoveBlackList(value) {
-	blacklist = blacklist.filter((item) => item !== value);
-	saveBlacklist(blacklist);
+// Debounce save operation to reduce unnecessary writes
+let saveTimeout;
+function debounceSaveBlacklist(delay = 500) {
+	clearTimeout(saveTimeout);
+	saveTimeout = setTimeout(() => saveBlacklist(), delay);
 }
 
-function IsInBlacklist(value) {
+async function addBlackList(value) {
+	if (!blacklist.includes(value)) {
+		blacklist.push(value);
+		debounceSaveBlacklist();
+	}
+}
+
+async function removeBlackList(value) {
+	blacklist = blacklist.filter((item) => item !== value);
+	debounceSaveBlacklist();
+}
+
+function isInBlacklist(value) {
 	return blacklist.includes(value);
 }
 
+loadBlacklist().catch((err) => {
+	console.error("Error loading blacklist:", err);
+});
+
 module.exports = {
-	AddBlackList,
-	RemoveBlackList,
-	IsInBlacklist,
+	addBlackList,
+	removeBlackList,
+	isInBlacklist,
 };

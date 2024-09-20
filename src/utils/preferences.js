@@ -1,33 +1,42 @@
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
 
 const preferencesPath = path.join(__dirname, "preferences.json");
+let preferences = {};
 
-function loadPreferences() {
+async function loadPreferences() {
 	try {
-		const data = fs.readFileSync(preferencesPath, "utf-8");
-		return JSON.parse(data);
+		const data = await fs.readFile(preferencesPath, "utf-8");
+		preferences = JSON.parse(data);
 	} catch (err) {
 		if (err.code === "ENOENT") {
-			return {};
+			preferences = {};
 		} else {
 			throw err;
 		}
 	}
 }
 
-function savePreferences(preferences) {
-	fs.writeFileSync(preferencesPath, JSON.stringify(preferences, null, 2));
+async function savePreferences() {
+	try {
+		await fs.writeFile(preferencesPath, JSON.stringify(preferences, null, 2));
+	} catch (err) {
+		console.error("Error saving preferences:", err);
+	}
 }
 
-let preferences = loadPreferences();
+let saveTimeout;
+function debounceSavePreferences(delay = 500) {
+	clearTimeout(saveTimeout);
+	saveTimeout = setTimeout(() => savePreferences(), delay);
+}
 
 async function setUserPreference(userId, preferenceKey, value) {
 	if (!preferences[userId]) {
 		preferences[userId] = {};
 	}
 	preferences[userId][preferenceKey] = value;
-	savePreferences(preferences);
+	debounceSavePreferences();
 }
 
 async function removeUserPreference(userId, preferenceKey) {
@@ -36,7 +45,7 @@ async function removeUserPreference(userId, preferenceKey) {
 		if (Object.keys(preferences[userId]).length === 0) {
 			delete preferences[userId];
 		}
-		savePreferences(preferences);
+		debounceSavePreferences();
 	}
 }
 
@@ -45,6 +54,10 @@ function getUserPreference(userId, preferenceKey) {
 		? preferences[userId][preferenceKey]
 		: null;
 }
+
+loadPreferences().catch((err) => {
+	console.error("Error loading preferences:", err);
+});
 
 module.exports = {
 	setUserPreference,

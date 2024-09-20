@@ -20,59 +20,29 @@ module.exports = {
 	async execute(interaction) {
 		const commands = interaction.client.commands;
 
-		const groupedCommands = {
-			AI: [],
-			"AI Hispano": [],
-			Info: [],
-			Moderation: [],
-			Utility: [],
-		};
-
-		commands.forEach((command) => {
-			const description = command.data.description;
-			if (description.startsWith("AI »")) {
-				groupedCommands["AI"].push(command);
-			} else if (description.startsWith("AI Hispano »")) {
-				groupedCommands["AI Hispano"].push(command);
-			} else if (description.startsWith("Info »")) {
-				groupedCommands["Info"].push(command);
-			} else if (description.startsWith("Moderation »")) {
-				groupedCommands["Moderation"].push(command);
-			} else if (description.startsWith("Utility »")) {
-				groupedCommands["Utility"].push(command);
-			}
-		});
-
-		Object.keys(groupedCommands).forEach((category) => {
-			groupedCommands[category] = groupedCommands[category].filter(
-				(command) => !command.devOnly,
-			);
-		});
+		const groupedCommands = commands.reduce(
+			(acc, command) => {
+				const { description } = command.data;
+				if (!command.devOnly) {
+					if (description.startsWith("AI »")) acc.AI.push(command);
+					else if (description.startsWith("AI Hispano »"))
+						acc["AI Hispano"].push(command);
+					else if (description.startsWith("Info »")) acc.Info.push(command);
+					else if (description.startsWith("Moderation »"))
+						acc.Moderation.push(command);
+					else if (description.startsWith("Utility »"))
+						acc.Utility.push(command);
+				}
+				return acc;
+			},
+			{ AI: [], "AI Hispano": [], Info: [], Moderation: [], Utility: [] },
+		);
 
 		const helpMessage = new EmbedBuilder()
 			.setTitle("Help")
 			.setDescription(
-				"Applio is a bot that has a lot of features, such as moderation, fun, utility, and more.",
-			);
-
-		const categories = Object.keys(groupedCommands);
-
-		categories.forEach((category) => {
-			if (groupedCommands[category].length > 0) {
-				const commandList = groupedCommands[category]
-					.map(
-						(command) =>
-							`- **/${command.data.name}**: ${command.data.description}`,
-					)
-					.join("\n");
-				helpMessage.addFields({
-					name: category,
-					value: commandList,
-				});
-			}
-		});
-
-		helpMessage
+				"Applio is a bot with features like moderation, fun, utility, and more.",
+			)
 			.setFooter({
 				text: `Requested by ${interaction.user.tag}`,
 				iconURL: interaction.user.displayAvatarURL(),
@@ -80,21 +50,30 @@ module.exports = {
 			.setColor("White")
 			.setTimestamp();
 
-		const botInviteButton = new ButtonBuilder()
-			.setLabel("Bot Invite")
-			.setURL(
-				`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
-			)
-			.setStyle(ButtonStyle.Link);
-
-		const supportServerButton = new ButtonBuilder()
-			.setLabel("Support Server")
-			.setURL("https://discord.gg/IAHispano")
-			.setStyle(ButtonStyle.Link);
+		Object.keys(groupedCommands).forEach((category) => {
+			const commandsInCategory = groupedCommands[category];
+			if (commandsInCategory.length > 0) {
+				const commandList = commandsInCategory
+					.map(
+						(command) =>
+							`- **/${command.data.name}**: ${command.data.description}`,
+					)
+					.join("\n");
+				helpMessage.addFields({ name: category, value: commandList });
+			}
+		});
 
 		const row = new ActionRowBuilder().addComponents(
-			botInviteButton,
-			supportServerButton,
+			new ButtonBuilder()
+				.setLabel("Bot Invite")
+				.setURL(
+					`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
+				)
+				.setStyle(ButtonStyle.Link),
+			new ButtonBuilder()
+				.setLabel("Support Server")
+				.setURL("https://discord.gg/IAHispano")
+				.setStyle(ButtonStyle.Link),
 		);
 
 		await interaction.reply({

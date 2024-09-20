@@ -65,7 +65,7 @@ module.exports = {
 				},
 				{
 					name: "Created",
-					value: `<t:${parseInt(
+					value: `<t:${Number.parseInt(
 						interaction.client.user.createdTimestamp / 1000,
 						10,
 					)}:R>`,
@@ -73,7 +73,7 @@ module.exports = {
 				},
 				{
 					name: "Uptime",
-					value: `<t:${parseInt(
+					value: `<t:${Number.parseInt(
 						interaction.client.readyTimestamp / 1000,
 						10,
 					)}:R>`,

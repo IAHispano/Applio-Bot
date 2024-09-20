@@ -8,98 +8,100 @@ const {
 
 const client = require("../bot.js");
 const prefix = `<@${process.env.BOT_ID}>`;
+
 module.exports = {
 	name: "messageCreate",
 	once: false,
 	async execute(message) {
-		if (message.author.bot || message.content.length < 1) return;
+		if (message.author.bot || !message.content) return;
 
-		let command;
 		if (message.type === 19 && message.reference) {
-			const msg = await message.fetchReference();
-			if (msg.embeds.length > 0) return;
-			message.applioReplied = message.content;
-			message.applioReference = msg.content;
-			if (msg.author.id === process.env.BOT_ID) {
-				new_ = `What you said before: ${msg.content} What I answer: ${message.content}`;
-				message.content = new_;
-				command = message.client.commands.get("chat");
-			} else {
-				if (!message.content.startsWith(prefix)) return;
-				message.content = message.content.slice(prefix.length).trim();
-				new_ = `Friend's question ${msg.author.username} said: "${msg.content}" (You can talk about ${msg.author.username} since it is a conversation between me and him and I want to share it with you.) I ask you with respect to the above (Me): "${message.content}" Your opinion on this matter:`;
-				message.content = new_;
-				command = message.client.commands.get("chat");
-			}
+			await handleReplyMessage(message);
 		} else {
-			if (!message.content.startsWith(prefix)) return;
-			let args = message.content
-				.toLowerCase()
-				.substring(prefix.length)
-				.split(" ");
-			if (!args[1] || !args[1].trim()) {
-				let embed = new EmbedBuilder()
-					.setTitle("Applio Bot")
-					.setDescription(
-						"Applio is a Voice Conversion based on VITS focused on simplicity, quality and performance, if you need to know more about it, you can check [Website](https://applio.org) or [Github](https://github.com/IAHispano/Applio). \n Commands: \n - </search:1229146911483760781>\n- </searchuser:1232443891513561141>\n- </chat:1234277316994007040> \n*And More...*",
-					);
-				const invite = new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setURL("https://discord.gg/IAHispano")
-					.setLabel("Support")
-					.setEmoji("🤔");
-				const inviteBot = new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setURL(
-						"https://discord.com/api/oauth2/authorize?client_id=1144714449563955302&permissions=1376674433127&scope=bot",
-					)
-					.setLabel("Invite")
-					.setEmoji("📤");
-
-				const row = new ActionRowBuilder().addComponents(invite, inviteBot);
-				await message.channel.send({ embeds: [embed], components: [row] });
-				return;
-			}
-			command = message.client.commands.get(args[1]);
-		}
-
-		const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
-
-		try {
-			await executeCommand(command, message, channel);
-		} catch (error) {
-			await handleCommandError(error, message, channel);
+			await handleCommandMessage(message);
 		}
 	},
 };
 
-async function executeCommand(command, message, channel) {
-	let content;
-	if (message.content.includes(prefix)) {
-		content = message.content.slice(prefix.length).trim();
+async function handleReplyMessage(message) {
+	const msg = await message.fetchReference();
+	if (msg.embeds.length > 0) return;
+
+	message.applioReplied = message.content;
+	message.applioReference = msg.content;
+
+	if (msg.author.id === process.env.BOT_ID) {
+		message.content = `What you said before: ${msg.content} What I answer: ${message.content}`;
 	} else {
-		content = message.content;
+		if (!message.content.startsWith(prefix)) return;
+		message.content = message.content.slice(prefix.length).trim();
+		message.content = `Friend's question ${msg.author.username} said: "${msg.content}" (You can talk about ${msg.author.username} since it is a conversation between me and him and I want to share it with you.) I ask you with respect to the above (Me): "${message.content}" Your opinion on this matter:`;
 	}
 
-	message.options = {
-		getString: () => content,
-	};
+	const command = message.client.commands.get("chat");
+	await executeCommand(command, message);
+}
+
+async function handleCommandMessage(message) {
+	if (!message.content.startsWith(prefix)) return;
+
+	const args = message.content.slice(prefix.length).trim().split(" ");
+	const commandName = args[1];
+
+	if (!commandName) {
+		const embed = new EmbedBuilder()
+			.setTitle("Applio Bot")
+			.setDescription(
+				"Applio is a Voice Conversion based on VITS focused on simplicity, quality and performance, if you need to know more about it, you can check [Website](https://applio.org) or [Github](https://github.com/IAHispano/Applio). \n Commands: \n - </search:1229146911483760781>\n- </searchuser:1232443891513561141>\n- </chat:1234277316994007040> \n*And More...*",
+			);
+		const row = new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setStyle(ButtonStyle.Link)
+				.setURL("https://discord.gg/IAHispano")
+				.setLabel("Support")
+				.setEmoji("🤔"),
+			new ButtonBuilder()
+				.setStyle(ButtonStyle.Link)
+				.setURL(
+					"https://discord.com/api/oauth2/authorize?client_id=1144714449563955302&permissions=1376674433127&scope=bot",
+				)
+				.setLabel("Invite")
+				.setEmoji("📤"),
+		);
+		await message.channel.send({ embeds: [embed], components: [row] });
+		return;
+	}
+
+	const command = message.client.commands.get(commandName);
+	const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
+
+	try {
+		await executeCommand(command, message, channel);
+	} catch (error) {
+		await handleCommandError(error, message, channel);
+	}
+}
+
+async function executeCommand(command, message, channel) {
+	if (!command) {
+		command = message.client.commands.get("chat");
+	}
+	const content = message.content.startsWith(prefix)
+		? message.content.slice(prefix.length).trim()
+		: message.content;
+
+	message.options = { getString: () => content };
+
 	message.followUp = async function (messageOptions) {
-		if (!this.sentMessageId) {
-			console.error("Unknown message id.");
-			return this.channel.send(messageOptions);
-		}
-		const sentMessage = await this.channel.messages.fetch(this.sentMessageId);
-		if (!sentMessage) {
-			console.error("Unknown message.");
-			return this.channel.send(messageOptions);
-		}
-		return this.channel.send({
-			...messageOptions,
-			reply: { messageReference: sentMessage.id },
-		});
+		return this.sentMessageId
+			? this.channel.send({
+					...messageOptions,
+					reply: { messageReference: this.sentMessageId },
+				})
+			: this.channel.send(messageOptions);
 	};
-	message.deferReply = async function (messageOptions) {
+
+	message.deferReply = async function () {
 		const sentMessage = await this.channel.send({
 			content: "<a:loading:1286734108956823594>",
 			reply: { messageReference: message.id },
@@ -107,62 +109,41 @@ async function executeCommand(command, message, channel) {
 		this.sentMessageId = sentMessage.id;
 		return sentMessage;
 	};
-	message.deferReply.edit = async function (messageOptions) {
-		if (!this.sentMessageId) {
-			console.error("Unknown message id.");
-			return;
-		}
+
+	message.editReply = async function (messageOptions) {
+		if (!this.sentMessageId) return;
 		const sentMessage = await this.channel.messages.fetch(this.sentMessageId);
-		if (!sentMessage) {
-			console.error("Unknown message.");
-			return;
-		}
-		await sentMessage.edit(messageOptions);
+		if (sentMessage) await sentMessage.edit(messageOptions);
 	};
-	message.editReply = message.deferReply.edit;
-	message.update = message.edit;
+
 	message.user = message.author;
 
-	if (
-		!command ||
-		!/^searchuser\b|^search\b/i.test(content) ||
-		command.data.name === "chat"
-	) {
-		const command = message.client.commands.get("chat");
-		await command.execute(message, client);
-		return;
+	if (/^searchuser\b|^search\b/i.test(content)) {
+		message.options = {
+			getString: () => content.replace(/^searchuser\b|^search\b/i, "").trim(),
+		};
 	}
-	content = content.replace(/^searchuser\b|^search\b/i, "").trim();
-	message.options = {
-		getString: () => content,
-	};
 
-	try {
-		await command.execute(message, client);
-	} catch (error) {
-		console.error(
-			`An error occurred while executing ${message}: ${error.stack}`,
-		);
-	}
+	await command.execute(message, client);
 }
 
 async function handleCommandError(error, message, channel) {
 	console.error(error);
 
-	try {
-		const error_embed = new EmbedBuilder()
-			.setColor("White")
-			.setTimestamp()
-			.setTitle("Command Execution Error")
-			.setDescription("An error occurred while executing the command.")
-			.addFields(
-				{ name: "Error stack", value: `\`\`\`${error.stack}\`\`\`` },
-				{ name: "Error message", value: `\`\`\`${error.message}\`\`\`` },
-			);
+	const errorEmbed = new EmbedBuilder()
+		.setColor("White")
+		.setTimestamp()
+		.setTitle("Command Execution Error")
+		.setDescription("An error occurred while executing the command.")
+		.addFields(
+			{ name: "Error stack", value: `\`\`\`${error.stack}\`\`\`` },
+			{ name: "Error message", value: `\`\`\`${error.message}\`\`\`` },
+		);
 
-		await channel.send({ embeds: [error_embed] });
+	try {
+		await channel.send({ embeds: [errorEmbed] });
 	} catch (sendError) {
-		console.error("Sending error information to the log channel failed.");
+		console.error("Failed to send error info to the log channel.");
 	}
 
 	await message.reply({

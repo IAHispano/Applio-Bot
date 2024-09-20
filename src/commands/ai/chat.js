@@ -7,7 +7,7 @@ const {
 } = require("discord.js");
 const axios = require("axios");
 const pdfParse = require("pdf-parse");
-const { IsInBlacklist } = require("../../utils/blacklist");
+const { isInBlacklist } = require("../../utils/blacklist");
 
 const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 const SYSTEM_PROMPT =
@@ -107,7 +107,7 @@ module.exports = {
 
 	async execute(interaction) {
 		const userId = interaction.user.id;
-		if (IsInBlacklist(userId)) {
+		if (isInBlacklist(userId)) {
 			return;
 		}
 

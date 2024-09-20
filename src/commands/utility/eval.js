@@ -66,7 +66,7 @@ module.exports = {
 				embeds: [
 					new EmbedBuilder()
 						.setTitle("Error")
-						.setDescription(`Something went wrong while executing your code.`)
+						.setDescription("Something went wrong while executing your code.")
 						.setColor("White"),
 				],
 				files: [

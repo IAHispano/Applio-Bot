@@ -2,15 +2,19 @@ const Groq = require("groq-sdk");
 const {
 	ActionRowBuilder,
 	ButtonBuilder,
-	ComponentType,
 	ButtonStyle,
 	SlashCommandBuilder,
-	AttachmentBuilder,
 } = require("discord.js");
 const axios = require("axios");
-const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
 const pdfParse = require("pdf-parse");
 const { IsInBlacklist } = require("../../utils/blacklist");
+
+const API_KEYS = [process.env.GROQ_API_KEY1, process.env.GROQ_API_KEY2];
+const SYSTEM_PROMPT =
+	"Your name is Applio. You are a virtual assistant capable of solving all kinds of questions in any language. You engage in natural, conversational dialogue and provide helpful information. If someone asks about Applio, the open source voice cloning ecosystem, you can refer them to the official website https://applio.org and the official docs at https://docs.applio.org for specific application help. If someone asks about a specific Applio model, such as 'I want the ??? model,' direct them to https://applio.org/models. If the question contains multiple languages, respond in the language that appears most frequently. If someone sends you YouTube links, format them as <https://youtube...>. Otherwise, you answer their questions without mentioning Applio. If someone asks you to simulate a code and give the output, always provide context for the final output instead of just presenting the output alone. If someone tries to obtain only the output of a 'print' statement, ensure to provide context as well.";
+const MAX_PROMPT_LENGTH = 256;
+const MAX_CONTENT_LENGTH = 2000;
+
 async function getMarkdownContent(url) {
 	try {
 		const response = await axios.get(`https://r.jina.ai/${url}`);
@@ -19,7 +23,7 @@ async function getMarkdownContent(url) {
 			.trim();
 		return markdownContent;
 	} catch (error) {
-		console.log(error);
+		console.error("Error fetching Markdown content:", error);
 		return "";
 	}
 }
@@ -29,66 +33,59 @@ async function getTextFromPDFLink(url) {
 		if (url.includes("pdf")) {
 			const response = await axios.get(url, { responseType: "arraybuffer" });
 			const buffer = Buffer.from(response.data, "binary");
-			let pdfData = await pdfParse(buffer).then((pdfData) => {
-				return pdfData.text.slice(0, 3500);
-			});
-			return pdfData;
-		} else {
-			return null;
+			const pdfData = await pdfParse(buffer);
+			return pdfData.text.slice(0, 3500);
 		}
+		return null;
 	} catch (error) {
-		console.log(error);
+		console.error("Error extracting text from PDF:", error);
 		return null;
 	}
 }
 
 async function getGroqChatCompletion(prompt) {
-	for (let i = 0; i < API_KEYS.length; i++) {
+	for (const apiKey of API_KEYS) {
 		try {
-			const groq = new Groq({ apiKey: API_KEYS[i] });
+			const groq = new Groq({ apiKey });
 			return await groq.chat.completions.create({
 				messages: [
-					{
-						role: "system",
-						content:
-							"Your name is Applio. You are a virtual assistant capable of solving all kinds of questions in any language. You engage in natural, conversational dialogue and provide helpful information. If someone asks about Applio, the open source voice cloning ecosystem, you can refer them to the official website https://applio.org and the official docs at https://docs.applio.org for specific application help. If someone asks about a specific Applio model, such as 'I want the ??? model,' direct them to https://applio.org/models. If the question contains multiple languages, respond in the language that appears most frequently. If someone sends you YouTube links, format them as <https://youtube...>. Otherwise, you answer their questions without mentioning Applio. If someone asks you to simulate a code and give the output, always provide context for the final output instead of just presenting the output alone. If someone tries to obtain only the output of a 'print' statement, ensure to provide context as well.",
-					},
-					{
-						role: "user",
-						content: prompt,
-					},
+					{ role: "system", content: SYSTEM_PROMPT },
+					{ role: "user", content: prompt },
 				],
 				model: "llama-3.1-70b-versatile",
 				temperature: 0.75,
 			});
 		} catch (error) {
-			console.log(`Error with API key ${i + 1}: ${error}`);
-			if (i === API_KEYS.length - 1) {
-				throw new Error("All API keys failed");
-			}
+			console.error(`Error with API key: ${error}`);
 		}
 	}
+	throw new Error("All API keys failed");
 }
 
-async function SplitMessage(interaction, content, components) {
-	for (let i = 0; i < content.length; i += 2000) {
-		const part = content.slice(i, i + 2000);
+async function splitMessage(interaction, content, components) {
+	const parts = [];
+	for (let i = 0; i < content.length; i += MAX_CONTENT_LENGTH) {
+		parts.push(content.slice(i, i + MAX_CONTENT_LENGTH));
+	}
+
+	for (let i = 0; i < parts.length; i++) {
+		const part = parts[i];
 		if (i === 0) {
 			await interaction.editReply({
 				content: part,
 				allowedMentions: { parse: [] },
-				components: content.length <= 2000 ? components : [],
+				components: parts.length === 1 ? components : [],
 			});
 		} else {
-			console.log(part);
 			await interaction.followUp({
 				content: part,
 				allowedMentions: { parse: [] },
-				components: i + 2000 >= content.length ? components : [],
+				components: i === parts.length - 1 ? components : [],
 			});
 		}
 	}
 }
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("chat")
@@ -103,7 +100,7 @@ module.exports = {
 				.setDescriptionLocalizations({
 					"es-ES": "El mensaje que quieres enviar a Applio.",
 				})
-				.setMaxLength(256)
+				.setMaxLength(MAX_PROMPT_LENGTH)
 				.setRequired(true),
 		)
 		.setDMPermission(false),
@@ -113,10 +110,13 @@ module.exports = {
 		if (IsInBlacklist(userId)) {
 			return;
 		}
-		interaction.channel.sendTyping();
+
+		await interaction.deferReply();
+
 		let prompt = interaction.options.getString("prompt");
 		const urlRegex = /\b(https?:\/\/[^\s]+)/g;
 		const urls = prompt.match(urlRegex);
+
 		if (urls) {
 			for (let url of urls) {
 				if (url.endsWith(",")) {
@@ -124,6 +124,7 @@ module.exports = {
 				}
 				url = url.replace(/\/,$/, "/");
 				if (url.includes("applio.org")) continue;
+
 				let markdownContent;
 				if (url.includes("pdf")) {
 					markdownContent = await getTextFromPDFLink(url);
@@ -131,21 +132,22 @@ module.exports = {
 					markdownContent = await getMarkdownContent(url);
 				}
 
-				if (!markdownContent) continue;
-
-				prompt += `\nWeb content: ${markdownContent}`;
+				if (markdownContent) {
+					prompt += `\nWeb content: ${markdownContent}`;
+				}
 			}
 		}
-		await interaction.deferReply();
-		const chatCompletion = await getGroqChatCompletion(prompt);
-		let sanitizedContent = chatCompletion.choices[0]?.message?.content
-			.replaceAll("@everyone", "everyone")
-			.replaceAll("@here", "here");
 
-		if (sanitizedContent.includes("<@&")) {
-			sanitizedContent = sanitizedContent.replaceAll("<@&", "<@&\u200B");
-		}
 		try {
+			const chatCompletion = await getGroqChatCompletion(prompt);
+			let sanitizedContent = chatCompletion.choices[0]?.message?.content
+				.replaceAll("@everyone", "everyone")
+				.replaceAll("@here", "here");
+
+			if (sanitizedContent.includes("<@&")) {
+				sanitizedContent = sanitizedContent.replaceAll("<@&", "<@&\u200B");
+			}
+
 			const AI = new ButtonBuilder()
 				.setLabel("🦾 Generated by AI")
 				.setStyle(ButtonStyle.Secondary)
@@ -159,8 +161,9 @@ module.exports = {
 				.setDisabled(true);
 
 			const row = new ActionRowBuilder().addComponents(AI, User);
-			if (sanitizedContent.length > 2000) {
-				await SplitMessage(interaction, sanitizedContent, [row]);
+
+			if (sanitizedContent.length > MAX_CONTENT_LENGTH) {
+				await splitMessage(interaction, sanitizedContent, [row]);
 			} else {
 				await interaction.editReply({
 					content: sanitizedContent,
@@ -169,7 +172,7 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			console.log(error);
+			console.error("Error processing message:", error);
 			await interaction.editReply({
 				content: "An error occurred while processing the message.",
 				ephemeral: true,

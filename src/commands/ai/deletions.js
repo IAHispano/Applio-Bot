@@ -17,7 +17,7 @@ module.exports = {
 		const embed = new EmbedBuilder()
 			.setTitle("Applio — Deletions")
 			.setDescription(
-				`Join the support server and let us know which model you want to remove and it will be removed without any problem!\n\n[Support Server](https://discord.gg/IAHispano)`,
+				"Join the support server and let us know which model you want to remove and it will be removed without any problem!\n\n[Support Server](https://discord.gg/IAHispano)",
 			)
 			.setColor("White")
 			.setTimestamp();

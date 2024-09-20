@@ -13,6 +13,74 @@ const supabase = createClient(
 	process.env.SUPABASE_URL,
 	process.env.SUPABASE_TOKEN,
 );
+
+// Function to create an embed for a model
+function createModelEmbed(model, user) {
+	const createdDate = model.created_at
+		? `<t:${Math.trunc(new Date(model.created_at).getTime() / 1000)}:d>`
+		: "Unknown";
+	return new EmbedBuilder()
+		.setTitle(model.name)
+		.setURL(`https://applio.org/models?id=${model.id}`)
+		.setAuthor({
+			name: model.author_username,
+			url: `https://applio.org/@${model.author_username}`,
+		})
+		.setDescription(
+			`- **Uploaded:** ${createdDate}\n` +
+				`- **Server:** ${model.server_name}\n` +
+				`- **Likes:** ${model.likes}`,
+		)
+		.setColor("White")
+		.setThumbnail(model.image_url !== "N/A" ? model.image_url : null)
+		.addFields(
+			{
+				name: "Epochs",
+				value: model.epochs || "Unknown",
+				inline: true,
+			},
+			{ name: "Technology", value: model.type, inline: true },
+			{ name: "Algorithm", value: model.algorithm, inline: true },
+		)
+		.setFooter({
+			text: `Requested by ${user.tag}`,
+			iconURL: user.displayAvatarURL({ dynamic: true }),
+		})
+		.setTimestamp();
+}
+
+// Function to create action buttons for a model
+function createModelButtons(model) {
+	const saveButton = new ButtonBuilder()
+		.setLabel("💾 Save")
+		.setStyle(ButtonStyle.Primary)
+		.setCustomId(`save_button_${model.id}`);
+
+	const downloadButton = new ButtonBuilder()
+		.setLabel("📤 Download")
+		.setStyle(ButtonStyle.Link)
+		.setURL(`https://applio.org/models/download/${model.id}`);
+
+	const likeButton = new ButtonBuilder()
+		.setLabel("👍 Like")
+		.setStyle(ButtonStyle.Link)
+		.setURL(`https://applio.org/models?id=${model.id}`);
+
+	const botInviteButton = new ButtonBuilder()
+		.setLabel("🤖 Bot Invite")
+		.setStyle(ButtonStyle.Link)
+		.setURL(
+			`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
+		);
+
+	return new ActionRowBuilder().addComponents(
+		saveButton,
+		downloadButton,
+		likeButton,
+		botInviteButton,
+	);
+}
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("searchuser")
@@ -50,24 +118,36 @@ module.exports = {
 				.from("models")
 				.select("author_username")
 				.ilike("author_username", `${focusedValue}%`);
+
+			if (error) {
+				console.error("Error fetching usernames from Supabase:", error);
+				return;
+			}
+
 			const usernames = new Set(data.map((user) => user.author_username));
 			const choices = Array.from(usernames).slice(0, 25);
 			await interaction.respond(
 				choices.map((choice) => ({ name: choice, value: choice })),
 			);
-		} catch {}
+		} catch (error) {
+			console.error("Error in autocomplete:", error);
+		}
 	},
 	async execute(interaction) {
 		const user = interaction.options.getString("user");
-		let messageIdMap_ = {};
+		const messageIdMap = {};
 		const loading = await interaction.deferReply();
 		const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/user=${user}`;
 
 		try {
 			const response = await axios.get(url);
-			const data_ = response.data.slice(0, 25);
+			const data = response.data.slice(0, 25);
 
-			const options = data_.map((result, index) => ({
+			if (data.length === 0) {
+				throw new Error("No models found for this user");
+			}
+
+			const options = data.map((result, index) => ({
 				label: `${result.name}`,
 				value: `V_D-${index}-${result.id}`,
 				description: `${result.type} · Made by ${result.author_username}`,
@@ -76,89 +156,23 @@ module.exports = {
 
 			const selectMenu = new StringSelectMenuBuilder()
 				.setCustomId(interaction.user.id)
-				.setPlaceholder(`👀 Select a result, found ${data_.length} results...`)
+				.setPlaceholder(`👀 Select a result, found ${data.length} results...`)
 				.setOptions(options);
 
-			const firstResult = data_[0]; // Get the first result
-			const createdDate =
-				firstResult.created_at &&
-				!isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000))
-					? `<t:${Math.trunc(
-							new Date(firstResult.created_at).getTime() / 1000,
-						)}:d>`
-					: "Unknown";
-			const initialEmbed = new EmbedBuilder()
-				.setTitle(firstResult.name)
-				.setURL(`https://applio.org/models?id=${firstResult.id}`)
-				.setAuthor({
-					name: firstResult.author_username,
-					url: `https://applio.org/@${firstResult.author_username}`,
-				})
-				.setDescription(
-					`- **Uploaded:** ${createdDate}\n` +
-						`- **Server:** ${firstResult.server_name}\n` +
-						`- **Likes:** ${firstResult.likes}`,
-				)
-				.setColor("White")
-				.setThumbnail(
-					firstResult.image_url !== "N/A" ? firstResult.image_url : null,
-				)
-				.addFields(
-					{
-						name: "Epochs",
-						value: firstResult.epochs || "Unknown",
-						inline: true,
-					},
-					{ name: "Technology", value: firstResult.type, inline: true },
-					{ name: "Algorithm", value: firstResult.algorithm, inline: true },
-				)
-				.setFooter({
-					text: `Requested by ${interaction.user.tag}`,
-					iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
-				})
-				.setTimestamp();
+			const firstResult = data[0];
+			const initialEmbed = createModelEmbed(firstResult, interaction.user);
+			const rowButtons = createModelButtons(firstResult);
 
-			let embedId = `${firstResult.id}`;
-
-			const saveButton = new ButtonBuilder()
-				.setLabel("💾 Save")
-				.setStyle(ButtonStyle.Primary)
-				.setCustomId(`save_button_${firstResult.id}`);
-
-			const downloadButton = new ButtonBuilder()
-				.setLabel("📤 Download")
-				.setStyle(ButtonStyle.Link)
-				.setURL(`https://applio.org/models/download/${firstResult.id}`);
-
-			const likeButton = new ButtonBuilder()
-				.setLabel("👍 Like")
-				.setStyle(ButtonStyle.Link)
-				.setURL(`https://applio.org/models?id=${firstResult.id}`);
-
-			const botInviteButton = new ButtonBuilder()
-				.setLabel("🤖 Bot Invite")
-				.setStyle(ButtonStyle.Link)
-				.setURL(
-					`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
-				);
-
-			const rowButtons = new ActionRowBuilder().addComponents(
-				saveButton,
-				downloadButton,
-				likeButton,
-				botInviteButton,
-			);
-
-			let new_id = await loading.edit({
-				content: `${interaction.user}, I have found ${data_.length} results that match your search!`,
+			const newId = await loading.edit({
+				content: `${interaction.user}, I have found ${data.length} results that match your search!`,
 				components: [
 					rowButtons,
 					new ActionRowBuilder().addComponents(selectMenu),
 				],
 				embeds: [initialEmbed],
 			});
-			new_id = await new_id;
-			messageIdMap_[embedId] = new_id.id;
+
+			messageIdMap[firstResult.id] = newId.id;
 
 			const menuCollector = interaction.channel.createMessageComponentCollector(
 				{
@@ -176,142 +190,83 @@ module.exports = {
 				) {
 					return;
 				}
+
 				menuCollector.resetTimer();
-				const selectedModelIndex = parseInt(
+				const selectedModelIndex = Number.parseInt(
 					interaction.values[0].replace(/V_D-/, "").split("-")[0],
 				);
-				const selectedModel = data_[selectedModelIndex];
+				const selectedModel = data[selectedModelIndex];
+
 				if (!selectedModel) {
 					return;
 				}
-				const createdDate =
-					selectedModel.created_at &&
-					!isNaN(
-						Math.trunc(new Date(selectedModel.created_at).getTime() / 1000),
-					)
-						? `<t:${Math.trunc(
-								new Date(selectedModel.created_at).getTime() / 1000,
-							)}:d>`
-						: "Unknown";
-				const embed = new EmbedBuilder()
-					.setTitle(selectedModel.name || "No name")
-					.setURL(`https://applio.org/models?id=${selectedModel.id}`)
-					.setAuthor({
-						name: selectedModel.author_username,
-						url: `https://applio.org/@${selectedModel.author_username}`,
-					})
-					.setDescription(
-						`- **Uploaded:** ${createdDate}\n` +
-							`- **Server:** ${selectedModel.server_name}\n` +
-							`- **Likes:** ${selectedModel.likes}`,
-					)
-					.setColor("White")
-					.setThumbnail(
-						selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
-					)
-					.addFields(
-						{
-							name: "Epochs",
-							value: selectedModel.epochs || "Unknown",
-							inline: true,
-						},
-						{ name: "Technology", value: selectedModel.type, inline: true },
-						{ name: "Algorithm", value: selectedModel.algorithm, inline: true },
-					)
-					.setFooter({
-						text: `Requested by ${interaction.user.tag}`,
-						iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
-					})
-					.setTimestamp();
 
-				let embedId = `${selectedModel.id}`;
+				const embed = createModelEmbed(selectedModel, interaction.user);
+				const rowButtons = createModelButtons(selectedModel);
 
-				const saveButton = new ButtonBuilder()
-					.setLabel("💾 Save")
-					.setStyle(ButtonStyle.Primary)
-					.setCustomId(`save_button_${selectedModel.id}`);
-
-				const downloadButton = new ButtonBuilder()
-					.setLabel("📤 Download")
-					.setStyle(ButtonStyle.Link)
-					.setURL(`https://applio.org/models?id=${selectedModel.id}`);
-
-				const likeButton = new ButtonBuilder()
-					.setLabel("👍 Like")
-					.setStyle(ButtonStyle.Link)
-					.setURL(`https://applio.org/models?id=${selectedModel.id}`);
-
-				const botInviteButton = new ButtonBuilder()
-					.setLabel("🤖 Bot Invite")
-					.setStyle(ButtonStyle.Link)
-					.setURL(
-						`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
-					);
-
-				const rowButtons = new ActionRowBuilder().addComponents(
-					saveButton,
-					downloadButton,
-					likeButton,
-					botInviteButton,
-				);
-
-				await interaction.update({
-					embeds: [embed],
-					components: [
-						rowButtons,
-						new ActionRowBuilder().addComponents(selectMenu),
-					],
-				});
-				messageIdMap_[embedId] = interaction.message.id;
+				try {
+					await interaction.update({
+						embeds: [embed],
+						components: [
+							rowButtons,
+							new ActionRowBuilder().addComponents(selectMenu),
+						],
+					});
+					messageIdMap[selectedModel.id] = interaction.message.id;
+				} catch (error) {
+					console.error("Error updating message:", error);
+				}
 			});
 
-			let buttonCollector = interaction.channel.createMessageComponentCollector(
-				{
+			const buttonCollector =
+				interaction.channel.createMessageComponentCollector({
 					componentType: ComponentType.Button,
 					time: 60000,
-				},
-			);
+				});
 
 			buttonCollector.on("collect", async (interaction) => {
 				if (interaction.customId.startsWith("save_button_")) {
 					const embedId = interaction.customId.replace("save_button_", "");
-					const originalMessageId = messageIdMap_[embedId];
+					const originalMessageId = messageIdMap[embedId];
 
 					if (originalMessageId) {
-						const originalMessage =
-							await interaction.channel.messages.fetch(originalMessageId);
+						try {
+							const originalMessage =
+								await interaction.channel.messages.fetch(originalMessageId);
 
-						if (originalMessage && originalMessage.embeds.length > 0) {
-							buttonCollector.resetTimer();
-							const savedEmbed = originalMessage.embeds[0];
-							const savedComponents = originalMessage.components;
+							if (originalMessage && originalMessage.embeds.length > 0) {
+								buttonCollector.resetTimer();
+								const savedEmbed = originalMessage.embeds[0];
+								const savedComponents = originalMessage.components;
 
-							interaction.user
-								.send({
-									embeds: [savedEmbed],
-									components: savedComponents,
-								})
-								.then(() => {
-									interaction.reply({
-										content: `💾 ${interaction.user}, sent you a DM with the model information!`,
-										ephemeral: true,
+								await interaction.user
+									.send({
+										embeds: [savedEmbed],
+										components: savedComponents,
+									})
+									.then(async () => {
+										await interaction.reply({
+											content: `💾 ${interaction.user}, sent you a DM with the model information!`,
+											ephemeral: true,
+										});
+									})
+									.catch(async () => {
+										await interaction.reply({
+											content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
+											ephemeral: true,
+										});
 									});
-								})
-								.catch(() => {
-									interaction.reply({
-										content: `❌ ${interaction.user}, I couldn't send you a DM, make sure you have them enabled.`,
-										ephemeral: true,
-									});
-								});
-							delete messageIdMap_[embedId];
-						} else {
+
+								delete messageIdMap[embedId];
+							}
+						} catch (error) {
+							console.error("Error fetching/sending message:", error);
 						}
-					} else {
 					}
 				}
 			});
 		} catch (error) {
-			loading.edit({
+			await loading.edit({
 				embeds: [
 					new EmbedBuilder()
 						.setTitle("Oops...")
@@ -329,7 +284,7 @@ module.exports = {
 						new ButtonBuilder()
 							.setLabel("🔍 Search")
 							.setStyle(ButtonStyle.Link)
-							.setURL(`https://applio.org/models`),
+							.setURL("https://applio.org/models"),
 					),
 				],
 			});

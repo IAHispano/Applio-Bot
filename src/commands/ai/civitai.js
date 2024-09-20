@@ -8,6 +8,7 @@ const {
 	ButtonStyle,
 } = require("discord.js");
 const { fetchModels } = require("../../utils/civitai.js");
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("civitai")
@@ -108,7 +109,7 @@ module.exports = {
 			data = data.filter((modelo) =>
 				modelo.name.toLowerCase().includes(model.toLowerCase()),
 			);
-			let messageIdMap = {};
+			const messageIdMap = {};
 
 			const options = data.slice(0, 25).map((result, index) => ({
 				label: `${result.name.slice(0, 100)}`,
@@ -136,8 +137,8 @@ module.exports = {
 					? Date.parse(result.modelVersions[0].createdAt) / 1000
 					: typeof result.modelVersions[0].createdAt === "number"
 						? result.modelVersions[0].createdAt / 1000
-						: NaN;
-			const uploadedText = isNaN(uploadedTimestamp)
+						: Number.NaN;
+			const uploadedText = Number.isNaN(uploadedTimestamp)
 				? "N/A"
 				: `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
@@ -170,7 +171,7 @@ module.exports = {
 
 			LinkButton.setURL(`https://civitai.com/models/${result.id}`);
 
-			let embedId = `${result.id}`;
+			const embedId = `${result.id}`;
 
 			const saveButton = new ButtonBuilder()
 				.setLabel("💾 Save")
@@ -200,19 +201,21 @@ module.exports = {
 			new_id = await new_id;
 			messageIdMap[embedId] = new_id.id;
 
-			let menuCollector = interaction.channel.createMessageComponentCollector({
-				componentType: ComponentType.StringSelect,
-				filter: (i) =>
-					i.user.id === interaction.user.id &&
-					i.customId === interaction.user.id,
-			});
+			const menuCollector = interaction.channel.createMessageComponentCollector(
+				{
+					componentType: ComponentType.StringSelect,
+					filter: (i) =>
+						i.user.id === interaction.user.id &&
+						i.customId === interaction.user.id,
+				},
+			);
 
 			menuCollector.on("collect", async (interaction) => {
 				if (!interaction.values || interaction.values.length === 0) {
 					return;
 				}
 
-				const selectedModelIndex = parseInt(
+				const selectedModelIndex = Number.parseInt(
 					interaction.values[0].split("-")[0],
 				);
 
@@ -237,8 +240,8 @@ module.exports = {
 							? Date.parse(selectedResult.modelVersions[0].createdAt) / 1000
 							: typeof selectedResult.modelVersions[0].createdAt === "number"
 								? selectedResult.modelVersions[0].createdAt / 1000
-								: NaN;
-					const uploadedText = isNaN(uploadedTimestamp)
+								: Number.NaN;
+					const uploadedText = Number.isNaN(uploadedTimestamp)
 						? "N/A"
 						: `<t:${Math.floor(uploadedTimestamp)}:R>`;
 
@@ -269,7 +272,7 @@ module.exports = {
 
 					LinkButton.setURL(`https://civitai.com/models/${selectedResult.id}`);
 
-					let embedId = `${selectedResult.id}`;
+					const embedId = `${selectedResult.id}`;
 
 					const saveButton = new ButtonBuilder()
 						.setLabel("💾 Save")
@@ -296,11 +299,10 @@ module.exports = {
 				}
 			});
 
-			let buttonCollector = interaction.channel.createMessageComponentCollector(
-				{
+			const buttonCollector =
+				interaction.channel.createMessageComponentCollector({
 					componentType: ComponentType.Button,
-				},
-			);
+				});
 
 			buttonCollector.on("collect", async (interaction) => {
 				if (interaction.customId.startsWith("save_fake_")) {
@@ -339,7 +341,7 @@ module.exports = {
 					}
 				}
 			});
-			buttonCollector.on("end", async (collected, reason) => {
+			buttonCollector.on("end", async () => {
 				for (const embedId in messageIdMap) {
 					const originalMessageId = messageIdMap[embedId];
 					if (originalMessageId) {
@@ -362,7 +364,7 @@ module.exports = {
 				.setDescription(`No results found for the search ${model}...`)
 				.setColor("White")
 				.setFooter({
-					text: `Powered by Applio — Make sure you spelled it correctly!`,
+					text: "Powered by Applio — Make sure you spelled it correctly!",
 				});
 			await loadingMessage.edit({
 				embeds: [embed],

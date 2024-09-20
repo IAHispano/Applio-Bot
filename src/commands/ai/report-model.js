@@ -48,7 +48,7 @@ module.exports = {
 		const autor = interaction.user.username;
 
 		const embed = new EmbedBuilder()
-			.setTitle("New report from " + autor)
+			.setTitle(`New report from ${autor}`)
 			.addFields(
 				{ name: "**Model**", value: `${model}`, inline: true },
 				{ name: "**Reason**", value: `${reason}`, inline: true },
@@ -60,7 +60,7 @@ module.exports = {
 		const channel = interaction.guild.channels.cache.get("1135012781679181935");
 
 		const embed_exito = new EmbedBuilder()
-			.setDescription(`Successfully submitted!`)
+			.setDescription("Successfully submitted!")
 			.setColor("White")
 			.setTimestamp();
 

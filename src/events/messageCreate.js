@@ -101,7 +101,7 @@ async function executeCommand(command, message, channel) {
 	};
 	message.deferReply = async function (messageOptions) {
 		const sentMessage = await this.channel.send({
-			content: "Loading...",
+			content: "<a:loading:1286734108956823594>",
 			reply: { messageReference: message.id },
 		});
 		this.sentMessageId = sentMessage.id;

@@ -8,28 +8,97 @@ const {
 	SlashCommandBuilder,
 } = require("discord.js");
 const axios = require("axios");
-function GetTag(text) {
-	let Langs = {
-		ES: "Spanish",
-		EN: "English",
-		JP: "Japanese",
-		KR: "Korean",
-		PT: "Portuguese",
-		FR: "French",
-		TR: "Turkish",
-		RU: "Russian",
-		IT: "Italian",
-		PL: "Polish",
-		OTHER: "Other",
-	};
-	let parts = text.split(",");
-	for (let part of parts) {
-		let trim = part.trim();
-		if (Langs.hasOwnProperty(trim)) {
-			return Langs[trim];
+
+const LANG_TAGS = {
+	ES: "Spanish",
+	EN: "English",
+	JP: "Japanese",
+	KR: "Korean",
+	PT: "Portuguese",
+	FR: "French",
+	TR: "Turkish",
+	RU: "Russian",
+	IT: "Italian",
+	PL: "Polish",
+	OTHER: "Other",
+};
+
+function getLanguageTag(text) {
+	const parts = text.split(",");
+	for (const part of parts) {
+		const trim = part.trim();
+		if (LANG_TAGS.hasOwnProperty(trim)) {
+			return LANG_TAGS[trim];
 		}
 	}
 	return "Unknown";
+}
+
+function createModelEmbed(model, user) {
+	const createdDate = model.created_at
+		? `<t:${Math.trunc(new Date(model.created_at).getTime() / 1000)}:d>`
+		: "Unknown";
+	return new EmbedBuilder()
+		.setTitle(model.name)
+		.setURL(`https://applio.org/models?id=${model.id}`)
+		.setAuthor({
+			name: model.author_username,
+			url:
+				model.author_username && !model.author_username.includes(" ")
+					? `https://applio.org/@${model.author_username}`
+					: undefined,
+		})
+		.setDescription(
+			`- **Uploaded:** ${createdDate}\n` +
+				`- **Server:** ${model.server_name}\n` +
+				`- **Likes:** ${model.likes}\n` +
+				`- **Lang:** ${getLanguageTag(model.tags)}`,
+		)
+		.setColor("White")
+		.setThumbnail(model.image_url !== "N/A" ? model.image_url : null)
+		.addFields(
+			{
+				name: "Epochs",
+				value: model.epochs || "Unknown",
+				inline: true,
+			},
+			{ name: "Technology", value: model.type, inline: true },
+			{ name: "Algorithm", value: model.algorithm, inline: true },
+		)
+		.setFooter({
+			text: `Requested by ${user.tag}`,
+			iconURL: user.displayAvatarURL({ dynamic: true }),
+		})
+		.setTimestamp();
+}
+
+function createModelButtons(model) {
+	const saveButton = new ButtonBuilder()
+		.setLabel("💾 Save")
+		.setStyle(ButtonStyle.Primary)
+		.setCustomId(`save_button_${model.id}`);
+
+	const downloadButton = new ButtonBuilder()
+		.setLabel("📤 Download")
+		.setStyle(ButtonStyle.Link)
+		.setURL(`https://applio.org/models/download/${model.id}`);
+
+	const likeButton = new ButtonBuilder()
+		.setLabel("👍 Rate")
+		.setStyle(ButtonStyle.Link)
+		.setURL(`https://applio.org/models?id=${model.id}`);
+
+	const reportButton = new ButtonBuilder()
+		.setLabel("🚩 Report")
+		.setStyle(ButtonStyle.Secondary)
+		.setCustomId(`mreport_${model.id}`);
+
+	return new ActionRowBuilder().addComponents(
+		saveButton,
+		downloadButton,
+		reportButton,
+		likeButton,
+	);
 }
 
 module.exports = {
@@ -60,20 +129,15 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
 		try {
+			let url;
 			if (focusedValue.length === 0) {
-				const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/perpage=25/page=1?type=rvc`;
-				const response = await axios.get(url);
-				const rdata = response.data;
-				const mapped = new Set(rdata.map((result) => result.name));
-				const choices = Array.from(mapped).slice(0, 25);
-				await interaction.respond(
-					choices.map((choice) => ({ name: choice, value: choice })),
-				);
-				return;
-			} else if (focusedValue.length < 3) {
+				url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/perpage=25/page=1?type=rvc`;
+			} else if (focusedValue.length >= 3) {
+				url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
+			} else {
 				return;
 			}
-			const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
+
 			const response = await axios.get(url);
 			const rdata = response.data;
 			const mapped = new Set(rdata.map((result) => result.name));
@@ -81,15 +145,17 @@ module.exports = {
 			await interaction.respond(
 				choices.map((choice) => ({ name: choice, value: choice })),
 			);
-		} catch {}
+		} catch (error) {
+			console.error("Error in autocomplete:", error);
+		}
 	},
 	async execute(interaction) {
-		const model_name = interaction.options.getString("model");
-		const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${model_name}&type=rvc`;
+		const modelName = interaction.options.getString("model");
+		const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${modelName}&type=rvc`;
 
-		let messageIdMap = {};
+		const messageIdMap = {};
 
-		if (model_name.length < 3) {
+		if (modelName.length < 3) {
 			return interaction.reply({
 				content: "The model name must be at least 3 characters long.",
 			});
@@ -100,6 +166,10 @@ module.exports = {
 		try {
 			const response = await axios.get(url);
 			const data = response.data.slice(0, 25);
+
+			if (data.length === 0) {
+				throw new Error("No models found");
+			}
 
 			const options = data.map((result, index) => ({
 				label: `${result.name}`,
@@ -115,90 +185,11 @@ module.exports = {
 				.setPlaceholder(`👀 Select a result, found ${data.length} results...`)
 				.setOptions(options);
 
-			const firstResult = data[0]; // Get the first result
-			const createdDate =
-				firstResult.created_at &&
-				!Number.isNaN(
-					Math.trunc(new Date(firstResult.created_at).getTime() / 1000),
-				)
-					? `<t:${Math.trunc(
-							new Date(firstResult.created_at).getTime() / 1000,
-						)}:d>`
-					: "Unknown";
-			const initialEmbed = new EmbedBuilder()
-				.setTitle(firstResult.name)
-				.setURL(`https://applio.org/models?id=${firstResult.id}`)
-				.setAuthor({
-					name: firstResult.author_username,
-					url:
-						firstResult.author_username &&
-						!firstResult.author_username.includes(" ")
-							? `https://applio.org/@${firstResult.author_username}`
-							: undefined,
-				})
-				.setDescription(
-					`- **Uploaded:** ${createdDate}\n` +
-						`- **Server:** ${firstResult.server_name}\n` +
-						`- **Likes:** ${firstResult.likes}\n` +
-						`- **Lang:** ${GetTag(firstResult.tags)}`,
-				)
-				.setColor("White")
-				.setThumbnail(
-					firstResult.image_url !== "N/A" ? firstResult.image_url : null,
-				)
-				.addFields(
-					{
-						name: "Epochs",
-						value: firstResult.epochs || "Unknown",
-						inline: true,
-					},
-					{ name: "Technology", value: firstResult.type, inline: true },
-					{ name: "Algorithm", value: firstResult.algorithm, inline: true },
-				)
-				.setFooter({
-					text: `Requested by ${interaction.user.tag}`,
-					iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
-				})
-				.setTimestamp();
+			const firstResult = data[0];
+			const initialEmbed = createModelEmbed(firstResult, interaction.user);
+			const rowButtons = createModelButtons(firstResult);
 
-			let embedId = `${firstResult.id}`;
-
-			const saveButton = new ButtonBuilder()
-				.setLabel("💾 Save")
-				.setStyle(ButtonStyle.Primary)
-				.setCustomId(`save_button_${firstResult.id}`);
-
-			const downloadButton = new ButtonBuilder()
-				.setLabel("📤 Download")
-				.setStyle(ButtonStyle.Link)
-				.setURL(`https://applio.org/models/download/${firstResult.id}`);
-
-			const likeButton = new ButtonBuilder()
-				.setLabel("👍 Rate")
-				.setStyle(ButtonStyle.Link)
-				.setURL(`https://applio.org/models?id=${firstResult.id}`);
-
-			const botInviteButton = new ButtonBuilder()
-				.setLabel("🤖 Bot Invite")
-				.setStyle(ButtonStyle.Link)
-				.setURL(
-					`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
-				);
-			const reportButton = new ButtonBuilder()
-				.setLabel("🚩 Report")
-				.setStyle(ButtonStyle.Secondary)
-				.setCustomId(`mreport_${firstResult.id}`);
-
-			const rowButtons = new ActionRowBuilder().addComponents(
-				saveButton,
-				downloadButton,
-				reportButton,
-				likeButton,
-
-				//botInviteButton,
-			);
-
-			let new_id = await loading.edit({
+			let newId = await loading.edit({
 				content: `${interaction.user}, I have found ${data.length} results that match your search!`,
 				components: [
 					rowButtons,
@@ -207,9 +198,9 @@ module.exports = {
 				embeds: [initialEmbed],
 			});
 
-			new_id = await new_id;
+			newId = await newId;
 
-			messageIdMap[embedId] = new_id.id;
+			messageIdMap[firstResult.id] = newId.id;
 
 			const menuCollector = interaction.channel.createMessageComponentCollector(
 				{
@@ -235,86 +226,9 @@ module.exports = {
 				if (!selectedModel) {
 					return;
 				}
-				const createdDate =
-					selectedModel.created_at &&
-					!Number.isNaN(
-						Math.trunc(new Date(selectedModel.created_at).getTime() / 1000),
-					)
-						? `<t:${Math.trunc(
-								new Date(selectedModel.created_at).getTime() / 1000,
-							)}:d>`
-						: "Unknown";
-				const embed = new EmbedBuilder()
-					.setTitle(selectedModel.name || "No name")
-					.setURL(`https://applio.org/models?id=${selectedModel.id}`)
-					.setAuthor({
-						name: selectedModel.author_username,
-						url:
-							selectedModel.author_username &&
-							!selectedModel.author_username.includes(" ")
-								? `https://applio.org/@${selectedModel.author_username}`
-								: undefined,
-					})
-					.setDescription(
-						`- **Uploaded:** ${createdDate}\n` +
-							`- **Server:** ${selectedModel.server_name}\n` +
-							`- **Likes:** ${selectedModel.likes}\n` +
-							`- **Lang:** ${GetTag(selectedModel.tags)}`,
-					)
-					.setColor("White")
-					.setThumbnail(
-						selectedModel.image_url !== "N/A" ? selectedModel.image_url : null,
-					)
-					.addFields(
-						{
-							name: "Epochs",
-							value: selectedModel.epochs || "Unknown",
-							inline: true,
-						},
-						{ name: "Technology", value: selectedModel.type, inline: true },
-						{ name: "Algorithm", value: selectedModel.algorithm, inline: true },
-					)
-					.setFooter({
-						text: `Requested by ${interaction.user.tag}`,
-						iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
-					})
-					.setTimestamp();
 
-				let embedId = `${selectedModel.id}`;
-
-				const saveButton = new ButtonBuilder()
-					.setLabel("💾 Save")
-					.setStyle(ButtonStyle.Primary)
-					.setCustomId(`save_button_${selectedModel.id}`);
-
-				const downloadButton = new ButtonBuilder()
-					.setLabel("📤 Download")
-					.setStyle(ButtonStyle.Link)
-					.setURL(`https://applio.org/models?id=${selectedModel.id}`);
-
-				const likeButton = new ButtonBuilder()
-					.setLabel("👍 Rate")
-					.setStyle(ButtonStyle.Link)
-					.setURL(`https://applio.org/models?id=${selectedModel.id}`);
-
-				const botInviteButton = new ButtonBuilder()
-					.setLabel("🤖 Bot Invite")
-					.setStyle(ButtonStyle.Link)
-					.setURL(
-						`https://discord.com/api/oauth2/authorize?client_id=${process.env.BOT_ID}&permissions=${process.env.BOT_PERMS}&scope=bot`,
-					);
-				const reportButton = new ButtonBuilder()
-					.setLabel("🚩 Report")
-					.setStyle(ButtonStyle.Secondary)
-					.setCustomId(`mreport_${selectedModel.id}`);
-
-				const rowButtons = new ActionRowBuilder().addComponents(
-					saveButton,
-					downloadButton,
-					reportButton,
-					likeButton,
-					//botInviteButton,
-				);
+				const embed = createModelEmbed(selectedModel, interaction.user);
+				const rowButtons = createModelButtons(selectedModel);
 
 				try {
 					await interaction.update({
@@ -324,16 +238,17 @@ module.exports = {
 							new ActionRowBuilder().addComponents(selectMenu),
 						],
 					});
-					messageIdMap[embedId] = interaction.message.id;
-				} catch {}
+					messageIdMap[selectedModel.id] = interaction.message.id;
+				} catch (error) {
+					console.error("Error updating message:", error);
+				}
 			});
 
-			let buttonCollector = interaction.channel.createMessageComponentCollector(
-				{
+			const buttonCollector =
+				interaction.channel.createMessageComponentCollector({
 					componentType: ComponentType.Button,
 					time: 60000,
-				},
-			);
+				});
 
 			buttonCollector.on("collect", async (interaction) => {
 				if (interaction.customId.startsWith("save_button_")) {
@@ -341,15 +256,15 @@ module.exports = {
 					const originalMessageId = messageIdMap[embedId];
 
 					if (originalMessageId) {
-						const originalMessage =
-							await interaction.channel.messages.fetch(originalMessageId);
+						try {
+							const originalMessage =
+								await interaction.channel.messages.fetch(originalMessageId);
 
-						if (originalMessage && originalMessage.embeds.length > 0) {
-							buttonCollector.resetTimer();
-							const savedEmbed = originalMessage.embeds[0];
-							const savedComponents = originalMessage.components;
+							if (originalMessage && originalMessage.embeds.length > 0) {
+								buttonCollector.resetTimer();
+								const savedEmbed = originalMessage.embeds[0];
+								const savedComponents = originalMessage.components;
 
-							try {
 								await interaction.user
 									.send({
 										embeds: [savedEmbed],
@@ -368,10 +283,10 @@ module.exports = {
 										});
 									});
 								delete messageIdMap[embedId];
-							} catch {}
-						} else {
+							}
+						} catch (error) {
+							console.error("Error fetching/sending message:", error);
 						}
-					} else {
 					}
 				}
 			});
@@ -381,7 +296,7 @@ module.exports = {
 					new EmbedBuilder()
 						.setTitle("Oops...")
 						.setDescription(
-							`Sorry, but I could not find models that match your search "${model_name}"`,
+							`Sorry, but I could not find models that match your search "${modelName}"`,
 						)
 						.setColor("White"),
 				],
@@ -396,7 +311,7 @@ module.exports = {
 						new ButtonBuilder()
 							.setLabel("🔍 Search")
 							.setStyle(ButtonStyle.Link)
-							.setURL(`https://applio.org/models`),
+							.setURL("https://applio.org/models"),
 					),
 				],
 			});

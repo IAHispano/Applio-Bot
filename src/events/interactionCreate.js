@@ -296,7 +296,7 @@ async function ButtonInt(interaction) {
 						components: [
 							{
 								type: 4,
-								custom_id: `Link`,
+								custom_id: "Link",
 								label: "Link",
 								placeholder: "Link",
 								style: 2,
@@ -391,7 +391,7 @@ async function ButtonInt(interaction) {
 					components: rows,
 				});
 
-				const { error: error } = await supabase
+				const { error } = await supabase
 					.from("models")
 					.delete()
 					.eq("id", model);
@@ -462,7 +462,7 @@ async function ButtonInt(interaction) {
 			});
 		} catch (error) {
 			await interaction.update({
-				content: `Error editing thread`,
+				content: "Error editing thread",
 				components: interaction.message.components,
 			});
 		}
@@ -538,7 +538,7 @@ async function ButtonInt(interaction) {
 			});
 		} catch {
 			await interaction.update({
-				content: `Error upload thread`,
+				content: "Error upload thread",
 				components: interaction.message.components,
 			});
 		}

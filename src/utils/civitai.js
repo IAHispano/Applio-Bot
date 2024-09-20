@@ -1,55 +1,55 @@
 const axios = require("axios");
 
 async function fetchModels({
-  limit = null,
-  page = null,
-  query = null,
-  tag = null,
-  username = null,
-  types = null,
-  sort = null,
-  period = null,
-  rating = null,
-  favorites = null,
-  hidden = null,
-  primaryFileOnly = null,
-  allowNoCredit = null,
-  allowDerivatives = null,
-  allowDifferentLicenses = null,
-  allowCommercialUse = null,
-  nsfw = null,
+	limit = null,
+	page = null,
+	query = null,
+	tag = null,
+	username = null,
+	types = null,
+	sort = null,
+	period = null,
+	rating = null,
+	favorites = null,
+	hidden = null,
+	primaryFileOnly = null,
+	allowNoCredit = null,
+	allowDerivatives = null,
+	allowDifferentLicenses = null,
+	allowCommercialUse = null,
+	nsfw = null,
 } = {}) {
-  const endpointUrl = "https://civitai.com/api/v1/models";
+	const endpointUrl = "https://civitai.com/api/v1/models";
 
-  const params = Object.fromEntries(
-    Object.entries({
-      limit,
-      page,
-      query,
-      tag,
-      username,
-      types,
-      sort,
-      period,
-      rating,
-      favorites,
-      hidden,
-      primaryFileOnly,
-      allowNoCredit,
-      allowDerivatives,
-      allowDifferentLicenses,
-      allowCommercialUse,
-      nsfw,
-    }).filter(([key, value]) => value !== null),
-  );
+	const params = Object.fromEntries(
+		Object.entries({
+			limit,
+			page,
+			query,
+			tag,
+			username,
+			types,
+			sort,
+			period,
+			rating,
+			favorites,
+			hidden,
+			primaryFileOnly,
+			allowNoCredit,
+			allowDerivatives,
+			allowDifferentLicenses,
+			allowCommercialUse,
+			nsfw,
+		}).filter(([key, value]) => value !== null),
+	);
 
-  try {
-    const response = await axios.get(endpointUrl, { params });
-    return response.data;
-  } catch (error) {
-    console.error("[CIVITAI] Error:", error.message);
-    return null;
-  }
+	try {
+		const response = await axios.get(endpointUrl, { params });
+		return response.data;
+	} catch (error) {
+		console.error("[CIVITAI] Error:", error.message);
+		return null;
+	}
 }
 
 module.exports = { fetchModels };

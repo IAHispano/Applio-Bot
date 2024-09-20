@@ -903,7 +903,7 @@ async function JsonThread(thread, firstmessage, option, save = true) {
 					!(algorithm === "N/A"))
 			) {
 				messageContent += " " + message.content + "\n";
-				console.log(messageContent);
+				// console.log(messageContent);
 				firstmessage.attachments = firstmessage.attachments.concat(
 					message.attachments,
 				);

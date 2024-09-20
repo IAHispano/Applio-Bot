@@ -56,7 +56,7 @@ module.exports = {
 
 			option = "aihub";
 			let fetchedThread = await thread.fetch();
-			console.log(fetchedThread.name, fetchedThread.id);
+			// console.log(fetchedThread.name, fetchedThread.id);
 			fetchedThread = await thread.fetch().catch(async (error) => {
 				fetchedThread = await thread.fetch();
 			});
@@ -158,9 +158,8 @@ module.exports = {
 
 			if (error) {
 				console.log(error.message);
-			} else {
-				console.log("Data updated correctly");
-			}
+			} 
+			
 			try {
 				const embed = new EmbedBuilder()
 					.setTitle(`${FormatResult.Data.context.Name}`)

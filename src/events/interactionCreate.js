@@ -52,7 +52,6 @@ async function createInteractionResponse(interaction, body) {
 			},
 		);
 
-		console.log("Modal sent successfully!");
 		return res;
 	} catch (error) {
 		console.error("Error sending modal:", error);

@@ -89,10 +89,10 @@ module.exports = {
           : "Unknown";
       const initialEmbed = new EmbedBuilder()
         .setTitle(firstResult.name)
-        .setURL(`https://applio.org/models/${firstResult.id}`)
+        .setURL(`https://applio.org/models?id=${firstResult.id}`)
         .setAuthor({
           name: firstResult.author_username,
-          url: `https://applio.org/user/${firstResult.author_username}`,
+          url: `https://applio.org/@${firstResult.author_username}`,
         })
         .setDescription(
           `- **Uploaded:** ${createdDate}\n` +
@@ -133,7 +133,7 @@ module.exports = {
       const likeButton = new ButtonBuilder()
         .setLabel("👍 Like")
         .setStyle(ButtonStyle.Link)
-        .setURL(`https://applio.org/models/${firstResult.id}`);
+        .setURL(`https://applio.org/models?id=${firstResult.id}`);
 
       const botInviteButton = new ButtonBuilder()
         .setLabel("🤖 Bot Invite")
@@ -195,10 +195,10 @@ module.exports = {
             : "Unknown";
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
-          .setURL(`https://applio.org/models/${selectedModel.id}`)
+          .setURL(`https://applio.org/models?id=${selectedModel.id}`)
           .setAuthor({
             name: selectedModel.author_username,
-            url: `https://applio.org/user/${selectedModel.author_username}`,
+            url: `https://applio.org/@${selectedModel.author_username}`,
           })
           .setDescription(
             `- **Uploaded:** ${createdDate}\n` +
@@ -234,12 +234,12 @@ module.exports = {
         const downloadButton = new ButtonBuilder()
           .setLabel("📤 Download")
           .setStyle(ButtonStyle.Link)
-          .setURL(`https://applio.org/models/download/${selectedModel.id}`);
+          .setURL(`https://applio.org/models?id=${selectedModel.id}`);
 
         const likeButton = new ButtonBuilder()
           .setLabel("👍 Like")
           .setStyle(ButtonStyle.Link)
-          .setURL(`https://applio.org/models/${selectedModel.id}`);
+          .setURL(`https://applio.org/models?id=${selectedModel.id}`);
 
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")

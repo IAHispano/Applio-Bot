@@ -141,7 +141,7 @@ async function Modal(interaction) {
   const linkModel = new ButtonBuilder()
     .setLabel("📤 Model")
     .setStyle(ButtonStyle.Link)
-    .setURL(`https://applio.org/models/${model}`);
+    .setURL(`https://applio.org/models?id=${model}`);
   const rowButtons = new ActionRowBuilder().addComponents(
     deleteModel,
     linkModel,

@@ -32,16 +32,6 @@ function GetTag(text) {
   return "Unknown";
 }
 
-async function AdMsg(msg) {
-  try {
-    await msg.channel.send({
-      content: "If you want to support applio's project, you can do it through <https://applio.org/premium> !",
-      reply: { messageReference: msg.id },
-    });
-  } catch {}
-  
-}
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("search")
@@ -128,20 +118,20 @@ module.exports = {
       const firstResult = data[0]; // Get the first result
       const createdDate =
         firstResult.created_at &&
-        !isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000))
+        !Number.isNaN(Math.trunc(new Date(firstResult.created_at).getTime() / 1000))
           ? `<t:${Math.trunc(
               new Date(firstResult.created_at).getTime() / 1000,
             )}:d>`
           : "Unknown";
       const initialEmbed = new EmbedBuilder()
         .setTitle(firstResult.name)
-        .setURL(`https://applio.org/models/${firstResult.id}`)
+        .setURL(`https://applio.org/models?id=${firstResult.id}`)
         .setAuthor({
           name: firstResult.author_username,
           url:
             firstResult.author_username &&
             !firstResult.author_username.includes(" ")
-              ? `https://applio.org/user/${firstResult.author_username}`
+              ? `https://applio.org/@${firstResult.author_username}`
               : undefined,
         })
         .setDescription(
@@ -184,7 +174,7 @@ module.exports = {
       const likeButton = new ButtonBuilder()
         .setLabel("👍 Rate")
         .setStyle(ButtonStyle.Link)
-        .setURL(`https://applio.org/models/${firstResult.id}`);
+        .setURL(`https://applio.org/models?id=${firstResult.id}`);
 
       const botInviteButton = new ButtonBuilder()
         .setLabel("🤖 Bot Invite")
@@ -218,10 +208,6 @@ module.exports = {
       });
 
       new_id = await new_id;
-      let r = Math.random() * 100;
-      if (r < 33) {
-        await AdMsg(new_id)
-      }
       
       messageIdMap[embedId] = new_id.id;
 
@@ -242,7 +228,7 @@ module.exports = {
           return;
         }
         menuCollector.resetTimer();
-        const selectedModelIndex = parseInt(
+        const selectedModelIndex = Number.parseInt(
           interaction.values[0].split("-")[0],
         );
         const selectedModel = data[selectedModelIndex];
@@ -251,7 +237,7 @@ module.exports = {
         }
         const createdDate =
           selectedModel.created_at &&
-          !isNaN(
+          !Number.isNaN(
             Math.trunc(new Date(selectedModel.created_at).getTime() / 1000),
           )
             ? `<t:${Math.trunc(
@@ -260,13 +246,13 @@ module.exports = {
             : "Unknown";
         const embed = new EmbedBuilder()
           .setTitle(selectedModel.name || "No name")
-          .setURL(`https://applio.org/models/${selectedModel.id}`)
+          .setURL(`https://applio.org/models?id=${selectedModel.id}`)
           .setAuthor({
             name: selectedModel.author_username,
             url:
               selectedModel.author_username &&
               !selectedModel.author_username.includes(" ")
-                ? `https://applio.org/user/${selectedModel.author_username}`
+                ? `https://applio.org/@${selectedModel.author_username}`
                 : undefined,
           })
           .setDescription(
@@ -304,12 +290,12 @@ module.exports = {
         const downloadButton = new ButtonBuilder()
           .setLabel("📤 Download")
           .setStyle(ButtonStyle.Link)
-          .setURL(`https://applio.org/models/download/${selectedModel.id}`);
+          .setURL(`https://applio.org/models?id=${selectedModel.id}`);
 
         const likeButton = new ButtonBuilder()
           .setLabel("👍 Rate")
           .setStyle(ButtonStyle.Link)
-          .setURL(`https://applio.org/models/${selectedModel.id}`);
+          .setURL(`https://applio.org/models?id=${selectedModel.id}`);
 
         const botInviteButton = new ButtonBuilder()
           .setLabel("🤖 Bot Invite")

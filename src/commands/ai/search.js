@@ -8,6 +8,11 @@ const {
 	SlashCommandBuilder,
 } = require("discord.js");
 const axios = require("axios");
+const { createClient } = require("@supabase/supabase-js");
+const supabase = createClient(
+	process.env.SUPABASE_URL,
+	process.env.SUPABASE_TOKEN,
+);
 
 const LANG_TAGS = {
 	ES: "Spanish",
@@ -129,17 +134,12 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
 		try {
-			let url;
-			if (focusedValue.length === 0) {
-				url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/perpage=25/page=1?type=rvc`;
-			} else if (focusedValue.length >= 3) {
-				url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${focusedValue}&type=rvc`;
-			} else {
+			const { data, error } = await supabase.from("models").select("*").ilike("name", focusedValue).limit(5);
+			if (error) {
+				console.error("Error fetching models:", error);
 				return;
-			}
-
-			const response = await axios.get(url);
-			const rdata = response.data;
+			} 
+			const rdata = data;
 			const mapped = new Set(rdata.map((result) => result.name));
 			const choices = Array.from(mapped).slice(0, 25);
 			await interaction.respond(
@@ -151,7 +151,6 @@ module.exports = {
 	},
 	async execute(interaction) {
 		const modelName = interaction.options.getString("model");
-		const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/search?name=${modelName}&type=rvc`;
 
 		const messageIdMap = {};
 
@@ -162,10 +161,12 @@ module.exports = {
 		}
 
 		const loading = await interaction.deferReply();
-
 		try {
-			const response = await axios.get(url);
-			const data = response.data.slice(0, 25);
+			const { data, error } = await supabase.from("models").select("*").ilike("name", modelName).limit(5);
+			if (error) {
+				console.error("Error fetching model:", error);
+				return;
+			}
 
 			if (data.length === 0) {
 				throw new Error("No models found");
@@ -291,6 +292,7 @@ module.exports = {
 				}
 			});
 		} catch (error) {
+			console.log(error);
 			await loading.edit({
 				embeds: [
 					new EmbedBuilder()

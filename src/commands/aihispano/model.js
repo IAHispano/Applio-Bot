@@ -83,7 +83,7 @@ module.exports = {
 		.setDMPermission(false),
 
 	async execute(interaction) {
-		if (interaction.channel.parentId !== "1103055144339382372")
+		if (interaction.channel.parentId !== "1287038119677395059")
 			return await interaction.reply({
 				content: "This channel is not allowed for this action.",
 				ephemeral: true,

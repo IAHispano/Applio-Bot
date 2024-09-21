@@ -144,9 +144,6 @@ module.exports = {
 				console.error("Error fetching models:", error);
 				return;
 			}
-			if (data) {
-				console.log(data);
-			}
 
 			if (data.length === 0) {
 				throw new Error("No models found for this user");

@@ -134,7 +134,7 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
 		try {
-			const { data, error } = await supabase.from("models").select("*").ilike("name", focusedValue).limit(5);
+			const { data, error } = await supabase.from("models").select("*").filter("name", "ilike", `%${focusedValue}%`).limit(25);
 			if (error) {
 				console.error("Error fetching models:", error);
 				return;
@@ -162,7 +162,7 @@ module.exports = {
 
 		const loading = await interaction.deferReply();
 		try {
-			const { data, error } = await supabase.from("models").select("*").ilike("name", modelName).limit(5);
+			const { data, error } = await supabase.from("models").select("*").filter("name", "ilike", `%${modelName}%`).limit(25);
 			if (error) {
 				console.error("Error fetching model:", error);
 				return;

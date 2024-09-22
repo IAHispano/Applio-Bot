@@ -1,5 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const axios = require("axios");
+const { createClient } = require("@supabase/supabase-js");
+const supabase = createClient(
+	process.env.SUPABASE_URL,
+	process.env.SUPABASE_TOKEN,
+);
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("model-maker")
@@ -17,7 +23,6 @@ module.exports = {
 		.setDMPermission(false),
 	async execute(interaction) {
 		const autor = interaction.user.username;
-		const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/user=${autor}`;
 		if (interaction.member.roles.cache.has("1142911409202675752")) {
 			const embed_fail = new EmbedBuilder()
 				.setTitle(`Application not successfully submitted.`)
@@ -32,8 +37,11 @@ module.exports = {
 		}
 		let result;
 		try {
-			const response = await axios.get(url);
-			const data = response.data;
+			const {data, error} = await supabase.from("models").select("*").filter("author_username", "ilike", `%${autor}%`).limit(5);
+			if (error) {
+				console.error("Error fetching models:", error);
+				return;
+			}
 			const mapped = data.map((result) => ({
 				name: result.name,
 				epochs: result.epochs,

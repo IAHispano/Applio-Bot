@@ -137,11 +137,13 @@ module.exports = {
 		const user = interaction.options.getString("user");
 		const messageIdMap = {};
 		const loading = await interaction.deferReply();
-		const url = `https://api.applio.org/key=${process.env.APPLIO_API_KEY}/models/user=${user}`;
 
 		try {
-			const response = await axios.get(url);
-			const data = response.data.slice(0, 25);
+			const {data, error} = await supabase.from("models").select("*").filter("author_username", "ilike", `%${user}%`).limit(25);
+			if (error) {
+				console.error("Error fetching models:", error);
+				return;
+			}
 
 			if (data.length === 0) {
 				throw new Error("No models found for this user");
@@ -266,6 +268,7 @@ module.exports = {
 				}
 			});
 		} catch (error) {
+			console.log(error);
 			await loading.edit({
 				embeds: [
 					new EmbedBuilder()

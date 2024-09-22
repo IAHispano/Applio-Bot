@@ -23,7 +23,7 @@ module.exports = {
 		.setDMPermission(false),
 	async execute(interaction) {
 		const autor = interaction.user.username;
-		if (interaction.member.roles.cache.has("1142911409202675752")) {
+		if (interaction.member.roles.cache.has(process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID)) {
 			const embed_fail = new EmbedBuilder()
 				.setTitle(`Application not successfully submitted.`)
 				.setDescription(`You already have the role of <@&1142911409202675752>.`)
@@ -51,7 +51,7 @@ module.exports = {
 				const embed_fail = new EmbedBuilder()
 					.setTitle(`Application not successfully submitted.`)
 					.setDescription(
-						`To obtain the role of <@&1142911409202675752> you have to have 5 models and you are missing ${
+						`To obtain the role of <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}> you have to have 5 models and you are missing ${
 							5 - Number(result.length)
 						}`,
 					)
@@ -67,7 +67,7 @@ module.exports = {
 				const embed_fail = new EmbedBuilder()
 					.setTitle(`Application not successfully submitted.`)
 					.setDescription(
-						`To obtain the role of <@&1142911409202675752> you have to have 5 models and you have not created any model.`,
+						`To obtain the role of <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}> you have to have 5 models and you have not created any model.`,
 					)
 					.setColor("White")
 					.setTimestamp();
@@ -97,9 +97,7 @@ module.exports = {
 				});
 			embed.addFields(fields);
 
-			const channel = interaction.guild?.channels.cache.get(
-				"1287084702334718075",
-			);
+			const channel = interaction.guild?.channels.cache.get(process.env.AI_HISPANO_MODEL_MAKER_CHANNEL_ID);
 			const embed_exito = new EmbedBuilder()
 				.setDescription(`Application successfully submitted!`)
 				.setColor("White")
@@ -110,7 +108,7 @@ module.exports = {
 					ephemeral: true,
 				})
 				.then(async () => {
-					interaction.member.roles.add("1142911409202675752");
+					interaction.member.roles.add(process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID);
 					const { data, error } = await supabase
 						.from("profiles")
 						.update({ "model-maker": true })

@@ -174,7 +174,7 @@ async function Modal(interaction) {
 			(c, context) => {
 				const [content] = context;
 				try {
-					const channel = c.channels.cache.get("1135012781679181935");
+					const channel = c.channels.cache.get(process.env.AI_HISPANO_REPORT_MODEL_CHANNEL_ID);
 					if (channel) {
 						channel.send(content);
 					}

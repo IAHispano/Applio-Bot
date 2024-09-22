@@ -37,7 +37,7 @@ async function VerifyModel(author_id, link_) {
 	return { Result: "Not Found" };
 }
 
-async function fetchThreadWithRetries(channel, maxRetries = 15) {
+async function fetchThreadWithRetries(channel, maxRetries = 10) {
 	let thread;
 	for (let i = 0; i < maxRetries; i++) {
 		try {
@@ -52,7 +52,7 @@ async function fetchThreadWithRetries(channel, maxRetries = 15) {
 	throw new Error(`Failed to fetch thread ${channel.id}`);
 }
 
-async function logEmbed(embed, row, steal, fetchedThread) {
+async function logEmbed(embed, row, steal) {
 	try {
 		await client.shard.broadcastEval(
 			(c, context) => {
@@ -81,9 +81,9 @@ async function logEmbed(embed, row, steal, fetchedThread) {
 }
 
 module.exports = {
-	name: Events.MessageUpdate,
+	name: Events.ThreadUpdate,
 	once: false,
-	async execute(oldMessage, newMessage) {
+	async execute(oldThread, newThread) {
 		const threadsChannels = [
 			"1159289700490694666",
 			"1124570199018967075",
@@ -104,12 +104,11 @@ module.exports = {
 		];
 
 		try {
-			if (!threadsChannels.includes(newMessage.channel.parentId)) return;
+			if (!threadsChannels.includes(newThread.parentId)) return;
 
 			const { thread: fetchedThread, starterMessage: test } =
-				await fetchThreadWithRetries(newMessage.channel);
+				await fetchThreadWithRetries(newThread);
 
-			// Ignore threads with specific names
 			const threadNameLower = fetchedThread.name.toLowerCase();
 			if (
 				["gptsovits", "gpt-sovits", "vits"].some((str) =>
@@ -119,7 +118,6 @@ module.exports = {
 				return;
 			}
 
-			// Check if message contains a valid link for saving
 			const urlRegex = /\bhttp\b/gi;
 			const zipRegex = /\.zip\b/gi;
 			const driveRegex = /\bdrive\.google\.com\b/gi;
@@ -127,7 +125,6 @@ module.exports = {
 				(test.content.match(urlRegex) && test.content.match(zipRegex)) ||
 				test.content.match(driveRegex);
 
-			// Save content if conditions match
 			const { contentToSave, result: jsonData } = await JsonThread(
 				fetchedThread,
 				test,
@@ -149,23 +146,20 @@ module.exports = {
 			if (
 				ignoredOwners.includes(jsonData.owner) ||
 				ignoredServers.includes(jsonData.server) ||
-				(test.author.bot && jsonData.owner !== "1144714449563955302")
+				(test.author.bot && jsonData.owner !== process.env.BOT_ID)
 			) {
 				return;
 			}
 
-			// Format the thread content
 			const FormatResult = await FormatThread(jsonData);
 			if (FormatResult.Status === "Failed") return;
 
-			// Verify model
 			const verify = await VerifyModel(
 				FormatResult.Data.owner,
 				FormatResult.Data.context.Link,
 			);
 			const Steal = verify.Result === "Steal" ? verify.AuthorID : false;
 
-			// Prepare data for uploading
 			const dataToUpload = {
 				id: FormatResult.Data.id,
 				id_: uuid(FormatResult.Data.id),
@@ -194,7 +188,6 @@ module.exports = {
 				console.log("Data updated correctly");
 			}
 
-			// Prepare embed and buttons
 			const embed = new EmbedBuilder()
 				.setTitle(`${FormatResult.Data.context.Name}`)
 				.addFields(
@@ -253,8 +246,7 @@ module.exports = {
 				linkButton,
 			);
 
-			// Log the result
-			await logEmbed(embed, row, Steal, fetchedThread);
+			await logEmbed(embed, row, Steal);
 		} catch (error) {
 			console.error("Error processing message update:", error);
 		}

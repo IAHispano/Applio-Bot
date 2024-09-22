@@ -46,8 +46,7 @@ async function handleCommandMessage(message) {
 	if (!message.content.startsWith(prefix)) return;
 
 	const args = message.content.slice(prefix.length).trim().split(" ");
-	const commandName = args[1];
-
+	const commandName = args[0];
 	if (!commandName) {
 		const embed = new EmbedBuilder()
 			.setTitle("Applio Bot")
@@ -76,13 +75,13 @@ async function handleCommandMessage(message) {
 	const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
 
 	try {
-		await executeCommand(command, message, channel);
+		await executeCommand(command, message);
 	} catch (error) {
 		await handleCommandError(error, message, channel);
 	}
 }
 
-async function executeCommand(command, message, channel) {
+async function executeCommand(command, message) {
 	if (!command) {
 		command = message.client.commands.get("chat");
 	}

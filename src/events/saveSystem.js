@@ -104,7 +104,7 @@ module.exports = {
 			if (
 				ignoredOwners.includes(jsonData.owner) ||
 				ignoredServers.includes(jsonData.server) ||
-				(test.author.bot && jsonData.owner !== "1144714449563955302")
+				(test.author.bot && jsonData.owner !== process.env.BOT_ID)
 			) {
 				return;
 			}

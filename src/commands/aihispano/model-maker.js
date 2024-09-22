@@ -98,7 +98,7 @@ module.exports = {
 			embed.addFields(fields);
 
 			const channel = interaction.guild?.channels.cache.get(
-				"1143229673996816535",
+				"1287084702334718075",
 			);
 			const embed_exito = new EmbedBuilder()
 				.setDescription(`Application successfully submitted!`)
@@ -109,8 +109,12 @@ module.exports = {
 					embeds: [embed_exito],
 					ephemeral: true,
 				})
-				.then(() => {
+				.then(async () => {
 					interaction.member.roles.add("1142911409202675752");
+					const { data, error } = await supabase
+						.from("profiles")
+						.update({ "model-maker": true })
+						.eq("full_name", autor);
 					channel.send({ embeds: [embed] });
 				});
 		} catch (error) {

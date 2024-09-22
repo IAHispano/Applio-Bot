@@ -292,7 +292,6 @@ module.exports = {
 				}
 			});
 		} catch (error) {
-			console.log(error);
 			await loading.edit({
 				embeds: [
 					new EmbedBuilder()

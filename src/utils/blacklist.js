@@ -32,19 +32,19 @@ function debounceSaveBlacklist(delay = 500) {
 	saveTimeout = setTimeout(() => saveBlacklist(), delay);
 }
 
-async function addBlackList(value) {
+async function AddBlackList(value) {
 	if (!blacklist.includes(value)) {
 		blacklist.push(value);
 		debounceSaveBlacklist();
 	}
 }
 
-async function removeBlackList(value) {
+async function RemoveBlackList(value) {
 	blacklist = blacklist.filter((item) => item !== value);
 	debounceSaveBlacklist();
 }
 
-function isInBlacklist(value) {
+function IsInBlacklist(value) {
 	return blacklist.includes(value);
 }
 
@@ -53,7 +53,7 @@ loadBlacklist().catch((err) => {
 });
 
 module.exports = {
-	addBlackList,
-	removeBlackList,
-	isInBlacklist,
+	AddBlackList,
+	RemoveBlackList,
+	IsInBlacklist,
 };

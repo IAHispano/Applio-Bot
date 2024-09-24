@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const axios = require("axios");
 const { createClient } = require("@supabase/supabase-js");
 const supabase = createClient(
 	process.env.SUPABASE_URL,
@@ -30,7 +29,7 @@ module.exports = {
 		) {
 			const embed_fail = new EmbedBuilder()
 				.setTitle(`Application not successfully submitted.`)
-				.setDescription(`You already have the role of <@&1142911409202675752>.`)
+				.setDescription(`You already have the role <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}>.`)
 				.setColor("White")
 				.setTimestamp();
 			await interaction.reply({
@@ -59,7 +58,7 @@ module.exports = {
 				const embed_fail = new EmbedBuilder()
 					.setTitle(`Application not successfully submitted.`)
 					.setDescription(
-						`To obtain the role of <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}> you have to have 5 models and you are missing ${
+						`To obtain the role <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}> you have to have 5 models and you are missing ${
 							5 - Number(result.length)
 						}`,
 					)
@@ -75,7 +74,7 @@ module.exports = {
 				const embed_fail = new EmbedBuilder()
 					.setTitle(`Application not successfully submitted.`)
 					.setDescription(
-						`To obtain the role of <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}> you have to have 5 models and you have not created any model.`,
+						`To obtain the role <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}> you have to have 5 models and you have not created any model.`,
 					)
 					.setColor("White")
 					.setTimestamp();

@@ -146,7 +146,6 @@ module.exports = {
 				ephemeral: true,
 			});
 		} else {
-			// The author doesn't have the moderator role, respond with an error message
 			return interaction.reply(
 				"You don't have permission to use this command.",
 			);

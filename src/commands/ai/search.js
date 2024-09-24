@@ -134,11 +134,15 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
 		try {
-			const { data, error } = await supabase.from("models").select("*").filter("name", "ilike", `%${focusedValue}%`).limit(25);
+			const { data, error } = await supabase
+				.from("models")
+				.select("*")
+				.filter("name", "ilike", `%${focusedValue}%`)
+				.limit(25);
 			if (error) {
 				console.error("Error fetching models:", error);
 				return;
-			} 
+			}
 			const rdata = data;
 			const mapped = new Set(rdata.map((result) => result.name));
 			const choices = Array.from(mapped).slice(0, 25);
@@ -162,7 +166,11 @@ module.exports = {
 
 		const loading = await interaction.deferReply();
 		try {
-			const { data, error } = await supabase.from("models").select("*").filter("name", "ilike", `%${modelName}%`).limit(25);
+			const { data, error } = await supabase
+				.from("models")
+				.select("*")
+				.filter("name", "ilike", `%${modelName}%`)
+				.limit(25);
 			if (error) {
 				console.error("Error fetching model:", error);
 				return;
@@ -293,6 +301,7 @@ module.exports = {
 			});
 		} catch (error) {
 			await loading.edit({
+				content: "",
 				embeds: [
 					new EmbedBuilder()
 						.setTitle("Oops...")

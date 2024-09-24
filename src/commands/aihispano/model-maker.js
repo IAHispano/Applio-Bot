@@ -23,7 +23,11 @@ module.exports = {
 		.setDMPermission(false),
 	async execute(interaction) {
 		const autor = interaction.user.username;
-		if (interaction.member.roles.cache.has(process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID)) {
+		if (
+			interaction.member.roles.cache.has(
+				process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID,
+			)
+		) {
 			const embed_fail = new EmbedBuilder()
 				.setTitle(`Application not successfully submitted.`)
 				.setDescription(`You already have the role of <@&1142911409202675752>.`)
@@ -37,7 +41,11 @@ module.exports = {
 		}
 		let result;
 		try {
-			const {data, error} = await supabase.from("models").select("*").filter("author_username", "ilike", `%${autor}%`).limit(5);
+			const { data, error } = await supabase
+				.from("models")
+				.select("*")
+				.filter("author_username", "ilike", `%${autor}%`)
+				.limit(5);
 			if (error) {
 				console.error("Error fetching models:", error);
 				return;
@@ -97,7 +105,9 @@ module.exports = {
 				});
 			embed.addFields(fields);
 
-			const channel = interaction.guild?.channels.cache.get(process.env.AI_HISPANO_MODEL_MAKER_CHANNEL_ID);
+			const channel = interaction.guild?.channels.cache.get(
+				process.env.AI_HISPANO_MODEL_MAKER_CHANNEL_ID,
+			);
 			const embed_exito = new EmbedBuilder()
 				.setDescription(`Application successfully submitted!`)
 				.setColor("White")
@@ -108,7 +118,9 @@ module.exports = {
 					ephemeral: true,
 				})
 				.then(async () => {
-					interaction.member.roles.add(process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID);
+					interaction.member.roles.add(
+						process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID,
+					);
 					const { data, error } = await supabase
 						.from("profiles")
 						.update({ "model-maker": true })

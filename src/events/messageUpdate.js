@@ -230,7 +230,7 @@ module.exports = {
 				);
 				if (
 					Steal !== false &&
-					!newMessage.member.roles.cache.has(process.env.AI_HISPANO_MOD_ID)
+					!newMessage.member.roles.cache.has(process.env.AI_HISPANO_MOD_ROLE_ID)
 				) {
 					embed.addFields({
 						name: "Stolen",

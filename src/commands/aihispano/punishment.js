@@ -90,7 +90,7 @@ module.exports = {
 		const member = interaction.member;
 		if (
 			member.roles.cache.some(
-				(role) => role.id === process.env.AI_HISPANO_MOD_ID,
+				(role) => role.id === process.env.AI_HISPANO_MOD_ROLE_ID,
 			)
 		) {
 			const embedPunishment = new EmbedBuilder()

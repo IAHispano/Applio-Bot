@@ -42,7 +42,9 @@ module.exports = {
 		.addAttachmentOption((option) =>
 			option
 				.setName("image")
-				.setDescription("Upload a rectangular, high-quality image of the model.")
+				.setDescription(
+					"Upload a rectangular, high-quality image of the model.",
+				)
 				.setRequired(true),
 		)
 		.addAttachmentOption((option) =>
@@ -96,7 +98,9 @@ module.exports = {
 		const name = interaction.options.getString("name");
 		const link = interaction.options.getString("link");
 		const image = interaction.options.get("image");
-		const imageURL = image?.attachment?.url || "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png";
+		const imageURL =
+			image?.attachment?.url ||
+			"https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png";
 		const audio = interaction.options.get("audio");
 		const audioURL = audio?.attachment?.url;
 
@@ -106,7 +110,9 @@ module.exports = {
 		const viewAudioButton = new ButtonBuilder()
 			.setLabel("🎵 View Audio")
 			.setStyle(ButtonStyle.Link)
-			.setURL(`https://audio-player-qtacpmvp5-deiants-projects.vercel.app/?link=${audioURL}`);
+			.setURL(
+				`https://audio-player-qtacpmvp5-deiants-projects.vercel.app/?link=${audioURL}`,
+			);
 
 		const editPostButton = new ButtonBuilder()
 			.setLabel("🔨 Edit Post")
@@ -118,7 +124,11 @@ module.exports = {
 			.setStyle(ButtonStyle.Primary)
 			.setCustomId("mupload");
 
-		const row = new ActionRowBuilder().addComponents(viewAudioButton, editPostButton, uploadButton);
+		const row = new ActionRowBuilder().addComponents(
+			viewAudioButton,
+			editPostButton,
+			uploadButton,
+		);
 
 		const embed = new EmbedBuilder()
 			.setTitle(`New model by ${username}`)
@@ -128,7 +138,9 @@ module.exports = {
 				{ name: "Algorithm", value: algorithm, inline: true },
 				{ name: "Link", value: link, inline: true },
 			)
-			.setDescription(`### Model Information\n\`\`\`${name} (RVC [${algorithm}] - ${epochs} Epochs)\n${link}\n\nModel created by <@${userId}>\`\`\`\n> **Tags:** ${language}, ${tags}`)
+			.setDescription(
+				`### Model Information\n\`\`\`${name} (RVC [${algorithm}] - ${epochs} Epochs)\n${link}\n\nModel created by <@${userId}>\`\`\`\n> **Tags:** ${language}, ${tags}`,
+			)
 			.setImage(imageURL)
 			.setColor("White")
 			.setFooter({ text: "Thank you for submitting your model!" })

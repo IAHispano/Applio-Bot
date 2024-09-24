@@ -38,7 +38,7 @@ const tagMap = {
 	Artist: "1287069073926131792",
 	Anime: "1287069202510774447",
 	TTS: "1287069284723589213",
-  Realtime: "1287069337773015132", 
+	Realtime: "1287069337773015132",
 };
 async function createInteractionResponse(interaction, body) {
 	try {
@@ -174,7 +174,9 @@ async function Modal(interaction) {
 			(c, context) => {
 				const [content] = context;
 				try {
-					const channel = c.channels.cache.get(process.env.AI_HISPANO_REPORT_MODEL_CHANNEL_ID);
+					const channel = c.channels.cache.get(
+						process.env.AI_HISPANO_REPORT_MODEL_CHANNEL_ID,
+					);
 					if (channel) {
 						channel.send(content);
 					}
@@ -303,7 +305,9 @@ async function ButtonInt(interaction) {
 
 		await createInteractionResponse(interaction, modalBody);
 	} else if ($id.startsWith("mdelete")) {
-		if (!interaction.member.roles.cache.has(process.env.AI_HISPANO_MOD_ID)) {
+		if (
+			!interaction.member.roles.cache.has(process.env.AI_HISPANO_MOD_ROLE_ID)
+		) {
 			return await interaction.reply({
 				content: "No Allowed",
 				ephemeral: true,
@@ -329,7 +333,7 @@ async function ButtonInt(interaction) {
 
 		const filter = (i) =>
 			i.user.id === interaction.user.id &&
-			i.member.roles.cache.has(process.env.AI_HISPANO_MOD_ID);
+			i.member.roles.cache.has(process.env.AI_HISPANO_MOD_ROLE_ID);
 		const collector = interaction.channel.createMessageComponentCollector({
 			filter,
 			time: 15000,
@@ -373,7 +377,9 @@ async function ButtonInt(interaction) {
 			}
 		});
 	} else if ($id.startsWith("muploadedit")) {
-		if (!interaction.member.roles.cache.has(process.env.AI_HISPANO_MOD_ID)) {
+		if (
+			!interaction.member.roles.cache.has(process.env.AI_HISPANO_MOD_ROLE_ID)
+		) {
 			return await interaction.reply({
 				content: "No Allowed",
 				ephemeral: true,
@@ -412,7 +418,9 @@ async function ButtonInt(interaction) {
 				})
 				.filter((tagId) => tagId !== undefined);
 			await thread.setName(
-				`${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`,
+				`${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${
+					fields.Epochs
+				} Epochs)`,
 			);
 			await thread.setAppliedTags(appliedTags, "Tags applied");
 			await interaction.update({
@@ -429,7 +437,9 @@ async function ButtonInt(interaction) {
 			});
 		}
 	} else if ($id.startsWith("mupload")) {
-		if (!interaction.member.roles.cache.has(process.env.AI_HISPANO_MOD_ID)) {
+		if (
+			!interaction.member.roles.cache.has(process.env.AI_HISPANO_MOD_ROLE_ID)
+		) {
 			return await interaction.reply({
 				content: "No Allowed",
 				ephemeral: true,
@@ -473,7 +483,9 @@ async function ButtonInt(interaction) {
 				})
 				.filter((tagId) => tagId !== undefined);
 			const thread = await threadChannel.threads.create({
-				name: `${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${fields.Epochs} Epochs)`,
+				name: `${Word(fields.Title)} (RVC [${fields.Algorithm}] - ${
+					fields.Epochs
+				} Epochs)`,
 				message: {
 					content: clean,
 					files: [file],

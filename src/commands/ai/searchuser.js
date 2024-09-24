@@ -139,7 +139,11 @@ module.exports = {
 		const loading = await interaction.deferReply();
 
 		try {
-			const {data, error} = await supabase.from("models").select("*").filter("author_username", "ilike", `%${user}%`).limit(25);
+			const { data, error } = await supabase
+				.from("models")
+				.select("*")
+				.filter("author_username", "ilike", `%${user}%`)
+				.limit(25);
 			if (error) {
 				console.error("Error fetching models:", error);
 				return;
@@ -270,6 +274,7 @@ module.exports = {
 		} catch (error) {
 			console.log(error);
 			await loading.edit({
+				content: "",
 				embeds: [
 					new EmbedBuilder()
 						.setTitle("Oops...")

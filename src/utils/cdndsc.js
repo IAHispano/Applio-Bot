@@ -20,7 +20,7 @@ async function GetCdnDsc(url) {
 
 		const contentType = response.headers.get("content-type");
 		if (!contentType || !contentType.startsWith("image/")) {
-			throw new Error("El tipo de contenido no es una imagen.");
+			throw new Error("Invalid content type");
 		}
 
 		const folder = path.resolve("./cdndsc");

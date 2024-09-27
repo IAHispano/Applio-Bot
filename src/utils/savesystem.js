@@ -181,7 +181,6 @@ function findOwner(content, item) {
 }
 
 function ConvertN(value) {
-	//function convertirAbreviacionANumero(value) {
 	const multiplicadores = { k: 1e3, m: 1e6, bn: 1e9 };
 
 	for (const [abreviacion, multiplicador] of Object.entries(multiplicadores)) {
@@ -222,7 +221,6 @@ function RemoveHopFromAlgorithm(cnamen) {
 	];
 
 	for (const pattern of regexPatterns) {
-		//old const modifiedPattern = new RegExp(pattern.source + '(\\s+(?:64|32)(?=[\\]}]))?\\b', 'gi');
 		const modifiedPattern = new RegExp(
 			pattern.source + "\\s+(160|128|64|60|32|40|28|21|20|16)(?![a-zA-Z0-9]|$)",
 			"gi",
@@ -269,9 +267,6 @@ function extractAlgorithm(cnamen) {
 	cnamen = cnamen.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
 	const regexPatterns = [
 		/\b(Harvest|Mangio-crepe|Mangio-Crepe|Mangio Crepe)\b/gi,
-		// /(?:^|\s)(Dio|Pm)(?=\s|$)/gi,
-		// /(?:^|\s)(?:\[(Dio|Pm)\])(?=\s|$)/g,
-		///(?:^|\s)\[(Dio|Pm)\](?=\s|$)/g,
 		/\[(Dio|Pm)\]/g,
 		/\b(Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe)\b/gi,
 		/\b(rmv?pe)\b/gi,
@@ -548,57 +543,58 @@ function extractEpochsAndAlgorithm(cname, tags, content) {
 	if (algorithm.toLowerCase().includes("Mangio")) {
 		algorithm = "Crepe";
 	}
-	// Buscar epochs en el nombre
+	// Search for epochs in the name
 	const regexPatterns = [
-		/\((\d+)\s+Epochs\)/i,
-		/\b(\d+)\s+Epochs\b/i,
-		/-\s*(\d+)\s*Epochs?/i, // Formato: " - {número} Epochs)"
-		/\b(\d+)\s+Epochs\b/i,
-		/\b(\d+)\s*Epochs\b/i,
-		/\b(\d+)\s*Epoch\b/i,
-		/(\d+) Epochs/i,
-		/ (\d+) Epochs/i,
-		/\((\d+) Epochs\)/i, // Formato: " {número} Epochs"
-		/\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/i,
-		/(?:\s+\[|\()(\d+)\s+Epochs\)/i,
-		/\[(\d+)\s*Epochs\]/i, // Formato: "({texto}{número}Epochs)"
-		/(\d+k)\s+Epochs/i,
-		/Epochs\s*:\s*(\d+)/i,
-		/Epoch\s*(\d+)/i,
-		/(\d+)\s*(?:k\s*)?Epochs?/i,
-		/\(EPOCHS (\d+)\)/i,
-		/\(EPOCHS\s*(\d+)\s*\)/i,
-		/\( EPOCH (\d+) \)/i,
-		//wihout s
-		/ - (\d+)(?:\s+Epoch)?/i,
-		/ - (\d+)(?:\s+Epoch)?\)/i, // Formato: " - {número} Epochs)"
-		/ (\d+) Epoch/i,
-		/\((\d+) Epoch\)/i, // Formato: " {número} Epochs"
-		/\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/i,
-		/(?:\s+\[|\()(\d+)\s+Epoch\)/i,
-		/\[(\d+)\s*Epoch\]/i, // Formato: "({texto}{número}Epochs)"
-		/(\d+k)\s+Epoch/i,
-		//---
-		/(\d+)\s*Epoch/i,
-		/(\d+)\s+Epoch/i,
-		/(\d+)\s*Epochs/i,
-		/(\d+)\s*epochs/i,
-		/(\d+)\s+Epochs/i,
-		/\(Epoch\s*(\d+)\)/i,
-		/\bEPOCH (\d+)\b/i,
-		/\bEPOCH\s*(\d+)\s*\b/i,
-		/\(EPOCH (\d+)\)/i,
-		/\(EPOCH\s*(\d+)\s*\)/i,
-		/\( EPOCH (\d+) \)/i,
-		/\bEpoch:\s*(\d+)\b/i,
-		/\bEpoch\s*(\d+)\b/i,
-		/Epochs:\s*(\d+)/i,
-		/\bEpochs\s*(\d+)\b/i,
-		/Epochs\((\d+)\)/i,
-		/Epochs\s*\((\d+)\)/i,
-		/\(\s*(\d+)\)Epoch/gi,
-		/\b(\d+)\s*(?:Epochs?|EPOCHS?)\b/i,
-	];
+        /\((\d+)\s+Epochs\)/i, // Matches "(number Epochs)"
+        /\b(\d+)\s+Epochs\b/i, // Matches "number Epochs" as a whole word
+        /-\s*(\d+)\s*Epochs?/i, // Matches "- number Epochs" or "- number Epoch"
+        /\b(\d+)\s+Epochs\b/i, // Duplicate - consider removing
+        /\b(\d+)\s*Epochs\b/i, // Matches "number Epochs" with optional spaces
+        /\b(\d+)\s*Epoch\b/i,  // Matches "number Epoch" with optional spaces
+        /(\d+) Epochs/i,       // Matches "number Epochs"
+        / (\d+) Epochs/i,      // Matches " number Epochs"
+        /\((\d+) Epochs\)/i,   // Matches "(number Epochs)"
+        /\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/i, // Matches "(...number... Epochs)" - captures number within parentheses
+        /(?:\s+\[|\()(\d+)\s+Epochs\)/i, // Matches "[number Epochs)" or "(number Epochs)"
+        /\[(\d+)\s*Epochs\]/i, // Matches "[number Epochs]"
+        /(\d+k)\s+Epochs/i,    // Matches "numberk Epochs" (for thousands)
+        /Epochs\s*:\s*(\d+)/i,  // Matches "Epochs: number"
+        /Epoch\s*(\d+)/i,      // Matches "Epoch number"
+        /(\d+)\s*(?:k\s*)?Epochs?/i, // Matches "number Epochs", "numberk Epochs", "number Epoch"
+        /\(EPOCHS (\d+)\)/i,   // Matches "(EPOCHS number)"
+        /\(EPOCHS\s*(\d+)\s*\)/i, // Matches "(EPOCHS number)" with optional spaces
+        /\( EPOCH (\d+) \)/i,  // Matches "( EPOCH number )"
+        // Without "s" on "Epoch"
+        / - (\d+)(?:\s+Epoch)?/i, // Matches "- number Epoch" or "- number"
+        / - (\d+)(?:\s+Epoch)?\)/i, // Matches "- number Epoch)" or "- number)" - potential issue with stray ')'
+        / (\d+) Epoch/i,        // Matches " number Epoch"
+        /\((\d+) Epoch\)/i,     // Matches "(number Epoch)"
+        /\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/i, // Matches "(...number... Epoch)" - captures number within parentheses
+        /(?:\s+\[|\()(\d+)\s+Epoch\)/i, // Matches "[number Epoch)" or "(number Epoch)"
+        /\[(\d+)\s*Epoch\]/i,   // Matches "[number Epoch]"
+        /(\d+k)\s+Epoch/i,      // Matches "numberk Epoch"
+        //---
+        /(\d+)\s*Epoch/i,       // Matches "number Epoch" with optional spaces
+        /(\d+)\s+Epoch/i,       // Matches "number Epoch"
+        /(\d+)\s*Epochs/i,      // Matches "number Epochs" with optional spaces
+        /(\d+)\s*epochs/i,      // Matches "number epochs" with optional spaces
+        /(\d+)\s+Epochs/i,      // Matches "number Epochs"
+        /\(Epoch\s*(\d+)\)/i,   // Matches "(Epoch number)"
+        /\bEPOCH (\d+)\b/i,     // Matches "EPOCH number" as a whole word
+        /\bEPOCH\s*(\d+)\s*\b/i, // Matches "EPOCH number" as a whole word with optional spaces
+        /\(EPOCH (\d+)\)/i,     // Matches "(EPOCH number)"
+        /\(EPOCH\s*(\d+)\s*\)/i, // Matches "(EPOCH number)" with optional spaces
+        /\( EPOCH (\d+) \)/i,    // Matches "( EPOCH number )"
+        /\bEpoch:\s*(\d+)\b/i,   // Matches "Epoch: number" as a whole word
+        /\bEpoch\s*(\d+)\b/i,    // Matches "Epoch number" as a whole word with optional spaces
+        /Epochs:\s*(\d+)/i,     // Matches "Epochs: number"
+        /\bEpochs\s*(\d+)\b/i,   // Matches "Epochs number" as a whole word with optional spaces
+        /Epochs\((\d+)\)/i,     // Matches "Epochs(number)"
+        /Epochs\s*\((\d+)\)/i,  // Matches "Epochs(number)" with optional spaces between "Epochs" and "("
+        /\(\s*(\d+)\)Epoch/gi,   // Matches "(number)Epoch" - global flag (g) and case-insensitive (i)
+        /\b(\d+)\s*(?:Epochs?|EPOCHS?)\b/i, // Matches "number Epochs", "number Epoch", "number EPOCHS", "number EPOCH" as whole words
+    ];
+
 	for (const pattern of regexPatterns) {
 		const match = cname.match(pattern);
 		if (match) {
@@ -1001,7 +997,6 @@ async function FormatThread(jsonData) {
 	}
 
 	let image = "N/A";
-	//data_attachment = jsonData.attachments ? jsonData.attachments : (jsonData.attachment ? jsonData.attachment : null);
 	let data_attachment =
 		jsonData.attachments && jsonData.attachments[0] !== null
 			? jsonData.attachments
@@ -1034,7 +1029,6 @@ async function FormatThread(jsonData) {
 
 	const supportedSites = {
 		"huggingface.co": [],
-		// "app.kits.ai": [],
 		"mega.nz": [],
 		"drive.google.com": [],
 		"pixeldrain.com": [],
@@ -1043,43 +1037,27 @@ async function FormatThread(jsonData) {
 		"cdn.discordapp.com": [],
 		"ko-fi.com/s/": [],
 	};
-
+	
 	if (links && links.length > 0) {
-		for (const link of links) {
-			let site = "";
-			if (link.includes("huggingface.co")) {
-				site = "huggingface.co";
-				// } else if (link.includes("app.kits.ai")) {
-				//   site = "app.kits.ai";
-			} else if (link.includes("mega.nz")) {
-				site = "mega.nz";
-			} else if (link.includes("drive.google.com")) {
-				site = "drive.google.com";
-			} else if (link.includes("pixeldrain.com")) {
-				site = "pixeldrain.com";
-			} else if (link.includes("mediafire.com")) {
-				site = "mediafire.com";
-			} else if (link.includes("workupload.com")) {
-				site = "workupload.com";
-			} else if (link.includes("cdn.discordapp.com") && link.includes(".zip")) {
-				site = "cdn.discordapp.com";
-			} else if (link.includes("ko-fi.com/s/")) {
-				site = "ko-fi.com/s/";
-			}
-
+		links.forEach(link => {
+			const site = Object.keys(supportedSites).find(site => 
+				link.includes(site) && (site !== "cdn.discordapp.com" || link.includes(".zip"))
+			);
+	
 			if (site) {
 				supportedSites[site].push(link);
-
+	
 				if (site !== "app.kits.ai" && types === "N/A") {
 					xtypes = "RVC";
 				} else if (site === "app.kits.ai" && types === "N/A") {
 					xtypes = "Kits.AI";
 				}
 			} else {
-				//console.log(link, jsonData.id)
+				// console.log(link, jsonData.id);
 			}
-		}
+		});
 	}
+	
 
 	let hasLinks = false;
 	for (const site in supportedSites) {
@@ -1146,8 +1124,6 @@ async function FormatThread(jsonData) {
 		jsonData.owner_username = user.username;
 	}
 
-	//const filePath = path.join("models", `${jsonData.id}.json`);
-	//require("fs").writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
 	return { Status: "Success", Data: jsonData, Image: image };
 }

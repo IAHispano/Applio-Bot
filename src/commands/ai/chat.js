@@ -38,15 +38,17 @@ async function getTextFromPDFLink(url) {
 	}
 }
 
-async function getGroqChatCompletion(prompt) {
+async function getGroqChatCompletion(prompt, assistant) {
 	for (const apiKey of API_KEYS) {
 		try {
 			const groq = new Groq({ apiKey });
+			const chat = [
+				{ role: "system", content: SYSTEM_PROMPT },
+				...(assistant ? [{ role: "assistant", content: assistant }] : []),
+				{ role: "user", content: prompt },
+			];
 			return await groq.chat.completions.create({
-				messages: [
-					{ role: "system", content: SYSTEM_PROMPT },
-					{ role: "user", content: prompt },
-				],
+				messages: chat,
 				model: "llama-3.1-70b-versatile",
 				temperature: 0.75,
 			});
@@ -134,7 +136,10 @@ module.exports = {
 		}
 
 		try {
-			const chatCompletion = await getGroqChatCompletion(prompt);
+			const chatCompletion = await getGroqChatCompletion(
+				prompt,
+				interaction.applioRefer
+			);
 			let sanitizedContent = chatCompletion.choices[0]?.message?.content
 				.replaceAll("@everyone", "everyone")
 				.replaceAll("@here", "here");

@@ -85,7 +85,7 @@ module.exports = {
 		.setDMPermission(false),
 
 	async execute(interaction) {
-		if (interaction.channel.parentId !== "1287038119677395059")
+		if (interaction.channel.parentId !== process.env.AI_HISPANO_MODEL_TICKET_CATEGORY_ID)
 			return await interaction.reply({
 				content: "This channel is not allowed for this action.",
 				ephemeral: true,

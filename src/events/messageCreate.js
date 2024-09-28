@@ -27,15 +27,14 @@ async function handleReplyMessage(message) {
 	const msg = await message.fetchReference();
 	if (msg.embeds.length > 0) return;
 
-	message.applioReplied = message.content;
-	message.applioReference = msg.content;
+	message.applioRefer = msg.content;
 
 	if (msg.author.id === process.env.BOT_ID) {
-		message.content = `What you said before: ${msg.content} What I answer: ${message.content}`;
+		message.content = `${message.author.username}: ${message.content}`;
 	} else {
 		if (!message.content.startsWith(prefix)) return;
 		message.content = message.content.slice(prefix.length).trim();
-		message.content = `Friend's question ${msg.author.username} said: "${msg.content}" (You can talk about ${msg.author.username} since it is a conversation between me and him and I want to share it with you.) I ask you with respect to the above (Me): "${message.content}" Your opinion on this matter:`;
+		message.content = `${msg.author.username}: ${msg.content} | ${message.author.username}: ${message.content}`;
 	}
 
 	const command = message.client.commands.get("chat");

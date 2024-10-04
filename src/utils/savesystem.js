@@ -145,63 +145,53 @@ function uuid(number) {
 	return e + f.join("") + (g <= 12 ? a[0].repeat(12 - g) : "");
 }
 
-function findOwner(content, item) {
-	content = content.replace(/\*\*/g, "");
-
-	const Patterns = [
-		/(?<!\bdataset\s)made by: <@(\d+)>/i,
-		/(?<!\bdataset\s)made by <@(\d+)>/i,
-		/Author: <@(\d+)>/i,
-		/Author <@(\d+)>/i,
-		/trained by <@(\d+)>/i,
-		/creado por <@(\d+)>/i,
-		/created by <@(\d+)>/i,
-		/Entrenado por <@(\d+)>/i,
-		/por <@(\d+)>/,
-		/credit me <@(\d+)>/i,
+function findOwner(text, item) {
+	text = text.replace(/\*\*/g, "");
+  
+	const patterns = [
+	  /(?<!\bdataset\s)made by:?\s?<@(\d+)>/i,
+	  /Author:?\s?<@(\d+)>/i,
+	  /trained by <@(\d+)>/i,
+	  /creado por <@(\d+)>/i,
+	  /created by <@(\d+)>/i,
+	  /Entrenado por <@(\d+)>/i,
+	  /por <@(\d+)>/,
+	  /credit me <@(\d+)>/i,
 	];
-
-	if (/request|pretrained/i.test(content)) {
-		Patterns.push(
-			/(?<!\brequest\w*\s)by\s+<@(\d+)>/i,
-			/(?:pretrained\s+by\s*)?(?<!pretrained\s)by\s+<@(\d+)>/i,
-		);
+  
+	if (/request|pretrained/i.test(text)) {
+	  patterns.push(
+		/(?<!\brequest\w*\s)by\s+<@(\d+)>/i,
+		/(?:pretrained\s+by\s*)?(?<!pretrained\s)by\s+<@(\d+)>/i,
+	  );
 	} else {
-		Patterns.push(/By <@(\d+)>/i);
+	  patterns.push(/By <@(\d+)>/i);
 	}
-
-	for (const pattern of Patterns) {
-		const match = content.match(pattern);
-		if (match) {
-			return match[1];
-		}
+  
+	for (const pattern of patterns) {
+	  const match = text.match(pattern);
+	  if (match) {
+		return match[1];
+	  }
 	}
-
+  
 	return item;
 }
 
-function ConvertN(value) {
-	const multiplicadores = { k: 1e3, m: 1e6, bn: 1e9 };
-
-	for (const [abreviacion, multiplicador] of Object.entries(multiplicadores)) {
-		if (value.toLowerCase().includes(abreviacion)) {
-			const numero = parseFloat(value.replace(/[^\d.]/g, ""));
-			//console.log(numero)
-			return Math.floor(numero * multiplicador).toString();
-		}
-	}
-
-	return value;
-}
 
 function ReplaceT(text) {
-	//function ReplaceT(texto) {
-	const patron = /\b(\d+(\.\d+)?[kmbn]{1,2})\b/gi;
-	const modifiedText = text.replace(patron, (match) =>
-		ConvertN(match).toString(),
-	);
-
-	return modifiedText;
+	const multipliers = { k: 1e3, m: 1e6, bn: 1e9 };
+	const pattern = /\b(\d+(\.\d+)?[kmbn]{1,2})\b/gi;
+  
+	return text.replace(pattern, (match) => {
+	  for (const [abbr, mult] of Object.entries(multipliers)) {
+		if (match.toLowerCase().includes(abbr)) {
+		  const num = parseFloat(match.replace(/[^\d.]/g, ""));
+		  return Math.floor(num * mult).toString();
+		}
+	  }
+	  return match;
+	});
 }
 
 function RemoveHopFromAlgorithm(cnamen) {
@@ -302,579 +292,509 @@ function extractAlgorithm(cnamen) {
 	return "N/A";
 }
 function extractType(content, tags) {
-	let modifiedContent = content;
-	const typePattern1 = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi;
-	const typePattern2 = /\b(?:RVC\s*)(V[12]|Kits\.AI)\b/gi;
-	const typePattern3 = /\([^)]*(RVC(?:\s*V[12])?|Kits\.AI)[^)]*\)/gi;
-	let typePattern4 = /\b(RVC[12]|Kits\.AI)\b/gi;
-	const typePattern6 = /(\bRVC(?:_)V\d+\b)/gi;
-
-	const matches6 = modifiedContent.match(typePattern6);
-	if (matches6) {
-		const cleanedResult = matches6
-			.join(", ")
-			.replace(/\W+/gi, " ")
-			.replace(/\s+/g, " ");
-		modifiedContent = modifiedContent.replace(typePattern6, cleanedResult);
-		return { result: cleanedResult, modifiedContent };
-	}
-
-	const matches3 = modifiedContent.match(typePattern3);
-	if (matches3) {
-		for (const match of matches3) {
-			const matchWithoutParentheses = match.replace(/\(|\)/g, "");
-			const x = matchWithoutParentheses.match(/\b(RVC\s*V[12]|Kits\.AI)\b/gi);
-			if (x) {
-				const cleanedResult = x[0].replace(/^\w/, (c) => c.toUpperCase());
-				const modifiedMatch = match.replace(
-					typePattern1,
-					cleanedResult.replace(/\bGUI\b|\W+/gi, " ").replace(/\s+/g, " "),
-				);
-				modifiedContent = modifiedContent.replace(match, modifiedMatch);
-				return { result: cleanedResult, modifiedContent };
-			}
-		}
-	}
-
-	let matches4 = modifiedContent.match(typePattern4);
-	if (matches4) {
-		const result = matches4.join(", ");
-		const cleanedResult = result
-			.replace(/\bRVC1\b/gi, "RVC V1")
-			.replace(/\bRVC2\b/gi, "RVC V2");
-		modifiedContent = modifiedContent.replace(typePattern4, cleanedResult);
-		return { result: cleanedResult, modifiedContent };
-	}
-
-	typePattern4 = /\b(RVC\s*[12]|Kits\.AI)\b/gi;
-	matches4 = modifiedContent.match(typePattern4);
-	if (matches4) {
-		const result = matches4.join(", ");
-		const cleanedResult = result
-			.replace(/\bRVC\s*1\b/gi, "RVC V1")
-			.replace(/\bRVC\s*2\b/gi, "RVC V2");
-		modifiedContent = modifiedContent.replace(typePattern4, cleanedResult);
-		return { result: cleanedResult, modifiedContent };
-	}
-
-	const matches1 = modifiedContent.match(typePattern1);
-	if (matches1) {
-		const result = matches1.join(", ");
-		const cleanedResult = result.replace(
-			/(RVC)(\s*)(V\d+)/gi,
-			(match, rvc, space, v) => rvc.toUpperCase() + " " + v.toUpperCase(),
-		);
-		modifiedContent = modifiedContent.replace(typePattern1, cleanedResult);
-		return { result: cleanedResult, modifiedContent };
-	}
-
-	const matches2 = modifiedContent.match(typePattern2);
-	if (matches2) {
-		const result = matches2.join(", ");
-		const cleanedResult = result.replace(
-			/(RVC)(\s*)(V\d+)/gi,
-			(match, rvc, space, v) => rvc.toUpperCase() + " " + v.toUpperCase(),
-		);
-		modifiedContent = modifiedContent.replace(typePattern2, cleanedResult);
-		return { result: cleanedResult, modifiedContent };
-	}
-
-	if (tags !== null && tags !== undefined) {
-		for (const dude of tags) {
-			if (dude == "1159343639575674900") {
-				return { result: "RVC V2", modifiedContent };
-			} else if (dude == "1159339252312707072") {
-				return { result: "RVC", modifiedContent };
-			}
-		}
-	}
-
-	return { result: "N/A", modifiedContent };
+	const rvcPatterns = [
+      /\b(?:RVC\s*)(V[12]|Kits\.AI)\b/gi,
+      /\([^)]*(RVC(?:\s*V[12])?|Kits\.AI)[^)]*\)/gi,
+      /\b(RVC[12]|Kits\.AI)\b/gi,
+      /\b(RVC\s*[12]|Kits\.AI)\b/gi,
+      /(\bRVC(?:_)V\d+\b)/gi,
+      /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi,
+    ];
+  
+    const findMatchAndClean = (pattern, replaceFn = null) => {
+      let mcontent = content;
+      const matches = mcontent.match(pattern);
+      if (matches) {
+        let result = matches.join(", ").replace(/\W+/gi, " ").replace(/\s+/g, " ").trim();
+        if (replaceFn) {
+          result = replaceFn(result);
+        }
+        const newContent = mcontent.replace(pattern, result);
+        return { result, newContent };
+      }
+      return null;
+    };
+  
+    let result = null;
+  
+    for (const pattern of rvcPatterns) {
+      result = findMatchAndClean(pattern, (res) => {
+        console.log(res, pattern)
+        return res
+          .replace(/\bRVC1\b/gi, "RVC V1")
+          .replace(/\bRVC2\b/gi, "RVC V2")
+          .replace(/\bRVC\s*1\b/gi, "RVC V1")
+          .replace(/\bRVC\s*2\b/gi, "RVC V2")
+          .replace(/(RVC)(\s*)(V\d+)/gi, (match, rvc, space, v) => rvc.toUpperCase() + " " + v.toUpperCase());
+      });
+      if (result) {
+        content = result.newContent;
+        break;
+      }
+    }
+  
+    if (!result && tags) {
+      for (const tag of tags) {
+        if (tagsMapping.Tags.RVC.includes(tag)) {
+          result = { result: "RVC V2", content };
+          break;
+        }
+      }
+    }
+  
+    return result || { result: "N/A", content };
 }
 
-function number_to_real(cadena) {
-	// Buscar cualquier secuencia de dígitos, comas o puntos en la cadena
-	//old const matches = cadena.match(/([\d]+([,.]\d+)?)/g);
-	const matches = cadena.match(/(?<![VNvn])\b([\d]+([,.]\d+)?)\b/g);
+function numberToReal(str) {
+	// Find any sequence of digits, commas, or dots in the string, 
+	// excluding those preceded by "V" or "N" (case-insensitive)
+	const matches = str.match(/(?<![VNvn])\b([\d]+([,.]\d+)?)\b/g);
 	if (!matches) {
-		return cadena;
+	  return str;
 	}
-	const resultado = matches.reduce((cadenaActualizada, numero) => {
-		const numeroLimpio = numero.replace(",", "");
-		return cadenaActualizada.replace(numero, numeroLimpio);
-	}, cadena);
-
-	return resultado;
+	return matches.reduce((updatedStr, num) => 
+	  updatedStr.replace(num, num.replace(",", ".")), 
+	str);
 }
 
-function e_to_epochs(cadena) {
-	const $1 = /(?:\b|\s)(\d+)e(?:\b|\s)|\b(\d+)e(?:\b|\s)|\be(\d+)\b/gi; //old /(\d+)e|e(\d+)\b/gi;
-	const $2 = /\(E\s*(\d+)\)/;
-	if ($1.test(cadena)) {
-		cadena = cadena.replace($1, (_, num1, num2, num3, num4) => {
-			const num = num1 || num2 || num3 || num4;
-			return ` ${num} Epochs`;
-		});
-	}
-	if ($2.test(cadena)) {
-		cadena = cadena.replace($2, (_, num) => `( ${num} Epochs)`);
-	}
-	return cadena;
+function eToEpochs(str) {
+	const pattern1 = /(?:\b|\s)(\d+)e(?:\b|\s)|\b(\d+)e(?:\b|\s)|\be(\d+)\b/gi; //old /(\d+)e|e(\d+)\b/gi;
+	const pattern2 = /\(E\s*(\d+)\)/;
+  
+	str = str.replace(pattern1, (_, num1, num2, num3) => 
+	  ` ${num1 || num2 || num3} Epochs`
+	);
+  
+	str = str.replace(pattern2, (_, num) => `( ${num} Epochs)`);
+  
+	return str;
 }
 
-function removeDashBetweenNumberAndEpochs(cname) {
-	return cname.replace(
-		/(\(\s*\[?\s*)([^\d\s])?\s*(\d+)\s*-\s*epochs(\s*\))/i,
-		(match, prefix, leftChar, number, suffix) => {
-			return `${prefix}${leftChar || ""} ${number} epochs${suffix}`;
-		},
+function formatEpochs(str) {
+	return str.replace(
+	  /(\(\s*\[?\s*)([^\d\s])?\s*(\d+)\s*-\s*epochs(\s*\))/i,
+	  (match, prefix, char, num, suffix) => 
+		`${prefix}${char || ""} ${num} epochs${suffix}`
 	);
 }
-function extractEpochsAndAlgorithm(cname, tags, content) {
-	let nohop = RemoveHopFromAlgorithm(cname);
-	if (nohop !== "N/A") {
-		cname = nohop;
-	}
-	cname = ReplaceT(cname);
-	cname = number_to_real(cname);
-	if (!cname.toLowerCase().includes("epoch")) {
-		cname = e_to_epochs(cname);
-	}
-	cname = cname.replace(/\(\?\)/gi, "");
-	cname = cname.replace(/[^\S\r\n]*Voz:[^\S\r\n]*/gi, "");
-	cname = cname.replace(/[^\S\r\n]*Algoritmo:[^\S\r\n]*/gi, " ");
-	cname = cname.replace(/\bKits\.IA\b/gi, "Kits.AI");
-	cname = cname.replace(/\bRCV\b/gi, "RVC");
-	cname = cname.replace(/\bRV2\b/gi, "RVC v2");
-	cname = cname.replace(/\bcreppe\b/gi, "crepe");
-	cname = cname.replace(/\bRCrepe\b/gi, "Crepe");
-	cname = cname.replace(/\bmanigo\b/gi, "Mangio");
-	cname = cname.replace(/\bEphos\b/gi, "Epochs");
-	cname = cname.replace(/\bEpchos\b/gi, "Epochs");
-	cname = cname.replace(/\bEproch\b/gi, "Epochs");
-	cname = cname.replace(/\bEpoches\b/gi, "Epochs");
-	cname = cname.replace(/\bEpcohs\b/gi, "Epochs");
-	cname = cname.replace(/\bEpjchs\b/gi, "Epochs");
-	cname = cname.replace(/\bEpocsh\b/gi, "Epochs");
-	cname = cname.replace(/\beprochs\b/gi, "Epochs");
-	cname = cname.replace(/[\u00C0-\u024F\u1E00-\u1EFF]/g, (match) =>
-		match.toLowerCase() === "é" ? "E" : match,
-	);
-	cname = cname.replace(/\bEpocas\b/gi, "Epochs");
-	cname = cname.replace(/\bmagio\b/gi, "Mangio");
-	cname = cname.replace(/\bmagnio\b/gi, "Mangio");
-	cname = cname.replace(/\brmpve\b/gi, "Rmvpe");
-	cname = cname.replace(/\brvmpe\b/gi, "Rmvpe");
-	cname = cname.replace(/\brmpve_gpu\b/gi, "Rmvpe");
-	cname = cname.replace(/\brvmpe_gpu\b/gi, "Rmvpe");
-	cname = cname.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
-	cname = cname.replace(/\bcreepe\b/gi, "Crepe");
-	cname = cname.replace(/\brvc-2\b/gi, "RVC2");
 
-	let epochs = "N/A";
-	let algorithm = extractAlgorithm(cname);
-	let diofounded = false;
-	//console.log(algorithm);
-	if (algorithm === "N/A") {
-		let __ =
-			/\bDio pitch extraction\b(?!.*(?:Harvest|Mangio-crepe|Mangio-Crepe|Mangio Crepe Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe))/i;
-		if (__.test(cname)) {
-			cname = cname.replace(__, "");
-			algorithm = "Dio";
-			diofounded = true;
-		} else {
-			algorithm = extractAlgorithm(content);
-		}
-	} else if (algorithm.includes("[dio]") || algorithm.includes("[pm]")) {
-		var escapedAlgorithm = algorithm.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-		cname = cname.replace(new RegExp(`${escapedAlgorithm}`, "gi"), "");
-		algorithm = algorithm
-			.replace(/[\[\]]/g, "")
-			.replace(/^\w/, (c) => c.toUpperCase());
-		diofounded = true;
-	}
-	let { result: types, modifiedContent: modifiedCname } = extractType(
-		cname,
-		tags,
-	);
+function extractEpochsAndAlgorithm(name, tags, content) {
+    let nameNoHop = removeHopFromAlgorithm(name);
+    if (nameNoHop !== "N/A") {
+        name = nameNoHop;
+    }
+    name = replaceT(name);
+    name = numberToReal(name);
+    if (!name.toLowerCase().includes("epoch")) {
+        name = eToEpochs(name);
+    }
+    name = name.replace(/\(\?\)/gi, "");
+    name = name.replace(/[^\S\r\n]*Voz:[^\S\r\n]*/gi, "");
+    name = name.replace(/[^\S\r\n]*Algoritmo:[^\S\r\n]*/gi, " ");
+    name = name.replace(/\bKits\.IA\b/gi, "Kits.AI");
+    name = name.replace(/\bRCV\b/gi, "RVC");
+    name = name.replace(/\bRV2\b/gi, "RVC v2");
+    name = name.replace(/\bcreppe\b/gi, "crepe");
+    name = name.replace(/\bRCrepe\b/gi, "Crepe");
+    name = name.replace(/\bmanigo\b/gi, "Mangio");
+    name = name.replace(/\bEphos\b/gi, "Epochs");
+    name = name.replace(/\bEpchos\b/gi, "Epochs");
+    name = name.replace(/\bEproch\b/gi, "Epochs");
+    name = name.replace(/\bEpoches\b/gi, "Epochs");
+    name = name.replace(/\bEpcohs\b/gi, "Epochs");
+    name = name.replace(/\bEpjchs\b/gi, "Epochs");
+    name = name.replace(/\bEpocsh\b/gi, "Epochs");
+    name = name.replace(/\beprochs\b/gi, "Epochs");
+    name = name.replace(/[\u00C0-\u024F\u1E00-\u1EFF]/g, (match) =>
+        match.toLowerCase() === "é" ? "E" : match,
+    );
+    name = name.replace(/\bEpocas\b/gi, "Epochs");
+    name = name.replace(/\bmagio\b/gi, "Mangio");
+    name = name.replace(/\bmagnio\b/gi, "Mangio");
+    name = name.replace(/\brmpve\b/gi, "Rmvpe");
+    name = name.replace(/\brvmpe\b/gi, "Rmvpe");
+    name = name.replace(/\brmpve_gpu\b/gi, "Rmvpe");
+    name = name.replace(/\brvmpe_gpu\b/gi, "Rmvpe");
+    name = name.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
+    name = name.replace(/\bcreepe\b/gi, "Crepe");
+    name = name.replace(/\brvc-2\b/gi, "RVC2");
 
-	if (types === "N/A") {
-		({ result: types, modifiedContent: modifiedCname } = extractType(
-			content,
-			tags,
-		));
-	} else {
-		cname = modifiedCname;
-	}
+    let epochs = "N/A";
+    let algorithm = extractAlgorithm(name);
+    let dioFound = false;
+    if (algorithm === "N/A") {
+        let dioRegex =
+            /\bDio pitch extraction\b(?!.*(?:Harvest|Mangio-crepe|Mangio-Crepe|Mangio Crepe Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe))/i;
+        if (dioRegex.test(name)) {
+            name = name.replace(dioRegex, "");
+            algorithm = "Dio";
+            dioFound = true;
+        } else {
+            algorithm = extractAlgorithm(content);
+        }
+    } else if (algorithm.includes("[dio]") || algorithm.includes("[pm]")) {
+        var escapedAlgorithm = algorithm.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+        name = name.replace(new RegExp(`${escapedAlgorithm}`, "gi"), "");
+        algorithm = algorithm
+            .replace(/[\[\]]/g, "")
+            .replace(/^\w/, (c) => c.toUpperCase());
+        dioFound = true;
+    }
+    let { result: modelType, newContent: modifiedName } = extractType(
+        name,
+        tags,
+    );
 
-	//let types = null;
-	// Eliminar el tipo del nombre
-	//cname = cname.replace(new RegExp(types, 'gi'), '').trim();
-	cname = cname.replace(
-		new RegExp(`\\s*\\(${types}\\)|\\s*${types}`, "gi"),
-		"",
-	);
-	const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi;
-	cname = cname.replace(typePattern, "").trim();
-	cname = cname.replace(/\b(RVC(?:\s*V\d+)?|Kits\.AI|\bV\d+\b)\b/gi, "").trim();
-	cname = cname.replace(/RVC|Kits\.AI/g, "");
-	cname = cname.replace(/\bKits.AI\b/gi, "");
-	cname = cname.replace(/\bKits\b/g, "");
-	cname = cname.replace(/\bRVC\b/g, "");
-	cname = cname.replace(/\(\s*,\s*\//g, "(");
-	cname = cname.replace(/\bPitch Extraction\b/i, "");
+    if (modelType === "N/A") {
+        ({ result: modelType, newContent: modifiedName } = extractType(
+            content,
+            tags,
+        ));
+    } else {
+        name = modifiedName;
+    }
 
-	cname = cname.replace(/\(\//g, "(");
-	const typeKeywords = ["RVC", "Kits.AI"];
-	for (const keyword of typeKeywords) {
-		if (types.toLowerCase().includes(keyword.toLowerCase())) {
-			types = keyword;
-			break;
-		}
-	}
+    name = name.replace(
+        new RegExp(`\\s*\\(${modelType}\\)|\\s*${modelType}`, "gi"),
+        "",
+    );
+    const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi;
+    name = name.replace(typePattern, "").trim();
+    name = name.replace(/\b(RVC(?:\s*V\d+)?|Kits\.AI|\bV\d+\b)\b/gi, "").trim();
+    name = name.replace(/RVC|Kits\.AI/g, "");
+    name = name.replace(/\bKits.AI\b/gi, "");
+    name = name.replace(/\bKits\b/g, "");
+    name = name.replace(/\bRVC\b/g, "");
+    name = name.replace(/\(\s*,\s*\//g, "(");
+    name = name.replace(/\bPitch Extraction\b/i, "");
 
-	if (algorithm !== "N/A" && !diofounded) {
-		cname = cname.replace(new RegExp(`\\b${algorithm}\\b`, "gi"), ""); // Eliminar el algoritmo de cname
-	}
-	cname = removeDashBetweenNumberAndEpochs(cname);
-	if (algorithm == "N/A") {
-		algorithm = "Rmvpe";
-	}
-	if (algorithm.toLowerCase().includes("Mangio")) {
-		algorithm = "Crepe";
-	}
-	// Search for epochs in the name
-	const regexPatterns = [
-        /\((\d+)\s+Epochs\)/i, // Matches "(number Epochs)"
-        /\b(\d+)\s+Epochs\b/i, // Matches "number Epochs" as a whole word
-        /-\s*(\d+)\s*Epochs?/i, // Matches "- number Epochs" or "- number Epoch"
-        /\b(\d+)\s+Epochs\b/i, // Duplicate - consider removing
-        /\b(\d+)\s*Epochs\b/i, // Matches "number Epochs" with optional spaces
-        /\b(\d+)\s*Epoch\b/i,  // Matches "number Epoch" with optional spaces
-        /(\d+) Epochs/i,       // Matches "number Epochs"
-        / (\d+) Epochs/i,      // Matches " number Epochs"
-        /\((\d+) Epochs\)/i,   // Matches "(number Epochs)"
-        /\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/i, // Matches "(...number... Epochs)" - captures number within parentheses
-        /(?:\s+\[|\()(\d+)\s+Epochs\)/i, // Matches "[number Epochs)" or "(number Epochs)"
-        /\[(\d+)\s*Epochs\]/i, // Matches "[number Epochs]"
-        /(\d+k)\s+Epochs/i,    // Matches "numberk Epochs" (for thousands)
-        /Epochs\s*:\s*(\d+)/i,  // Matches "Epochs: number"
-        /Epoch\s*(\d+)/i,      // Matches "Epoch number"
-        /(\d+)\s*(?:k\s*)?Epochs?/i, // Matches "number Epochs", "numberk Epochs", "number Epoch"
-        /\(EPOCHS (\d+)\)/i,   // Matches "(EPOCHS number)"
-        /\(EPOCHS\s*(\d+)\s*\)/i, // Matches "(EPOCHS number)" with optional spaces
-        /\( EPOCH (\d+) \)/i,  // Matches "( EPOCH number )"
-        // Without "s" on "Epoch"
-        / - (\d+)(?:\s+Epoch)?/i, // Matches "- number Epoch" or "- number"
-        / - (\d+)(?:\s+Epoch)?\)/i, // Matches "- number Epoch)" or "- number)" - potential issue with stray ')'
-        / (\d+) Epoch/i,        // Matches " number Epoch"
-        /\((\d+) Epoch\)/i,     // Matches "(number Epoch)"
-        /\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/i, // Matches "(...number... Epoch)" - captures number within parentheses
-        /(?:\s+\[|\()(\d+)\s+Epoch\)/i, // Matches "[number Epoch)" or "(number Epoch)"
-        /\[(\d+)\s*Epoch\]/i,   // Matches "[number Epoch]"
-        /(\d+k)\s+Epoch/i,      // Matches "numberk Epoch"
+    name = name.replace(/\(\//g, "(");
+    const typeKeywords = ["RVC", "Kits.AI"];
+    for (const keyword of typeKeywords) {
+        if (modelType.toLowerCase().includes(keyword.toLowerCase())) {
+            modelType = keyword;
+            break;
+        }
+    }
+
+    if (algorithm !== "N/A" && !dioFound) {
+        name = name.replace(new RegExp(`\\b${algorithm}\\b`, "gi"), ""); 
+    }
+    name = formatEpochs(name);
+    if (algorithm == "N/A") {
+        algorithm = "Rmvpe";
+    }
+    if (algorithm.toLowerCase().includes("Mangio")) {
+        algorithm = "Crepe";
+    }
+    
+    const regexPatterns = [
+        /\((\d+)\s+Epochs\)/i, 
+        /\b(\d+)\s+Epochs\b/i, 
+        /-\s*(\d+)\s*Epochs?/i, 
+        /\b(\d+)\s*Epochs\b/i, 
+        /\b(\d+)\s*Epoch\b/i,  
+        /(\d+) Epochs/i,       
+        / (\d+) Epochs/i,      
+        /\((\d+) Epochs\)/i,   
+        /\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/i, 
+        /(?:\s+\[|\()(\d+)\s+Epochs\)/i, 
+        /\[(\d+)\s*Epochs\]/i,
+        /(\d+k)\s+Epochs/i,   
+        /Epochs\s*:\s*(\d+)/i, 
+        /Epoch\s*(\d+)/i,     
+        /(\d+)\s*(?:k\s*)?Epochs?/i,
+        /\(EPOCHS (\d+)\)/i,  
+        /\(EPOCHS\s*(\d+)\s*\)/i,
+        /\( EPOCH (\d+) \)/i, 
+        / - (\d+)(?:\s+Epoch)?/i, 
+        / - (\d+)(?:\s+Epoch)?\)/i, 
+        / (\d+) Epoch/i,        
+        /\((\d+) Epoch\)/i,    
+        /\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/i, 
+        /(?:\s+\[|\()(\d+)\s+Epoch\)/i,
+        /\[(\d+)\s*Epoch\]/i,  
+        /(\d+k)\s+Epoch/i,     
         //---
-        /(\d+)\s*Epoch/i,       // Matches "number Epoch" with optional spaces
-        /(\d+)\s+Epoch/i,       // Matches "number Epoch"
-        /(\d+)\s*Epochs/i,      // Matches "number Epochs" with optional spaces
-        /(\d+)\s*epochs/i,      // Matches "number epochs" with optional spaces
-        /(\d+)\s+Epochs/i,      // Matches "number Epochs"
-        /\(Epoch\s*(\d+)\)/i,   // Matches "(Epoch number)"
-        /\bEPOCH (\d+)\b/i,     // Matches "EPOCH number" as a whole word
-        /\bEPOCH\s*(\d+)\s*\b/i, // Matches "EPOCH number" as a whole word with optional spaces
-        /\(EPOCH (\d+)\)/i,     // Matches "(EPOCH number)"
-        /\(EPOCH\s*(\d+)\s*\)/i, // Matches "(EPOCH number)" with optional spaces
-        /\( EPOCH (\d+) \)/i,    // Matches "( EPOCH number )"
-        /\bEpoch:\s*(\d+)\b/i,   // Matches "Epoch: number" as a whole word
-        /\bEpoch\s*(\d+)\b/i,    // Matches "Epoch number" as a whole word with optional spaces
-        /Epochs:\s*(\d+)/i,     // Matches "Epochs: number"
-        /\bEpochs\s*(\d+)\b/i,   // Matches "Epochs number" as a whole word with optional spaces
-        /Epochs\((\d+)\)/i,     // Matches "Epochs(number)"
-        /Epochs\s*\((\d+)\)/i,  // Matches "Epochs(number)" with optional spaces between "Epochs" and "("
-        /\(\s*(\d+)\)Epoch/gi,   // Matches "(number)Epoch" - global flag (g) and case-insensitive (i)
-        /\b(\d+)\s*(?:Epochs?|EPOCHS?)\b/i, // Matches "number Epochs", "number Epoch", "number EPOCHS", "number EPOCH" as whole words
+        /(\d+)\s*Epoch/i,      
+        /(\d+)\s+Epoch/i,      
+        /(\d+)\s*Epochs/i,     
+        /(\d+)\s*epochs/i,     
+        /(\d+)\s+Epochs/i,     
+        /\(Epoch\s*(\d+)\)/i,  
+        /\bEPOCH (\d+)\b/i,    
+        /\bEPOCH\s*(\d+)\s*\b/i,
+        /\(EPOCH (\d+)\)/i,    
+        /\(EPOCH\s*(\d+)\s*\)/i, 
+        /\( EPOCH (\d+) \)/i,   
+        /\bEpoch:\s*(\d+)\b/i,  
+        /\bEpoch\s*(\d+)\b/i,   
+        /Epochs:\s*(\d+)/i,    
+        /\bEpochs\s*(\d+)\b/i,  
+        /Epochs\((\d+)\)/i,    
+        /Epochs\s*\((\d+)\)/i, 
+        /\(\s*(\d+)\)Epoch/gi,  
+        /\b(\d+)\s*(?:Epochs?|EPOCHS?)\b/i,
     ];
 
-	for (const pattern of regexPatterns) {
-		const match = cname.match(pattern);
-		if (match) {
-			epochs = match[1];
-			// Elimina la parte encontrada del título
-			cname = cname.replace(pattern, "");
-			//cleaned epochs
-			cname = cname.replace(/\s*\( Epochs\)/g, "");
-			cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
-			//cname = cname.replace(/(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g, '');
-			//cname = cname.replace(/\s*\d+k(?![a-z])/g, '');
-			cname = cname.replace(/\bEpoch\b/g, "");
-			cname = cname.replace(/\bepoch\b/g, "");
-			cname = cname.replace(/\bepochs\b/g, "");
-			cname = cname.replace(/\bEpochs\b/g, "");
-			cname = cname.replace(/\bepoches\b/g, "");
-			break;
-		}
-	}
-	for (const pattern of regexPatterns) {
-		ccontent = content;
-		if (!ccontent.toLowerCase().includes("epoch")) {
-			ccontent = e_to_epochs(content);
-		}
-		const match2 = ccontent.match(pattern);
-		if (match2 && epochs === "N/A") {
-			epochs = match2[1];
-			// Elimina la parte encontrada del título
-			cname = cname.replace(pattern, "");
+    for (const pattern of regexPatterns) {
+        const match = name.match(pattern);
+        if (match) {
+            epochs = match[1];
+            name = name.replace(pattern, "");
+            name = name.replace(/\s*\( Epochs\)/g, "");
+            name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
+            name = name.replace(/\bEpoch\b/g, "");
+            name = name.replace(/\bepoch\b/g, "");
+            name = name.replace(/\bepochs\b/g, "");
+            name = name.replace(/\bEpochs\b/g, "");
+            name = name.replace(/\bepoches\b/g, "");
+            break;
+        }
+    }
+    for (const pattern of regexPatterns) {
+        let contentCopy = content;
+        if (!contentCopy.toLowerCase().includes("epoch")) {
+            contentCopy = eToEpochs(content);
+        }
+        const match2 = contentCopy.match(pattern);
+        if (match2 && epochs === "N/A") {
+            epochs = match2[1];
+            name = name.replace(pattern, "");
+            name = name.replace(/\s*\( Epochs\)/g, "");
+            name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
+            name = name.replace(/\bEpoch\b/g, "");
+            name = name.replace(/\bepoch\b/g, "");
+            name = name.replace(/\bepochs\b/g, "");
+            name = name.replace(/\bEpochs\b/g, "");
+            name = name.replace(/\bepoches\b/g, "");
+            break;
+        }
+    }
+    name = name.replace(/\(\s*,\s*\)/g, "");
+    name = name.replace(/\/+(?!\s*\S)/g, ""); 
+    name = name.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim();
+    name = name.replace(/\s*\(\s*\)/g, "");
+    name = name.replace(/\s*\(\s*\)|\s*\(\s*\)/g, "").trim();
+    name = name
+        .replace(/\s*\(\s*\)|\s*\(\s*\)|\s*\[\s*\]|\s*\[\s*\]/g, "")
+        .trim();
+    name = name.replace(/\s*\(\s*\)/g, "");
+    if (/, ,\s*\d+\s*Steps/.test(name)) {
+        let modifiedName = name.replace(/,\s*,\s*\d+\s*Steps/g, "").trim();
+        name = modifiedName;
+    }
+    if (/\(\s*,\s*\d+\s*Steps\)/.test(name)) {
+        let modifiedName = name.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); 
 
-			//cleaned epochs
-			cname = cname.replace(/\s*\( Epochs\)/g, "");
-			cname = cname.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
-			//cname = cname.replace(/(?<![0-9:-])\b(?!\d+ Hop|\d+ Hop|\d+ Steps|\d+ Step\b|\d+'|\d+ \d+\.\d+|\d+\s+|\d+\.\d+\w)-?\d+\b(?![0-9:-])/g, '');
-			//cname = cname.replace(/\s*\d+k(?![a-z])/g, '');
-			cname = cname.replace(/\bEpoch\b/g, "");
-			cname = cname.replace(/\bepoch\b/g, "");
-			cname = cname.replace(/\bepochs\b/g, "");
-			cname = cname.replace(/\bEpochs\b/g, "");
-			cname = cname.replace(/\bepoches\b/g, "");
-			break;
-		}
-	}
-	cname = cname.replace(/\(\s*,\s*\)/g, "");
-	cname = cname.replace(/\/+(?!\s*\S)/g, ""); //remove / doble space
-	cname = cname.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim();
-	cname = cname.replace(/\s*\(\s*\)/g, "");
-	cname = cname.replace(/\s*\(\s*\)|\s*\(\s*\)/g, "").trim();
-	cname = cname
-		.replace(/\s*\(\s*\)|\s*\(\s*\)|\s*\[\s*\]|\s*\[\s*\]/g, "")
-		.trim();
-	cname = cname.replace(/\s*\(\s*\)/g, "");
-	if (/, ,\s*\d+\s*Steps/.test(cname)) {
-		let mcname = cname.replace(/,\s*,\s*\d+\s*Steps/g, "").trim();
-		//console.log("Old: " + cname + " New: " + mcname);
-		cname = mcname;
-	}
-	if (/\(\s*,\s*\d+\s*Steps\)/.test(cname)) {
-		let mcname = cname.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); // Eliminar "(,, 9400 Steps)"
-		//console.log("Old: " + cname + " New: " + mcname);
-		cname = mcname;
-	}
-	cname = cname.replace(/\(\)/g, "").trim(); // Eliminar cualquier otro "(,)" restante
-	cname = cname.replace(/\(\s*,\s*,\s*\)/g, "");
-	cname = cname.replace(/\[\s*\|\s*\]/g, "");
-	cname = cname.replace(/\[\s*,\s*\]/g, "");
-	cname = cname.replace(/\{\s*\}/g, "");
-	cname = cname.replace(/\[\s*\)/g, "");
+        name = modifiedName;
+    }
+    name = name.replace(/\(\)/g, "").trim(); 
+    name = name.replace(/\(\s*,\s*,\s*\)/g, "");
+    name = name.replace(/\[\s*\|\s*\]/g, "");
+    name = name.replace(/\[\s*,\s*\]/g, "");
+    name = name.replace(/\{\s*\}/g, "");
+    name = name.replace(/\[\s*\)/g, "");
 
-	//unnecesary
-	cname = cname.replace(/,+/g, ",");
-	cname = cname.replace(/, ,/g, "");
-	_r = /\[.*\s-\s.*\]/;
-	if (!_r.test(cname)) {
-		_r = /(?<!\S)-+(?=\s{2,}|$)/; //old "/ -+(?=\s*\S)/"
-		if (!_r.test(cname)) {
-			cname = cname.replace(/ -+(?!\s*\S)/, "");
-			cname = cname.replace(/ -+$/g, "");
-			cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // eliminar - dentro de ()[]
-		} else {
-			_r = / -+(?=\s*\S)/;
-			if (!_r.test(cname)) {
-				cname = cname.replace(/(?<=\s)-(?=\s)/g, "");
-			}
-			cname = cname.replace(/-(?=\s*$)/, ""); //old : /-(?=[\s]*)$/
-		}
-	} else {
-		cname = cname.replace(/ -+(?!\s*\S)/, "");
-		cname = cname.replace(/ -+$/g, "");
-		//cname = cname.replace(/ -+(?=\s*\S)(?![^\[]*\])/, '');
-		cname = cname.replace(/\s-\s(?![\w\d])/g, "");
-	}
-	//cname = cname.replace(/ -+$/g, '');
-	cname = cname.replace(/,\s*$/, "");
-	cname = cname.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); //remove / ()[]
-	cname = cname.replace(/(?<=\s{2}|^);/g, ""); //remove ; ()[]
-	cname = cname.replace(/(?<=\s{2}|^|\{);/g, ""); //above {}
-	cname = cname.replace(
-		/(?<!\S.|\S)\|{2,}(?=\s{2}|\)|\])|(?<=\s{2}|\(|\[\s*)\|{2,}(?!\S.|\S)/g,
-		"",
-	); //remove || in ()[] and blank spaces
+    name = name.replace(/,+/g, ",");
+    name = name.replace(/, ,/g, "");
+    let regex = /\[.*\s-\s.*\]/;
+    if (!regex.test(name)) {
+        regex = /(?<!\S)-+(?=\s{2,}|$)/; 
+        if (!regex.test(name)) {
+            name = name.replace(/ -+(?!\s*\S)/, "");
+            name = name.replace(/ -+$/g, "");
+            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); 
+        } else {
+            regex = / -+(?=\s*\S)/;
+            if (!regex.test(name)) {
+                name = name.replace(/(?<=\s)-(?=\s)/g, "");
+            }
+            name = name.replace(/-(?=\s*$)/, ""); 
+        }
+    } else {
+        name = name.replace(/ -+(?!\s*\S)/, "");
+        name = name.replace(/ -+$/g, "");
+        name = name.replace(/\s-\s(?![\w\d])/g, "");
+    }
+    name = name.replace(/,\s*$/, "");
+    name = name.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); 
+    name = name.replace(/(?<=\s{2}|^);/g, ""); 
+    name = name.replace(/(?<=\s{2}|^|\{);/g, ""); 
+    name = name.replace(
+        /(?<!\S.|\S)\|{2,}(?=\s{2}|\)|\])|(?<=\s{2}|\(|\[\s*)\|{2,}(?!\S.|\S)/g,
+        "",
+    ); 
+    name = name.replace(
+        /(?<!\S.|\S)\|(?=\s{1,}(?:\)|\]))|(?<=\s{1,}(?:\(|\[\s*))\|(?!\S.|\S)/g,
+        "",
+    ); 
+    name = name.replace(/(?<=\()\s*\|(?=\s*\))|(?<=\[\s*)\s*\|(?=\s*\])/g, "");
+    name = name.replace(/\|\s*\|/g, "|");
+    name = name.replace(/\s*\|\s*\|\s*\|/g, " |");
+    name = name.replace(/(?<=\s{2}|^|\[)\s*;\s*(?=\]|\s{2}|$)/g, "");
+    name = name.replace(
+        /(?<=\()\s*-\s*(?=\s*\))|(?<=\[\s*)\s*-\s*(?=\s*\])/g,
+        "",
+    );
 
-	cname = cname.replace(
-		/(?<!\S.|\S)\|(?=\s{1,}(?:\)|\]))|(?<=\s{1,}(?:\(|\[\s*))\|(?!\S.|\S)/g,
-		"",
-	); // above
-	cname = cname.replace(/(?<=\()\s*\|(?=\s*\))|(?<=\[\s*)\s*\|(?=\s*\])/g, "");
-	cname = cname.replace(/\|\s*\|/g, "|");
-	cname = cname.replace(/\s*\|\s*\|\s*\|/g, " |");
-	cname = cname.replace(/(?<=\s{2}|^|\[)\s*;\s*(?=\]|\s{2}|$)/g, "");
-	//cname = cname.replace(/(?<=\s{2}|^|\[|\()\s*-\s*(?=\]|\s{2}|$|\))/g, '');
-	cname = cname.replace(
-		/(?<=\()\s*-\s*(?=\s*\))|(?<=\[\s*)\s*-\s*(?=\s*\])/g,
-		"",
-	);
+    name = name.replace(/[\[\(]\s*64\s*[\]\)]/, "");
+    name = name.replace(/\(\s*\*\s*\)|\[\s*\*\s*\]/g, "");
+    name = name.replace(/\+/g, "");
+    name = name.replace(/- \./g, "-");
+    name = name.replace(/- -/g, "-");
+    regex = /\[.*\s-\s.*\]/;
+    if (!regex.test(name)) {
+        regex = /(?<!\S)-+(?=\s{2,}|$)/; 
+        if (!regex.test(name)) {
+            name = name.replace(/ -+(?!\s*\S)/, "");
+            name = name.replace(/ -+$/g, "");
+            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); 
+        } else {
+            regex = / -+(?=\s*\S)/;
+            if (!regex.test(name)) {
+                name = name.replace(/(?<=\s)-(?=\s)/g, "");
+            }
+            name = name.replace(/-(?=\s*$)/, ""); 
+        }
+    } else {
+        name = name.replace(/ -+(?!\s*\S)/, "");
+        name = name.replace(/ -+$/g, "");
+        name = name.replace(/\s-\s(?![\w\d])/g, "");
+    }
 
-	cname = cname.replace(/[\[\(]\s*64\s*[\]\)]/, "");
-	cname = cname.replace(/\(\s*\*\s*\)|\[\s*\*\s*\]/g, "");
-	cname = cname.replace(/\+/g, "");
-	cname = cname.replace(/- \./g, "-");
-	cname = cname.replace(/- -/g, "-");
-	_r = /\[.*\s-\s.*\]/;
-	if (!_r.test(cname)) {
-		_r = /(?<!\S)-+(?=\s{2,}|$)/; //old "/ -+(?=\s*\S)/"
-		if (!_r.test(cname)) {
-			cname = cname.replace(/ -+(?!\s*\S)/, "");
-			cname = cname.replace(/ -+$/g, "");
-			cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // eliminar - dentro de ()[]
-		} else {
-			_r = / -+(?=\s*\S)/;
-			if (!_r.test(cname)) {
-				cname = cname.replace(/(?<=\s)-(?=\s)/g, "");
-			}
-			cname = cname.replace(/-(?=\s*$)/, ""); //old : /-(?=[\s]*)$/
-		}
-	} else {
-		cname = cname.replace(/ -+(?!\s*\S)/, "");
-		cname = cname.replace(/ -+$/g, "");
-		//cname = cname.replace(/ -+(?=\s*\S)(?![^\[]*\])/, '');
-		cname = cname.replace(/\s-\s(?![\w\d])/g, "");
-	}
+    name = name.replace(/Feature Extraction/g, "");
+    name = name.replace(/Original pretrain/g, "");
+    name = name.replace(/\(\{\s*\}\)/g, "");
+    name = name.replace(/\(\s*\.\s*\)/g, "");
+    name = name.replace(/\[\s*,\s*\]/g, "");
+    name = name.replace(/\(\s*\+\s*\)/g, "");
+    name = name.replace(/\s+/g, " ");
+    name = name.replace(/(?<=\S)\\+(?=\s|$)/g, "");
+    name = name.replace(/\[\|\|\]/g, "");
+    name = name.replace(/\(\s+\)/g, "");
+    name = name.replace(/\[\s*\]/g, "");
+    name = name.replace(/\(\s*,\s*/g, "(");
+    name = name.replace(/\(\s*\)|\[\s*\]/g, "");
 
-	//delete words
-	cname = cname.replace(/Feature Extraction/g, "");
-	cname = cname.replace(/Original pretrain/g, "");
-	cname = cname.replace(/\(\{\s*\}\)/g, "");
-	cname = cname.replace(/\(\s*\.\s*\)/g, "");
-	cname = cname.replace(/\[\s*,\s*\]/g, "");
-	cname = cname.replace(/\(\s*\+\s*\)/g, "");
-	cname = cname.replace(/\s+/g, " ");
-	cname = cname.replace(/(?<=\S)\\+(?=\s|$)/g, "");
-	cname = cname.replace(/\[\|\|\]/g, "");
-	cname = cname.replace(/\(\s+\)/g, "");
-	cname = cname.replace(/\[\s*\]/g, "");
-	cname = cname.replace(/\(\s*,\s*/g, "(");
-	cname = cname.replace(/\(\s*\)|\[\s*\]/g, "");
+    name = name.replace(/\((?![^()]*\()(?![^()]*\))/, ""); 
+    name = name.replace(/\|\s*$/, ""); 
+    name = name.replace(/\(\/ - \)/g, ""); 
+    name = name.replace(/\(\s*-\s*/g, "("); 
+    name = name.replace(/\{\s*\}/g, "");
+    name = name.replace(/(\|\s*-\s*|- \|\s*)/g, "| ");
+    name = name.replace(/-\s*,\s*/g, "-"); 
+    name = name.replace(/-\s*\.\s*/g, "-"); 
+    name = name.replace(/-\s*-\s*/g, "-"); 
+    name = name.replace(/-\s*-\s*-\s*/g, "-"); 
+    name = name.replace(/-\s*\)/g, ")");
+    name = name.replace(/\(\s*-/g, "(");
+    name = name.replace(/-\s*\]/g, "]");
+    name = name.replace(/【\s*,\s*】/g, "");
+    name = name.replace(/\|\s*,\s*\|/g, "|");
+    name = name.replace(/\(\//g, "(");
+    name = name.includes("(") ? name : name.replace(/\)/g, "");
+    name = name.replace(/\[\|\]/g, "");
+    name = name.replace(/\| \|/g, "|");
+    name = name.replace(/\( \|/g, "(");
+    name = name.replace(/\{\s*,\s*\}/g, "");
 
-	cname = cname.replace(/\((?![^()]*\()(?![^()]*\))/, ""); // replace last ( alone
-	cname = cname.replace(/\|\s*$/, ""); // replace last | alone
-	cname = cname.replace(/\(\/ - \)/g, ""); // delete (/ - )
-	cname = cname.replace(/\(\s*-\s*/g, "("); // delete ( -...
-	cname = cname.replace(/\{\s*\}/g, "");
-	cname = cname.replace(/(\|\s*-\s*|- \|\s*)/g, "| ");
-	cname = cname.replace(/-\s*,\s*/g, "-"); // "- , "
-	cname = cname.replace(/-\s*\.\s*/g, "-"); // "- ."
-	cname = cname.replace(/-\s*-\s*/g, "-"); // "- -"
-	cname = cname.replace(/-\s*-\s*-\s*/g, "-"); // "- - -"
-	cname = cname.replace(/-\s*\)/g, ")");
-	cname = cname.replace(/\(\s*-/g, "(");
-	cname = cname.replace(/-\s*\]/g, "]");
-	cname = cname.replace(/【\s*,\s*】/g, "");
-	cname = cname.replace(/\|\s*,\s*\|/g, "|");
-	cname = cname.replace(/\(\//g, "(");
-	cname = cname.includes("(") ? cname : cname.replace(/\)/g, "");
-	cname = cname.replace(/\[\|\]/g, "");
-	cname = cname.replace(/\| \|/g, "|");
-	cname = cname.replace(/\( \|/g, "(");
-	cname = cname.replace(/\{\s*,\s*\}/g, "");
+    name = name.replace(/\[\; /, "[");
+    name = name.replace(/\[\;/, "[");
+    name = name.replace(/\( \; /, "(");
+    name = name.replace(/\( \;/, "(");
+    name = name.replace(/ ; \)/, ")");
+    name = name.replace(/; \)/, ")");
+    name = name.replace(/, \]/, "]");
+    name = name.replace(/ ,\]/, "]");
+    name = name.replace(/,\]/, "]");
+    name = name.replace(/\[ , /, "[");
+    name = name.replace(/\[, /, "[");
+    name = name.replace(/\[,/, "[");
+    name = name.replace(/\[ \- /, "[");
+    name = name.replace(/\[ \-/, "[");
+    name = name.replace(/\[- /, "[");
+    name = name.replace(/\[-/, "[");
+    name = name.replace(/\] \]/, "]");
+    name = name.replace(/;/g, " ");
+    name = name.replace(/ {3}/g, "  ");
+    name = name.replace(/ {2}/g, " ");
+    name = name.replace(/\|,/g, "|");
+    name = name.replace(/ , \)/g, ")");
+    name = name.replace(/, \)/g, ")");
+    name = name.replace(/,\)/g, ")");
+    name = name.replace(/\)\)/g, ")");
+    name = name.replace(/\) \)/g, ")");
+    name = name.replace(/ \| \)/g, ")");
+    name = name.replace(/\| \)/g, ")");
+    name = name.replace(/\( \/ /g, "(");
+    name = name.replace(/\( \//g, "(");
+    name = name.replace(/ \| \]/g, "]");
+    name = name.replace(/\| \]/g, "]");
+    name = name.replace(/\/\//g, "/");
+    name = name.replace(/\[\/ /g, "[");
+    name = name.replace(/\[\//g, "[");
+    name = name.replace(/\(- /g, "(");
+    name = name.replace(/\(-/g, "(");
 
-	cname = cname.replace(/\[\; /, "[");
-	cname = cname.replace(/\[\;/, "[");
-	cname = cname.replace(/\( \; /, "(");
-	cname = cname.replace(/\( \;/, "(");
-	cname = cname.replace(/ ; \)/, ")");
-	cname = cname.replace(/; \)/, ")");
-	cname = cname.replace(/, \]/, "]");
-	cname = cname.replace(/ ,\]/, "]");
-	cname = cname.replace(/,\]/, "]");
-	cname = cname.replace(/\[ , /, "[");
-	cname = cname.replace(/\[, /, "[");
-	cname = cname.replace(/\[,/, "[");
-	cname = cname.replace(/\[ \- /, "[");
-	cname = cname.replace(/\[ \-/, "[");
-	cname = cname.replace(/\[- /, "[");
-	cname = cname.replace(/\[-/, "[");
-	cname = cname.replace(/\] \]/, "]");
-	cname = cname.replace(/;/g, " ");
-	cname = cname.replace(/ {3}/g, "  ");
-	cname = cname.replace(/ {2}/g, " ");
-	cname = cname.replace(/\|,/g, "|");
-	cname = cname.replace(/ , \)/g, ")");
-	cname = cname.replace(/, \)/g, ")");
-	cname = cname.replace(/,\)/g, ")");
-	cname = cname.replace(/\)\)/g, ")");
-	cname = cname.replace(/\) \)/g, ")");
-	cname = cname.replace(/ \| \)/g, ")");
-	cname = cname.replace(/\| \)/g, ")");
-	cname = cname.replace(/\( \/ /g, "(");
-	cname = cname.replace(/\( \//g, "(");
-	cname = cname.replace(/ \| \]/g, "]");
-	cname = cname.replace(/\| \]/g, "]");
-	cname = cname.replace(/\/\//g, "/");
-	cname = cname.replace(/\[\/ /g, "[");
-	cname = cname.replace(/\[\//g, "[");
-	cname = cname.replace(/\(- /g, "(");
-	cname = cname.replace(/\(-/g, "(");
+    name = name.replace(/\(\s*\)|(?<=\()(\s*)(?=\))/g, "");
+    name = name.replace(/\[ \)/g, "");
+    name = name.replace(/\[\)/g, "");
+    name = name.replace(/\[\]/g, "");
+    name = name.replace(/\( /g, "(");
+    name = name.replace(/ \)/g, ")");
+    name = name.replace(/\[ /g, "[");
+    name = name.replace(/ \]/g, "]");
+    name = name.replace(/\) - \(/g, ") (");
+    name = name.replace(/\) \| \[/g, ") [");
+    name = name.replace(/\) , \(/g, ") (");
 
-	cname = cname.replace(/\(\s*\)|(?<=\()(\s*)(?=\))/g, "");
-	cname = cname.replace(/\[ \)/g, "");
-	cname = cname.replace(/\[\)/g, "");
-	cname = cname.replace(/\[\]/g, "");
-	cname = cname.replace(/\( /g, "(");
-	cname = cname.replace(/ \)/g, ")");
-	cname = cname.replace(/\[ /g, "[");
-	cname = cname.replace(/ \]/g, "]");
-	cname = cname.replace(/\) - \(/g, ") (");
-	cname = cname.replace(/\) \| \[/g, ") [");
-	cname = cname.replace(/\) , \(/g, ") (");
+    name =
+        name.match(/\|/g) && name.match(/\|/g).length <= 1
+            ? name.replace(/\|/g, "")
+            : name;
+    name = name.replace(/\([^a-zA-Z\d\s]*,[\s]*\)/g, ""); 
+    name = name.replace(/\(\.0\)/g, "");
+    name = name.replace(/\(\)/g, "");
+    name = name.replace(/\/\s\//g, "");
+    name = name.replace(/\*\s\*/g, "");
+    name = name.replace(/ {3}/g, "  ");
+    name = name.replace(/ {2}/g, " ");
+    name = name.replace(/\(\.\)/g, "");
+    name = name.replace(/\(&\)/g, "");
+    name = name.replace(/\((\d+)steps\)/i, "");
+    name = name.replace(/\((\d+)\s*steps\)/i, "");
+    name = name.replace(/\[(\d+)\s*Steps\]/i, "");
+    name = name.replace(/\,\s*(\d+)\s*steps/i, "");
+    name = name.replace(/(\d+)\s*steps\b/i, "");
+    name = name.replace(/(\d+)\s*stepts\b/i, "");
 
-	cname =
-		cname.match(/\|/g) && cname.match(/\|/g).length <= 1
-			? cname.replace(/\|/g, "")
-			: cname;
-	//cname = cname.match(/,/g) && cname.match(/,/g).length <= 1 ? cname.replace(/,/g, '') : cname;
-	//cname = cname.match(/-/g) && cname.match(/-/g).length <= 1 ? cname.replace(/-/g, '') : cname;
-	cname = cname.replace(/\([^a-zA-Z\d\s]*,[\s]*\)/g, ""); //remove (,)
-	cname = cname.replace(/\(\.0\)/g, "");
-	cname = cname.replace(/\(\)/g, "");
-	cname = cname.replace(/\/\s\//g, "");
-	cname = cname.replace(/\*\s\*/g, "");
-	cname = cname.replace(/ {3}/g, "  ");
-	cname = cname.replace(/ {2}/g, " ");
-	cname = cname.replace(/\(\.\)/g, "");
-	cname = cname.replace(/\(&\)/g, "");
-	//delete steps
-	cname = cname.replace(/\((\d+)steps\)/i, "");
-	cname = cname.replace(/\((\d+)\s*steps\)/i, "");
-	cname = cname.replace(/\[(\d+)\s*Steps\]/i, "");
-	cname = cname.replace(/\,\s*(\d+)\s*steps/i, "");
-	cname = cname.replace(/(\d+)\s*steps\b/i, "");
-	cname = cname.replace(/(\d+)\s*stepts\b/i, "");
-
-	//delete """
-	cname = cname.replace(/"{3}/g, '""');
-	cname = cname.replace(/\.\""\s""/g, '""');
-	cname = cname.replace(/""\. \.""/g, "");
-	cname = cname.replace(/"\. \."\s"/g, "");
-	cname = cname.replace(/"\. \."/g, "");
-	_r = /\[.*\s-\s.*\]/;
-	if (!_r.test(cname)) {
-		_r = /(?<!\S)-+(?=\s{2,}|$)/; //old "/ -+(?=\s*\S)/"
-		if (!_r.test(cname)) {
-			cname = cname.replace(/ -+(?!\s*\S)/, "");
-			cname = cname.replace(/ -+$/g, "");
-			cname = cname.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // eliminar - dentro de ()[]
-		} else {
-			_r = / -+(?=\s*\S)/;
-			if (!_r.test(cname)) {
-				cname = cname.replace(/(?<=\s)-(?=\s)/g, "");
-			}
-			cname = cname.replace(/-(?=\s*$)/, ""); //old : /-(?=[\s]*)$/
-		}
-	} else {
-		cname = cname.replace(/ -+(?!\s*\S)/, "");
-		cname = cname.replace(/ -+$/g, "");
-		//cname = cname.replace(/ -+(?=\s*\S)(?![^\[]*\])/, '');
-		cname = cname.replace(/\s-\s(?![\w\d])/g, "");
-	}
-	cname = cname.trim();
-	return { cname, epochs, algorithm, types };
+    name = name.replace(/"{3}/g, '""');
+    name = name.replace(/\.\""\s""/g, '""');
+    name = name.replace(/""\. \.""/g, "");
+    name = name.replace(/"\. \."\s"/g, "");
+    name = name.replace(/"\. \."/g, "");
+    regex = /\[.*\s-\s.*\]/;
+    if (!regex.test(name)) {
+        regex = /(?<!\S)-+(?=\s{2,}|$)/; 
+        if (!regex.test(name)) {
+            name = name.replace(/ -+(?!\s*\S)/, "");
+            name = name.replace(/ -+$/g, "");
+            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); 
+        } else {
+            regex = / -+(?=\s*\S)/;
+            if (!regex.test(name)) {
+                name = name.replace(/(?<=\s)-(?=\s)/g, "");
+            }
+            name = name.replace(/-(?=\s*$)/, ""); 
+        }
+    } else {
+        name = name.replace(/ -+(?!\s*\S)/, "");
+        name = name.replace(/ -+$/g, "");
+        name = name.replace(/\s-\s(?![\w\d])/g, "");
+    }
+    name = name.trim();
+    return { name, epochs, algorithm, types: modelType };
 }
 
 async function JsonThread(thread, firstmessage, option, save = true) {
@@ -906,7 +826,6 @@ async function JsonThread(thread, firstmessage, option, save = true) {
 					!(algorithm === "N/A"))
 			) {
 				messageContent += " " + message.content + "\n";
-				// console.log(messageContent);
 				firstmessage.attachments = firstmessage.attachments.concat(
 					message.attachments,
 				);
@@ -1052,8 +971,6 @@ async function FormatThread(jsonData) {
 				} else if (site === "app.kits.ai" && types === "N/A") {
 					xtypes = "Kits.AI";
 				}
-			} else {
-				// console.log(link, jsonData.id);
 			}
 		});
 	}

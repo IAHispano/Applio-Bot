@@ -266,7 +266,6 @@ function extractType(content, tags) {
   
     for (const pattern of rvcPatterns) {
       result = findMatchAndClean(pattern, (res) => {
-        console.log(res, pattern)
         return res
           .replace(/\bRVC1\b/gi, "RVC V1")
           .replace(/\bRVC2\b/gi, "RVC V2")

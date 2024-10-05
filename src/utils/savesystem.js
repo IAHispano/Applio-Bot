@@ -194,103 +194,50 @@ function ReplaceT(text) {
 	});
 }
 
-function RemoveHopFromAlgorithm(cnamen) {
-	cnamen = cnamen.replace(/\bmagio\b/gi, "Mangio");
-	cnamen = cnamen.replace(/\bmagnio\b/gi, "Mangio");
-	cnamen = cnamen.replace(/\brvmpe\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brmpve\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brmpve_gpu\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brvmpe_gpu\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
-
+function extractAlgorithm(text, removeHop = false) {
+	text = text.replace(/\bmagio\b/gi, "Mangio");
+	text = text.replace(/\bmagnio\b/gi, "Mangio");
+	text = text.replace(/\brmpve(?:_gpu)?\b/gi, "Rmvpe");
+	text = text.replace(/\brvmpe(?:_gpu)?\b/gi, "Rmvpe");
+  
 	const regexPatterns = [
-		/(?:^|\s)(Pm)(?=\s|$)/gi,
-		/\b(Harvest|Crepe|Mangio-crepe|Mangio-Crepe|Mangio Crepe|Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe)\b/gi,
-		/\b(Harvest|Crepe|Mangio-crepe|Mangio-Crepe|Mangio Crepe|Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe)\b/gi,
-		/\b(harvest|crepe|mangio-crepe|mangio crepe|rmv?pe)\b/gi,
+	  /\b(Harvest|Mangio-crepe|Mangio Crepe)\b/gi,
+	  /\[(Dio|Pm)\]/g,
+	  /\b(Rmvpe)\b/gi,
+	  /\bCrepe\b/gi,
+	  /(?:\s|^)Pm(?:\s|$)/gi,
+	  /\[PM\]/gi,
 	];
-
-	for (const pattern of regexPatterns) {
-		const modifiedPattern = new RegExp(
-			pattern.source + "\\s+(160|128|64|60|32|40|28|21|20|16)(?![a-zA-Z0-9]|$)",
-			"gi",
-		);
-
-		const matches = cnamen.match(modifiedPattern);
-
-		if (matches) {
-			let algorithm = matches[0].replace(
-				/^(.)(.*)$/,
-				(match, firstChar, restChars) =>
-					firstChar.toUpperCase() + restChars.toLowerCase(),
-			);
-
-			if (algorithm.toLowerCase() === "rmvpe_gpu") {
-				cnamen = cnamen.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
-				return cnamen;
-			} else if (algorithm.toLowerCase() === "rmpve") {
-				cnamen = cnamen.replace(/\brmpve\b/gi, "Rmvpe");
-				return cnamen;
-			} else if (algorithm.toLowerCase() === "rvmpe") {
-				cnamen = cnamen.replace(/\brvmpe\b/gi, "Rmvpe");
-				return cnamen;
-			}
-
-			// Eliminar el número 64 o 32 solo a la derecha del algoritmo en cnamen
-			cnamen = cnamen.replace(
-				matches[0],
-				algorithm.replace(/\b(?:160|128|64|60|32|40|28|21|20|16)\b/, ""),
-			);
-			return cnamen;
-		}
+  
+	if (removeHop) {
+	  regexPatterns.unshift(/(?:^|\s)(Pm)(?=\s|$)/gi);
+	  regexPatterns.push(/\b(harvest|crepe|mangio-crepe|mangio crepe|rmv?pe)\b/gi);
 	}
-
-	return "N/A";
-}
-function extractAlgorithm(cnamen) {
-	cnamen = cnamen.replace(/\bmagio\b/gi, "Mangio");
-	cnamen = cnamen.replace(/\bmagnio\b/gi, "Mangio");
-	cnamen = cnamen.replace(/\brmpve\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brvmpe\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brmpve_gpu\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brvmpe_gpu\b/gi, "Rmvpe");
-	cnamen = cnamen.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
-	const regexPatterns = [
-		/\b(Harvest|Mangio-crepe|Mangio-Crepe|Mangio Crepe)\b/gi,
-		/\[(Dio|Pm)\]/g,
-		/\b(Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe)\b/gi,
-		/\b(rmv?pe)\b/gi,
-		/\bCrepe\b/gi,
-		/(?:\s|^)Pm(?:\s|$)/gi,
-		/\[PM\]/gi,
-	];
-
+  
+	const hopNumbers = "(?:160|128|64|60|32|40|28|21|20|16)";
+  
 	for (const pattern of regexPatterns) {
-		const matches = cnamen.match(pattern);
-		if (matches) {
-			const algorithm = matches[0].replace(
-				/^(.)(.*)$/,
-				(match, firstChar, restChars) =>
-					firstChar.toUpperCase() + restChars.toLowerCase(),
-			);
-			if (algorithm.toLowerCase() === "rmvpe_gpu") {
-				cnamen = cnamen.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
-				return algorithm;
-			} else if (algorithm.toLowerCase() === "rmpve") {
-				cnamen = cnamen.replace(/\brmpve\b/gi, "Rmvpe");
-				return algorithm;
-			} else if (algorithm.toLowerCase() === "rvmpe") {
-				cnamen = cnamen.replace(/\brvmpe\b/gi, "Rmvpe");
-				return algorithm;
-			}
-
-			cnamen = cnamen.replace(matches[0], algorithm);
-			return algorithm;
+	  const match = text.match(pattern);
+	  if (match) {
+		let algorithm = match[0].replace(/^(.)(.*)$/, (m, first, rest) => first.toUpperCase() + rest.toLowerCase());
+  
+		if (removeHop) {
+		  const modifiedPattern = new RegExp(pattern.source + "\\s+" + hopNumbers + "(?![a-zA-Z0-9]|$)", "gi");
+		  const hopMatch = text.match(modifiedPattern);
+		  if (hopMatch) {
+			algorithm = algorithm.replace(new RegExp("\\b" + hopNumbers + "\\b"), "");
+			text = text.replace(hopMatch[0], algorithm);
+			return text;
+		  }
+		} else {
+		  return algorithm;
 		}
+	  }
 	}
-
-	return "N/A";
+  
+	return removeHop ? "N/A" : "N/A"; 
 }
+
 function extractType(content, tags) {
 	const rvcPatterns = [
       /\b(?:RVC\s*)(V[12]|Kits\.AI)\b/gi,
@@ -379,11 +326,11 @@ function formatEpochs(str) {
 }
 
 function extractEpochsAndAlgorithm(name, tags, content) {
-    let nameNoHop = removeHopFromAlgorithm(name);
+    let nameNoHop = extractAlgorithm(name, true);
     if (nameNoHop !== "N/A") {
         name = nameNoHop;
     }
-    name = replaceT(name);
+    name = ReplaceT(name);
     name = numberToReal(name);
     if (!name.toLowerCase().includes("epoch")) {
         name = eToEpochs(name);

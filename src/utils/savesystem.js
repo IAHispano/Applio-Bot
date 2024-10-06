@@ -477,9 +477,8 @@ function extractEpochsAndAlgorithm(name, tags, content) {
     for (const pattern of regexPatterns) {
         const match = name.match(pattern);
         if (match) {
-            epochs = match2[1];
+            epochs = match[1];
             name = name.replace(pattern, ""); // Remove the matched pattern from name
-
             name = name.replace(/\s*\( Epochs\)/g, ""); // Remove "( Epochs)"
             name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim(); // Remove trailing "- number Epochs"
             name = name.replace(/\bEpoch\b/g, ""); // Remove "Epoch"
@@ -805,12 +804,11 @@ async function JsonThread(thread, firstmessage, option, save = true) {
 
 async function FormatThread(jsonData) {
 	const content = jsonData.content;
-	const { cname, epochs, algorithm, types } = extractEpochsAndAlgorithm(
+	const { name, epochs, algorithm, types } = extractEpochsAndAlgorithm(
 		jsonData.name,
 		jsonData.tags,
 		jsonData.content,
 	);
-
 	let xtypes = types;
 
 	const currentTags = jsonData.tags;
@@ -962,7 +960,7 @@ async function FormatThread(jsonData) {
 	);
 
 	const updatedContext = {
-		Name: cname,
+		Name: name,
 		Type: xtypes !== "N/A" ? xtypes : types,
 		Algorithm: algorithm,
 		Epoch: epochs,

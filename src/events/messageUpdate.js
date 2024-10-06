@@ -142,6 +142,8 @@ module.exports = {
 			);
 			if (verify.Result === "Steal") {
 				Steal = verify.AuthorID;
+			} else if (verify.Result === "Founded") {
+			    return;
 			}
 
 			const dataToUpload = {

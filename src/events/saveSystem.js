@@ -120,10 +120,9 @@ module.exports = {
 			);
 			if (verify.Result === "Steal") {
 				Steal = verify.AuthorID;
+			} else if (verify.Result === "Founded") {
+			    return;
 			}
-			// else if (verify.result === "Founded") {
-			//   //return;
-			// }
 
 			const dataToUpload = {
 				id: FormatResult.Data.id,

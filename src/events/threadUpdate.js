@@ -158,6 +158,9 @@ module.exports = {
 				FormatResult.Data.owner,
 				FormatResult.Data.context.Link,
 			);
+			if (verify.Result === "Founded") {
+			    return;
+			}
 			const Steal = verify.Result === "Steal" ? verify.AuthorID : false;
 
 			const dataToUpload = {

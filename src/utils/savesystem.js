@@ -324,43 +324,43 @@ function extractEpochsAndAlgorithm(name, tags, content) {
     if (!name.toLowerCase().includes("epoch")) {
         name = eToEpochs(name);
     }
-    name = name.replace(/\(\?\)/gi, "");
-    name = name.replace(/[^\S\r\n]*Voz:[^\S\r\n]*/gi, "");
-    name = name.replace(/[^\S\r\n]*Algoritmo:[^\S\r\n]*/gi, " ");
-    name = name.replace(/\bKits\.IA\b/gi, "Kits.AI");
-    name = name.replace(/\bRCV\b/gi, "RVC");
-    name = name.replace(/\bRV2\b/gi, "RVC v2");
-    name = name.replace(/\bcreppe\b/gi, "crepe");
-    name = name.replace(/\bRCrepe\b/gi, "Crepe");
-    name = name.replace(/\bmanigo\b/gi, "Mangio");
-    name = name.replace(/\bEphos\b/gi, "Epochs");
-    name = name.replace(/\bEpchos\b/gi, "Epochs");
-    name = name.replace(/\bEproch\b/gi, "Epochs");
-    name = name.replace(/\bEpoches\b/gi, "Epochs");
-    name = name.replace(/\bEpcohs\b/gi, "Epochs");
-    name = name.replace(/\bEpjchs\b/gi, "Epochs");
-    name = name.replace(/\bEpocsh\b/gi, "Epochs");
-    name = name.replace(/\beprochs\b/gi, "Epochs");
+    name = name.replace(/\(\?\)/gi, ""); // Remove "(?)"
+    name = name.replace(/[^\S\r\n]*Voz:[^\S\r\n]*/gi, ""); // Remove "Voz: "
+    name = name.replace(/[^\S\r\n]*Algoritmo:[^\S\r\n]*/gi, " "); // Remove "Algoritmo: "
+    name = name.replace(/\bKits\.IA\b/gi, "Kits.AI"); // Replace "Kits.IA" with "Kits.AI"
+    name = name.replace(/\bRCV\b/gi, "RVC"); // Replace "RCV" with "RVC"
+    name = name.replace(/\bRV2\b/gi, "RVC v2"); // Replace "RV2" with "RVC v2"
+    name = name.replace(/\bcreppe\b/gi, "crepe"); // Replace "creppe" with "crepe"
+    name = name.replace(/\bRCrepe\b/gi, "Crepe"); // Replace "RCrepe" with "Crepe"
+    name = name.replace(/\bmanigo\b/gi, "Mangio"); // Replace "manigo" with "Mangio"
+    name = name.replace(/\bEphos\b/gi, "Epochs"); // Replace "Ephos" with "Epochs"
+    name = name.replace(/\bEpchos\b/gi, "Epochs"); // Replace "Epchos" with "Epochs"
+    name = name.replace(/\bEproch\b/gi, "Epochs"); // Replace "Eproch" with "Epochs"
+    name = name.replace(/\bEpoches\b/gi, "Epochs"); // Replace "Epoches" with "Epochs"
+    name = name.replace(/\bEpcohs\b/gi, "Epochs"); // Replace "Epcohs" with "Epochs"
+    name = name.replace(/\bEpjchs\b/gi, "Epochs"); // Replace "Epjchs" with "Epochs"
+    name = name.replace(/\bEpocsh\b/gi, "Epochs"); // Replace "Epocsh" with "Epochs"
+    name = name.replace(/\beprochs\b/gi, "Epochs"); // Replace "eprochs" with "Epochs"
     name = name.replace(/[\u00C0-\u024F\u1E00-\u1EFF]/g, (match) =>
         match.toLowerCase() === "é" ? "E" : match,
-    );
-    name = name.replace(/\bEpocas\b/gi, "Epochs");
-    name = name.replace(/\bmagio\b/gi, "Mangio");
-    name = name.replace(/\bmagnio\b/gi, "Mangio");
-    name = name.replace(/\brmpve\b/gi, "Rmvpe");
-    name = name.replace(/\brvmpe\b/gi, "Rmvpe");
-    name = name.replace(/\brmpve_gpu\b/gi, "Rmvpe");
-    name = name.replace(/\brvmpe_gpu\b/gi, "Rmvpe");
-    name = name.replace(/\brmvpe_gpu\b/gi, "Rmvpe");
-    name = name.replace(/\bcreepe\b/gi, "Crepe");
-    name = name.replace(/\brvc-2\b/gi, "RVC2");
+    ); // Replace accented characters (e.g., é to E)
+    name = name.replace(/\bEpocas\b/gi, "Epochs"); // Replace "Epocas" with "Epochs"
+    name = name.replace(/\bmagio\b/gi, "Mangio"); // Replace "magio" with "Mangio"
+    name = name.replace(/\bmagnio\b/gi, "Mangio"); // Replace "magnio" with "Mangio"
+    name = name.replace(/\brmpve\b/gi, "Rmvpe"); // Replace "rmpve" with "Rmvpe"
+    name = name.replace(/\brvmpe\b/gi, "Rmvpe"); // Replace "rvmpe" with "Rmvpe"
+    name = name.replace(/\brmpve_gpu\b/gi, "Rmvpe"); // Replace "rmpve_gpu" with "Rmvpe"
+    name = name.replace(/\brvmpe_gpu\b/gi, "Rmvpe"); // Replace "rvmpe_gpu" with "Rmvpe"
+    name = name.replace(/\brmvpe_gpu\b/gi, "Rmvpe"); // Replace "rmvpe_gpu" with "Rmvpe"
+    name = name.replace(/\bcreepe\b/gi, "Crepe"); // Replace "creepe" with "Crepe"
+    name = name.replace(/\brvc-2\b/gi, "RVC2"); // Replace "rvc-2" with "RVC2"
 
     let epochs = "N/A";
     let algorithm = extractAlgorithm(name);
     let dioFound = false;
     if (algorithm === "N/A") {
         let dioRegex =
-            /\bDio pitch extraction\b(?!.*(?:Harvest|Mangio-crepe|Mangio-Crepe|Mangio Crepe Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe))/i;
+            /\bDio pitch extraction\b(?!.*(?:Harvest|Mangio-crepe|Mangio-Crepe|Mangio Crepe Rmvpe_gpu|Rmvpe gpu|Rvmpe|Rmvpe))/i;  // Matches "Dio pitch extraction" if not followed by certain patterns
         if (dioRegex.test(name)) {
             name = name.replace(dioRegex, "");
             algorithm = "Dio";
@@ -369,11 +369,11 @@ function extractEpochsAndAlgorithm(name, tags, content) {
             algorithm = extractAlgorithm(content);
         }
     } else if (algorithm.includes("[dio]") || algorithm.includes("[pm]")) {
-        var escapedAlgorithm = algorithm.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-        name = name.replace(new RegExp(`${escapedAlgorithm}`, "gi"), "");
+        var escapedAlgorithm = algorithm.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"); // Escape special characters in algorithm
+        name = name.replace(new RegExp(`${escapedAlgorithm}`, "gi"), ""); // Remove algorithm from name
         algorithm = algorithm
-            .replace(/[\[\]]/g, "")
-            .replace(/^\w/, (c) => c.toUpperCase());
+            .replace(/[\[\]]/g, "") // Remove brackets from algorithm
+            .replace(/^\w/, (c) => c.toUpperCase()); // Capitalize first letter of algorithm
         dioFound = true;
     }
     let { result: modelType, newContent: modifiedName } = extractType(
@@ -391,20 +391,20 @@ function extractEpochsAndAlgorithm(name, tags, content) {
     }
 
     name = name.replace(
-        new RegExp(`\\s*\\(${modelType}\\)|\\s*${modelType}`, "gi"),
+        new RegExp(`\\s*\\(${modelType}\\)|\\s*${modelType}`, "gi"), // Remove model type from name (with or without parentheses)
         "",
     );
-    const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi;
-    name = name.replace(typePattern, "").trim();
-    name = name.replace(/\b(RVC(?:\s*V\d+)?|Kits\.AI|\bV\d+\b)\b/gi, "").trim();
-    name = name.replace(/RVC|Kits\.AI/g, "");
-    name = name.replace(/\bKits.AI\b/gi, "");
-    name = name.replace(/\bKits\b/g, "");
-    name = name.replace(/\bRVC\b/g, "");
-    name = name.replace(/\(\s*,\s*\//g, "(");
-    name = name.replace(/\bPitch Extraction\b/i, "");
+    const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi; // Matches "RVC", "RVC V1", "RVC V2", etc. or "Kits.AI"
+    name = name.replace(typePattern, "").trim(); // Remove type patterns from name
+    name = name.replace(/\b(RVC(?:\s*V\d+)?|Kits\.AI|\bV\d+\b)\b/gi, "").trim(); // Remove type patterns and "V1", "V2", etc. from name
+    name = name.replace(/RVC|Kits\.AI/g, ""); // Remove "RVC" or "Kits.AI"
+    name = name.replace(/\bKits.AI\b/gi, ""); // Remove "Kits.AI"
+    name = name.replace(/\bKits\b/g, ""); // Remove "Kits"
+    name = name.replace(/\bRVC\b/g, ""); // Remove "RVC"
+    name = name.replace(/\(\s*,\s*\//g, "("); // Replace "(,/" with "("
+    name = name.replace(/\bPitch Extraction\b/i, ""); // Remove "Pitch Extraction"
 
-    name = name.replace(/\(\//g, "(");
+    name = name.replace(/\(\//g, "(");  // Replace "(/" with "("
     const typeKeywords = ["RVC", "Kits.AI"];
     for (const keyword of typeKeywords) {
         if (modelType.toLowerCase().includes(keyword.toLowerCase())) {
@@ -414,7 +414,7 @@ function extractEpochsAndAlgorithm(name, tags, content) {
     }
 
     if (algorithm !== "N/A" && !dioFound) {
-        name = name.replace(new RegExp(`\\b${algorithm}\\b`, "gi"), ""); 
+        name = name.replace(new RegExp(`\\b${algorithm}\\b`, "gi"), "");  // Remove algorithm from name
     }
     name = formatEpochs(name);
     if (algorithm == "N/A") {
@@ -425,66 +425,68 @@ function extractEpochsAndAlgorithm(name, tags, content) {
     }
     
     const regexPatterns = [
-        /\((\d+)\s+Epochs\)/i, 
-        /\b(\d+)\s+Epochs\b/i, 
-        /-\s*(\d+)\s*Epochs?/i, 
-        /\b(\d+)\s*Epochs\b/i, 
-        /\b(\d+)\s*Epoch\b/i,  
-        /(\d+) Epochs/i,       
-        / (\d+) Epochs/i,      
-        /\((\d+) Epochs\)/i,   
-        /\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/i, 
-        /(?:\s+\[|\()(\d+)\s+Epochs\)/i, 
-        /\[(\d+)\s*Epochs\]/i,
-        /(\d+k)\s+Epochs/i,   
-        /Epochs\s*:\s*(\d+)/i, 
-        /Epoch\s*(\d+)/i,     
-        /(\d+)\s*(?:k\s*)?Epochs?/i,
-        /\(EPOCHS (\d+)\)/i,  
-        /\(EPOCHS\s*(\d+)\s*\)/i,
-        /\( EPOCH (\d+) \)/i, 
-        / - (\d+)(?:\s+Epoch)?/i, 
-        / - (\d+)(?:\s+Epoch)?\)/i, 
-        / (\d+) Epoch/i,        
-        /\((\d+) Epoch\)/i,    
-        /\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/i, 
-        /(?:\s+\[|\()(\d+)\s+Epoch\)/i,
-        /\[(\d+)\s*Epoch\]/i,  
-        /(\d+k)\s+Epoch/i,     
+        /\((\d+)\s+Epochs\)/i, // Matches "(number Epochs)"
+        /\b(\d+)\s+Epochs\b/i, // Matches "number Epochs" as a whole word
+        /-\s*(\d+)\s*Epochs?/i, // Matches "- number Epochs" or "- number Epoch"
+        /\b(\d+)\s*Epochs\b/i, // Matches "number Epochs" with optional spaces
+        /\b(\d+)\s*Epoch\b/i,  // Matches "number Epoch" with optional spaces
+        /(\d+) Epochs/i,       // Matches "number Epochs"
+        / (\d+) Epochs/i,      // Matches " number Epochs"
+        /\((\d+) Epochs\)/i,   // Matches "(number Epochs)"
+        /\(([^\)]*?(\d+)[^\)]*?)\s*Epochs\)/i, // Matches "(...number... Epochs)" - captures number within parentheses
+        /(?:\s+\[|\()(\d+)\s+Epochs\)/i, // Matches "[number Epochs)" or "(number Epochs)"
+        /\[(\d+)\s*Epochs\]/i, // Matches "[number Epochs]"
+        /(\d+k)\s+Epochs/i,    // Matches "numberk Epochs" (for thousands)
+        /Epochs\s*:\s*(\d+)/i,  // Matches "Epochs: number"
+        /Epoch\s*(\d+)/i,      // Matches "Epoch number"
+        /(\d+)\s*(?:k\s*)?Epochs?/i, // Matches "number Epochs", "numberk Epochs", "number Epoch"
+        /\(EPOCHS (\d+)\)/i,   // Matches "(EPOCHS number)"
+        /\(EPOCHS\s*(\d+)\s*\)/i, // Matches "(EPOCHS number)" with optional spaces
+        /\( EPOCH (\d+) \)/i,  // Matches "( EPOCH number )"
+        // Without "s" on "Epoch"
+        / - (\d+)(?:\s+Epoch)?/i, // Matches "- number Epoch" or "- number"
+        / - (\d+)(?:\s+Epoch)?\)/i, // Matches "- number Epoch)" or "- number)" 
+        / (\d+) Epoch/i,        // Matches " number Epoch"
+        /\((\d+) Epoch\)/i,     // Matches "(number Epoch)"
+        /\(([^\)]*?(\d+)[^\)]*?)\s*Epoch\)/i, // Matches "(...number... Epoch)" - captures number within parentheses
+        /(?:\s+\[|\()(\d+)\s+Epoch\)/i, // Matches "[number Epoch)" or "(number Epoch)"
+        /\[(\d+)\s*Epoch\]/i,   // Matches "[number Epoch]"
+        /(\d+k)\s+Epoch/i,      // Matches "numberk Epoch"
         //---
-        /(\d+)\s*Epoch/i,      
-        /(\d+)\s+Epoch/i,      
-        /(\d+)\s*Epochs/i,     
-        /(\d+)\s*epochs/i,     
-        /(\d+)\s+Epochs/i,     
-        /\(Epoch\s*(\d+)\)/i,  
-        /\bEPOCH (\d+)\b/i,    
-        /\bEPOCH\s*(\d+)\s*\b/i,
-        /\(EPOCH (\d+)\)/i,    
-        /\(EPOCH\s*(\d+)\s*\)/i, 
-        /\( EPOCH (\d+) \)/i,   
-        /\bEpoch:\s*(\d+)\b/i,  
-        /\bEpoch\s*(\d+)\b/i,   
-        /Epochs:\s*(\d+)/i,    
-        /\bEpochs\s*(\d+)\b/i,  
-        /Epochs\((\d+)\)/i,    
-        /Epochs\s*\((\d+)\)/i, 
-        /\(\s*(\d+)\)Epoch/gi,  
-        /\b(\d+)\s*(?:Epochs?|EPOCHS?)\b/i,
+        /(\d+)\s*Epoch/i,       // Matches "number Epoch" with optional spaces
+        /(\d+)\s+Epoch/i,       // Matches "number Epoch"
+        /(\d+)\s*Epochs/i,      // Matches "number Epochs" with optional spaces
+        /(\d+)\s*epochs/i,      // Matches "number epochs" with optional spaces
+        /(\d+)\s+Epochs/i,      // Matches "number Epochs"
+        /\(Epoch\s*(\d+)\)/i,   // Matches "(Epoch number)"
+        /\bEPOCH (\d+)\b/i,     // Matches "EPOCH number" as a whole word
+        /\bEPOCH\s*(\d+)\s*\b/i, // Matches "EPOCH number" as a whole word with optional spaces
+        /\(EPOCH (\d+)\)/i,     // Matches "(EPOCH number)"
+        /\(EPOCH\s*(\d+)\s*\)/i, // Matches "(EPOCH number)" with optional spaces
+        /\( EPOCH (\d+) \)/i,    // Matches "( EPOCH number )"
+        /\bEpoch:\s*(\d+)\b/i,   // Matches "Epoch: number" as a whole word
+        /\bEpoch\s*(\d+)\b/i,    // Matches "Epoch number" as a whole word with optional spaces
+        /Epochs:\s*(\d+)/i,     // Matches "Epochs: number"
+        /\bEpochs\s*(\d+)\b/i,   // Matches "Epochs number" as a whole word with optional spaces
+        /Epochs\((\d+)\)/i,     // Matches "Epochs(number)"
+        /Epochs\s*\((\d+)\)/i,  // Matches "Epochs(number)" with optional spaces between "Epochs" and "("
+        /\(\s*(\d+)\)Epoch/gi,   // Matches "(number)Epoch" 
+        /\b(\d+)\s*(?:Epochs?|EPOCHS?)\b/i, // Matches "number Epochs", "number Epoch", "number EPOCHS", "number EPOCH" as whole words
     ];
 
     for (const pattern of regexPatterns) {
         const match = name.match(pattern);
         if (match) {
-            epochs = match[1];
-            name = name.replace(pattern, "");
-            name = name.replace(/\s*\( Epochs\)/g, "");
-            name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
-            name = name.replace(/\bEpoch\b/g, "");
-            name = name.replace(/\bepoch\b/g, "");
-            name = name.replace(/\bepochs\b/g, "");
-            name = name.replace(/\bEpochs\b/g, "");
-            name = name.replace(/\bepoches\b/g, "");
+            epochs = match2[1];
+            name = name.replace(pattern, ""); // Remove the matched pattern from name
+
+            name = name.replace(/\s*\( Epochs\)/g, ""); // Remove "( Epochs)"
+            name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim(); // Remove trailing "- number Epochs"
+            name = name.replace(/\bEpoch\b/g, ""); // Remove "Epoch"
+            name = name.replace(/\bepoch\b/g, ""); // Remove "epoch"
+            name = name.replace(/\bepochs\b/g, ""); // Remove "epochs"
+            name = name.replace(/\bEpochs\b/g, ""); // Remove "Epochs"
+            name = name.replace(/\bepoches\b/g, ""); // Remove "epoches"
             break;
         }
     }
@@ -496,238 +498,239 @@ function extractEpochsAndAlgorithm(name, tags, content) {
         const match2 = contentCopy.match(pattern);
         if (match2 && epochs === "N/A") {
             epochs = match2[1];
-            name = name.replace(pattern, "");
-            name = name.replace(/\s*\( Epochs\)/g, "");
-            name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim();
-            name = name.replace(/\bEpoch\b/g, "");
-            name = name.replace(/\bepoch\b/g, "");
-            name = name.replace(/\bepochs\b/g, "");
-            name = name.replace(/\bEpochs\b/g, "");
-            name = name.replace(/\bepoches\b/g, "");
+            name = name.replace(pattern, ""); // Remove the matched pattern from name
+
+            name = name.replace(/\s*\( Epochs\)/g, ""); // Remove "( Epochs)"
+            name = name.replace(/(\s+-\s+\d+\s+Epochs)?$/, "").trim(); // Remove trailing "- number Epochs"
+            name = name.replace(/\bEpoch\b/g, ""); // Remove "Epoch"
+            name = name.replace(/\bepoch\b/g, ""); // Remove "epoch"
+            name = name.replace(/\bepochs\b/g, ""); // Remove "epochs"
+            name = name.replace(/\bEpochs\b/g, ""); // Remove "Epochs"
+            name = name.replace(/\bepoches\b/g, ""); // Remove "epoches"
             break;
         }
     }
-    name = name.replace(/\(\s*,\s*\)/g, "");
-    name = name.replace(/\/+(?!\s*\S)/g, ""); 
-    name = name.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim();
-    name = name.replace(/\s*\(\s*\)/g, "");
-    name = name.replace(/\s*\(\s*\)|\s*\(\s*\)/g, "").trim();
+    name = name.replace(/\(\s*,\s*\)/g, ""); // Remove "(,)"
+    name = name.replace(/\/+(?!\s*\S)/g, ""); // Remove trailing "/"
+    name = name.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); // Remove "/" followed by ")", "]", or end of string
+    name = name.replace(/\s*\(\s*\)/g, ""); // Remove "()"
+    name = name.replace(/\s*\(\s*\)|\s*\(\s*\)/g, "").trim(); // Remove "()" or "()" (duplicate)
     name = name
-        .replace(/\s*\(\s*\)|\s*\(\s*\)|\s*\[\s*\]|\s*\[\s*\]/g, "")
+        .replace(/\s*\(\s*\)|\s*\(\s*\)|\s*\[\s*\]|\s*\[\s*\]/g, "") // Remove "()", "()", "[]", or "[]" (duplicates)
         .trim();
-    name = name.replace(/\s*\(\s*\)/g, "");
+    name = name.replace(/\s*\(\s*\)/g, ""); // Remove "()"
     if (/, ,\s*\d+\s*Steps/.test(name)) {
-        let modifiedName = name.replace(/,\s*,\s*\d+\s*Steps/g, "").trim();
+        let modifiedName = name.replace(/,\s*,\s*\d+\s*Steps/g, "").trim(); // Remove ", , number Steps"
         name = modifiedName;
     }
     if (/\(\s*,\s*\d+\s*Steps\)/.test(name)) {
-        let modifiedName = name.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); 
+        let modifiedName = name.replace(/\(\s*,\s*\d+\s*Steps\)/g, "").trim(); // Remove "(, number Steps)"
 
         name = modifiedName;
     }
-    name = name.replace(/\(\)/g, "").trim(); 
-    name = name.replace(/\(\s*,\s*,\s*\)/g, "");
-    name = name.replace(/\[\s*\|\s*\]/g, "");
-    name = name.replace(/\[\s*,\s*\]/g, "");
-    name = name.replace(/\{\s*\}/g, "");
-    name = name.replace(/\[\s*\)/g, "");
+    name = name.replace(/\(\)/g, "").trim(); // Remove "()"
+    name = name.replace(/\(\s*,\s*,\s*\)/g, ""); // Remove "(,,)"
+    name = name.replace(/\[\s*\|\s*\]/g, ""); // Remove "[|]"
+    name = name.replace(/\[\s*,\s*\]/g, ""); // Remove "[,]"
+    name = name.replace(/\{\s*\}/g, ""); // Remove "{}"
+    name = name.replace(/\[\s*\)/g, ""); // Remove "[)"
 
-    name = name.replace(/,+/g, ",");
-    name = name.replace(/, ,/g, "");
-    let regex = /\[.*\s-\s.*\]/;
+    name = name.replace(/,+/g, ","); // Replace multiple commas with a single comma
+    name = name.replace(/, ,/g, ""); // Remove ", ,"
+    let regex = /\[.*\s-\s.*\]/; // Matches "[... - ...]"
     if (!regex.test(name)) {
-        regex = /(?<!\S)-+(?=\s{2,}|$)/; 
+        regex = /(?<!\S)-+(?=\s{2,}|$)/; // Matches "-" followed by 2 or more spaces or end of string, not preceded by a non-whitespace character
         if (!regex.test(name)) {
-            name = name.replace(/ -+(?!\s*\S)/, "");
-            name = name.replace(/ -+$/g, "");
-            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); 
+            name = name.replace(/ -+(?!\s*\S)/, ""); // Remove "-" not followed by a non-whitespace character
+            name = name.replace(/ -+$/g, ""); // Remove trailing "-"
+            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // Remove "-" inside "()" or "[]"
         } else {
-            regex = / -+(?=\s*\S)/;
+            regex = / -+(?=\s*\S)/; // Matches "-" followed by a whitespace character and then a non-whitespace character
             if (!regex.test(name)) {
-                name = name.replace(/(?<=\s)-(?=\s)/g, "");
+                name = name.replace(/(?<=\s)-(?=\s)/g, ""); // Remove "-" surrounded by whitespace characters
             }
-            name = name.replace(/-(?=\s*$)/, ""); 
+            name = name.replace(/-(?=\s*$)/, ""); // Remove trailing "-"
         }
     } else {
-        name = name.replace(/ -+(?!\s*\S)/, "");
-        name = name.replace(/ -+$/g, "");
-        name = name.replace(/\s-\s(?![\w\d])/g, "");
+        name = name.replace(/ -+(?!\s*\S)/, ""); // Remove "-" not followed by a non-whitespace character
+        name = name.replace(/ -+$/g, ""); // Remove trailing "-"
+        name = name.replace(/\s-\s(?![\w\d])/g, ""); // Remove "- " not followed by a word character or digit
     }
-    name = name.replace(/,\s*$/, "");
-    name = name.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); 
-    name = name.replace(/(?<=\s{2}|^);/g, ""); 
-    name = name.replace(/(?<=\s{2}|^|\{);/g, ""); 
+    name = name.replace(/,\s*$/, ""); // Remove trailing ","
+    name = name.replace(/\/+(?=\s*\))|\/+(?=\s*\])|\/+(?!\s*\S)/g, "").trim(); // Remove "/" followed by ")", "]", or end of string
+    name = name.replace(/(?<=\s{2}|^);/g, ""); // Remove ";" preceded by 2 or more spaces or start of string
+    name = name.replace(/(?<=\s{2}|^|\{);/g, ""); // Remove ";" preceded by 2 or more spaces, start of string, or "{"
     name = name.replace(
-        /(?<!\S.|\S)\|{2,}(?=\s{2}|\)|\])|(?<=\s{2}|\(|\[\s*)\|{2,}(?!\S.|\S)/g,
+        /(?<!\S.|\S)\|{2,}(?=\s{2}|\)|\])|(?<=\s{2}|\(|\[\s*)\|{2,}(?!\S.|\S)/g, // Remove "||" surrounded by 2 or more spaces, ")", "]", "(", or "["
         "",
     ); 
     name = name.replace(
-        /(?<!\S.|\S)\|(?=\s{1,}(?:\)|\]))|(?<=\s{1,}(?:\(|\[\s*))\|(?!\S.|\S)/g,
+        /(?<!\S.|\S)\|(?=\s{1,}(?:\)|\]))|(?<=\s{1,}(?:\(|\[\s*))\|(?!\S.|\S)/g, // Remove "|" surrounded by 1 or more spaces, ")", "]", "(", or "["
         "",
     ); 
-    name = name.replace(/(?<=\()\s*\|(?=\s*\))|(?<=\[\s*)\s*\|(?=\s*\])/g, "");
-    name = name.replace(/\|\s*\|/g, "|");
-    name = name.replace(/\s*\|\s*\|\s*\|/g, " |");
-    name = name.replace(/(?<=\s{2}|^|\[)\s*;\s*(?=\]|\s{2}|$)/g, "");
+    name = name.replace(/(?<=\()\s*\|(?=\s*\))|(?<=\[\s*)\s*\|(?=\s*\])/g, ""); // Remove "|" inside "()" or "[]"
+    name = name.replace(/\|\s*\|/g, "|"); // Replace "| |" with "|"
+    name = name.replace(/\s*\|\s*\|\s*\|/g, " |"); // Replace "| | |" with " |"
+    name = name.replace(/(?<=\s{2}|^|\[)\s*;\s*(?=\]|\s{2}|$)/g, ""); // Remove ";" surrounded by 2 or more spaces, "[", "]", or end of string
     name = name.replace(
-        /(?<=\()\s*-\s*(?=\s*\))|(?<=\[\s*)\s*-\s*(?=\s*\])/g,
+        /(?<=\()\s*-\s*(?=\s*\))|(?<=\[\s*)\s*-\s*(?=\s*\])/g, // Remove "- " inside "()" or "[]"
         "",
     );
 
-    name = name.replace(/[\[\(]\s*64\s*[\]\)]/, "");
-    name = name.replace(/\(\s*\*\s*\)|\[\s*\*\s*\]/g, "");
-    name = name.replace(/\+/g, "");
-    name = name.replace(/- \./g, "-");
-    name = name.replace(/- -/g, "-");
-    regex = /\[.*\s-\s.*\]/;
+    name = name.replace(/[\[\(]\s*64\s*[\]\)]/, ""); // Remove "[ 64 ]" or "( 64 )"
+    name = name.replace(/\(\s*\*\s*\)|\[\s*\*\s*\]/g, ""); // Remove "(*)" or "[*]"
+    name = name.replace(/\+/g, ""); // Remove "+"
+    name = name.replace(/- \./g, "-"); // Replace "- ." with "-"
+    name = name.replace(/- -/g, "-"); // Replace "- -" with "-"
+    regex = /\[.*\s-\s.*\]/; // Matches "[... - ...]"
     if (!regex.test(name)) {
-        regex = /(?<!\S)-+(?=\s{2,}|$)/; 
+        regex = /(?<!\S)-+(?=\s{2,}|$)/; // Matches "-" followed by 2 or more spaces or end of string, not preceded by a non-whitespace character
         if (!regex.test(name)) {
-            name = name.replace(/ -+(?!\s*\S)/, "");
-            name = name.replace(/ -+$/g, "");
-            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); 
+            name = name.replace(/ -+(?!\s*\S)/, ""); // Remove "-" not followed by a non-whitespace character
+            name = name.replace(/ -+$/g, ""); // Remove trailing "-"
+            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // Remove "-" inside "()" or "[]"
         } else {
-            regex = / -+(?=\s*\S)/;
+            regex = / -+(?=\s*\S)/; // Matches "-" followed by a whitespace character and then a non-whitespace character
             if (!regex.test(name)) {
-                name = name.replace(/(?<=\s)-(?=\s)/g, "");
+                name = name.replace(/(?<=\s)-(?=\s)/g, ""); // Remove "-" surrounded by whitespace characters
             }
-            name = name.replace(/-(?=\s*$)/, ""); 
+            name = name.replace(/-(?=\s*$)/, ""); // Remove trailing "-"
         }
     } else {
-        name = name.replace(/ -+(?!\s*\S)/, "");
-        name = name.replace(/ -+$/g, "");
-        name = name.replace(/\s-\s(?![\w\d])/g, "");
+        name = name.replace(/ -+(?!\s*\S)/, ""); // Remove "-" not followed by a non-whitespace character
+        name = name.replace(/ -+$/g, ""); // Remove trailing "-"
+        name = name.replace(/\s-\s(?![\w\d])/g, ""); // Remove "- " not followed by a word character or digit
     }
 
-    name = name.replace(/Feature Extraction/g, "");
-    name = name.replace(/Original pretrain/g, "");
-    name = name.replace(/\(\{\s*\}\)/g, "");
-    name = name.replace(/\(\s*\.\s*\)/g, "");
-    name = name.replace(/\[\s*,\s*\]/g, "");
-    name = name.replace(/\(\s*\+\s*\)/g, "");
-    name = name.replace(/\s+/g, " ");
-    name = name.replace(/(?<=\S)\\+(?=\s|$)/g, "");
-    name = name.replace(/\[\|\|\]/g, "");
-    name = name.replace(/\(\s+\)/g, "");
-    name = name.replace(/\[\s*\]/g, "");
-    name = name.replace(/\(\s*,\s*/g, "(");
-    name = name.replace(/\(\s*\)|\[\s*\]/g, "");
+    name = name.replace(/Feature Extraction/g, ""); // Remove "Feature Extraction"
+    name = name.replace(/Original pretrain/g, ""); // Remove "Original pretrain"
+    name = name.replace(/\(\{\s*\}\)/g, ""); // Remove "({})"
+    name = name.replace(/\(\s*\.\s*\)/g, ""); // Remove "(.)"
+    name = name.replace(/\[\s*,\s*\]/g, ""); // Remove "[,]"
+    name = name.replace(/\(\s*\+\s*\)/g, ""); // Remove "(+)"
+    name = name.replace(/\s+/g, " "); // Replace multiple spaces with a single space
+    name = name.replace(/(?<=\S)\\+(?=\s|$)/g, ""); // Remove trailing "\"
+    name = name.replace(/\[\|\|\]/g, ""); // Remove "[||]"
+    name = name.replace(/\(\s+\)/g, ""); // Remove "( )"
+    name = name.replace(/\[\s*\]/g, ""); // Remove "[]"
+    name = name.replace(/\(\s*,\s*/g, "("); // Replace "(, " with "("
+    name = name.replace(/\(\s*\)|\[\s*\]/g, ""); // Remove "()" or "[]"
 
-    name = name.replace(/\((?![^()]*\()(?![^()]*\))/, ""); 
-    name = name.replace(/\|\s*$/, ""); 
-    name = name.replace(/\(\/ - \)/g, ""); 
-    name = name.replace(/\(\s*-\s*/g, "("); 
-    name = name.replace(/\{\s*\}/g, "");
-    name = name.replace(/(\|\s*-\s*|- \|\s*)/g, "| ");
-    name = name.replace(/-\s*,\s*/g, "-"); 
-    name = name.replace(/-\s*\.\s*/g, "-"); 
-    name = name.replace(/-\s*-\s*/g, "-"); 
-    name = name.replace(/-\s*-\s*-\s*/g, "-"); 
-    name = name.replace(/-\s*\)/g, ")");
-    name = name.replace(/\(\s*-/g, "(");
-    name = name.replace(/-\s*\]/g, "]");
-    name = name.replace(/【\s*,\s*】/g, "");
-    name = name.replace(/\|\s*,\s*\|/g, "|");
-    name = name.replace(/\(\//g, "(");
-    name = name.includes("(") ? name : name.replace(/\)/g, "");
-    name = name.replace(/\[\|\]/g, "");
-    name = name.replace(/\| \|/g, "|");
-    name = name.replace(/\( \|/g, "(");
-    name = name.replace(/\{\s*,\s*\}/g, "");
+    name = name.replace(/\((?![^()]*\()(?![^()]*\))/, ""); // Remove last "(" if it's alone
+    name = name.replace(/\|\s*$/, ""); // Remove trailing "|"
+    name = name.replace(/\(\/ - \)/g, ""); // Remove "(/ - )"
+    name = name.replace(/\(\s*-\s*/g, "("); // Remove "( -"
+    name = name.replace(/\{\s*\}/g, ""); // Remove "{}"
+    name = name.replace(/(\|\s*-\s*|- \|\s*)/g, "| "); // Replace "| - " or "- | " with "| "
+    name = name.replace(/-\s*,\s*/g, "-"); // Replace "- , " with "-"
+    name = name.replace(/-\s*\.\s*/g, "-"); // Replace "- . " with "-"
+    name = name.replace(/-\s*-\s*/g, "-"); // Replace "- - " with "-"
+    name = name.replace(/-\s*-\s*-\s*/g, "-"); // Replace "- - - " with "-"
+    name = name.replace(/-\s*\)/g, ")"); // Replace "- )" with ")"
+    name = name.replace(/\(\s*-/g, "("); // Replace "( -" with "("
+    name = name.replace(/-\s*\]/g, "]"); // Replace "- ]" with "]"
+    name = name.replace(/【\s*,\s*】/g, ""); // Remove "【, 】"
+    name = name.replace(/\|\s*,\s*\|/g, "|"); // Replace "| , |" with "|"
+    name = name.replace(/\(\//g, "("); // Replace "(/" with "("
+    name = name.includes("(") ? name : name.replace(/\)/g, ""); // Remove ")" if there's no "("
+    name = name.replace(/\[\|\]/g, ""); // Remove "[|]"
+    name = name.replace(/\| \|/g, "|"); // Replace "| |" with "|"
+    name = name.replace(/\( \|/g, "("); // Replace "( |" with "("
+    name = name.replace(/\{\s*,\s*\}/g, ""); // Remove "{, }"
 
-    name = name.replace(/\[\; /, "[");
-    name = name.replace(/\[\;/, "[");
-    name = name.replace(/\( \; /, "(");
-    name = name.replace(/\( \;/, "(");
-    name = name.replace(/ ; \)/, ")");
-    name = name.replace(/; \)/, ")");
-    name = name.replace(/, \]/, "]");
-    name = name.replace(/ ,\]/, "]");
-    name = name.replace(/,\]/, "]");
-    name = name.replace(/\[ , /, "[");
-    name = name.replace(/\[, /, "[");
-    name = name.replace(/\[,/, "[");
-    name = name.replace(/\[ \- /, "[");
-    name = name.replace(/\[ \-/, "[");
-    name = name.replace(/\[- /, "[");
-    name = name.replace(/\[-/, "[");
-    name = name.replace(/\] \]/, "]");
-    name = name.replace(/;/g, " ");
-    name = name.replace(/ {3}/g, "  ");
-    name = name.replace(/ {2}/g, " ");
-    name = name.replace(/\|,/g, "|");
-    name = name.replace(/ , \)/g, ")");
-    name = name.replace(/, \)/g, ")");
-    name = name.replace(/,\)/g, ")");
-    name = name.replace(/\)\)/g, ")");
-    name = name.replace(/\) \)/g, ")");
-    name = name.replace(/ \| \)/g, ")");
-    name = name.replace(/\| \)/g, ")");
-    name = name.replace(/\( \/ /g, "(");
-    name = name.replace(/\( \//g, "(");
-    name = name.replace(/ \| \]/g, "]");
-    name = name.replace(/\| \]/g, "]");
-    name = name.replace(/\/\//g, "/");
-    name = name.replace(/\[\/ /g, "[");
-    name = name.replace(/\[\//g, "[");
-    name = name.replace(/\(- /g, "(");
-    name = name.replace(/\(-/g, "(");
+    name = name.replace(/\[\; /, "["); // Replace "[; " with "["
+    name = name.replace(/\[\;/, "["); // Replace "[;" with "["
+    name = name.replace(/\( \; /, "("); // Replace "( ; " with "("
+    name = name.replace(/\( \;/, "("); // Replace "( ;" with "("
+    name = name.replace(/ ; \)/, ")"); // Replace "; )" with ")"
+    name = name.replace(/; \)/, ")"); // Replace "; )" with ")"
+    name = name.replace(/, \]/, "]"); // Replace ", ]" with "]"
+    name = name.replace(/ ,\]/, "]"); // Replace " ,]" with "]"
+    name = name.replace(/,\]/, "]"); // Replace ",]" with "]"
+    name = name.replace(/\[ , /, "["); // Replace "[ , " with "["
+    name = name.replace(/\[, /, "["); // Replace "[, " with "["
+    name = name.replace(/\[,/, "["); // Replace "[," with "["
+    name = name.replace(/\[ \- /, "["); // Replace "[ - " with "["
+    name = name.replace(/\[ \-/, "["); // Replace "[ -" with "["
+    name = name.replace(/\[- /, "["); // Replace "[- " with "["
+    name = name.replace(/\[-/, "["); // Replace "[-" with "["
+    name = name.replace(/\] \]/, "]"); // Replace "] ]" with "]"
+    name = name.replace(/;/g, " "); // Replace ";" with " "
+    name = name.replace(/ {3}/g, "  "); // Replace 3 spaces with 2 spaces
+    name = name.replace(/ {2}/g, " "); // Replace 2 spaces with 1 space
+    name = name.replace(/\|,/g, "|"); // Replace "|, " with "|"
+    name = name.replace(/ , \)/g, ")"); // Replace " , )" with ")"
+    name = name.replace(/, \)/g, ")"); // Replace ", )" with ")"
+    name = name.replace(/,\)/g, ")"); // Replace ",)" with ")"
+    name = name.replace(/\)\)/g, ")"); // Replace "))" with ")"
+    name = name.replace(/\) \)/g, ")"); // Replace ") )" with ")"
+    name = name.replace(/ \| \)/g, ")"); // Replace " | )" with ")"
+    name = name.replace(/\| \)/g, ")"); // Replace "| )" with ")"
+    name = name.replace(/\( \/ /g, "("); // Replace "( / " with "("
+    name = name.replace(/\( \//g, "("); // Replace "( /" with "("
+    name = name.replace(/ \| \]/g, "]"); // Replace " | ]" with "]"
+    name = name.replace(/\| \]/g, "]"); // Replace "| ]" with "]"
+    name = name.replace(/\/\//g, "/"); // Replace "//" with "/"
+    name = name.replace(/\[\/ /g, "["); // Replace "[ / " with "["
+    name = name.replace(/\[\//g, "["); // Replace "[/" with "["
+    name = name.replace(/\(- /g, "("); // Replace "(- " with "("
+    name = name.replace(/\(-/g, "("); // Replace "(-" with "("
 
-    name = name.replace(/\(\s*\)|(?<=\()(\s*)(?=\))/g, "");
-    name = name.replace(/\[ \)/g, "");
-    name = name.replace(/\[\)/g, "");
-    name = name.replace(/\[\]/g, "");
-    name = name.replace(/\( /g, "(");
-    name = name.replace(/ \)/g, ")");
-    name = name.replace(/\[ /g, "[");
-    name = name.replace(/ \]/g, "]");
-    name = name.replace(/\) - \(/g, ") (");
-    name = name.replace(/\) \| \[/g, ") [");
-    name = name.replace(/\) , \(/g, ") (");
+    name = name.replace(/\(\s*\)|(?<=\()(\s*)(?=\))/g, ""); // Remove "()" or "( )"
+    name = name.replace(/\[ \)/g, ""); // Remove "[ )"
+    name = name.replace(/\[\)/g, ""); // Remove "[)"
+    name = name.replace(/\[\]/g, ""); // Remove "[]"
+    name = name.replace(/\( /g, "("); // Replace "( " with "("
+    name = name.replace(/ \)/g, ")"); // Replace " )" with ")"
+    name = name.replace(/\[ /g, "["); // Replace "[ " with "["
+    name = name.replace(/ \]/g, "]"); // Replace " ]" with "]"
+    name = name.replace(/\) - \(/g, ") ("); // Replace ") - (" with ") ("
+    name = name.replace(/\) \| \[/g, ") ["); // Replace ") | [" with ") ["
+    name = name.replace(/\) , \(/g, ") ("); // Replace ") , (" with ") ("
 
     name =
-        name.match(/\|/g) && name.match(/\|/g).length <= 1
-            ? name.replace(/\|/g, "")
-            : name;
-    name = name.replace(/\([^a-zA-Z\d\s]*,[\s]*\)/g, ""); 
-    name = name.replace(/\(\.0\)/g, "");
-    name = name.replace(/\(\)/g, "");
-    name = name.replace(/\/\s\//g, "");
-    name = name.replace(/\*\s\*/g, "");
-    name = name.replace(/ {3}/g, "  ");
-    name = name.replace(/ {2}/g, " ");
-    name = name.replace(/\(\.\)/g, "");
-    name = name.replace(/\(&\)/g, "");
-    name = name.replace(/\((\d+)steps\)/i, "");
-    name = name.replace(/\((\d+)\s*steps\)/i, "");
-    name = name.replace(/\[(\d+)\s*Steps\]/i, "");
-    name = name.replace(/\,\s*(\d+)\s*steps/i, "");
-    name = name.replace(/(\d+)\s*steps\b/i, "");
-    name = name.replace(/(\d+)\s*stepts\b/i, "");
+        name.match(/\|/g) && name.match(/\|/g).length <= 1 // If there's only one or zero "|"
+            ? name.replace(/\|/g, "") // Remove all "|"
+            : name; 
+    name = name.replace(/\([^a-zA-Z\d\s]*,[\s]*\)/g, ""); // Remove "(,)" or "( , )"
+    name = name.replace(/\(\.0\)/g, ""); // Remove "(.0)"
+    name = name.replace(/\(\)/g, ""); // Remove "()"
+    name = name.replace(/\/\s\//g, ""); // Remove "/ /"
+    name = name.replace(/\*\s\*/g, ""); // Remove "* *"
+    name = name.replace(/ {3}/g, "  "); // Replace 3 spaces with 2 spaces
+    name = name.replace(/ {2}/g, " "); // Replace 2 spaces with 1 space
+    name = name.replace(/\(\.\)/g, ""); // Remove "(.)"
+    name = name.replace(/\(&\)/g, ""); // Remove "(&)"
+    name = name.replace(/\((\d+)steps\)/i, ""); // Remove "(numbersteps)"
+    name = name.replace(/\((\d+)\s*steps\)/i, ""); // Remove "(number steps)"
+    name = name.replace(/\[(\d+)\s*Steps\]/i, ""); // Remove "[number Steps]"
+    name = name.replace(/\,\s*(\d+)\s*steps/i, ""); // Remove ", number steps"
+    name = name.replace(/(\d+)\s*steps\b/i, ""); // Remove "number steps"
+    name = name.replace(/(\d+)\s*stepts\b/i, ""); // Remove "number stepts" 
 
-    name = name.replace(/"{3}/g, '""');
-    name = name.replace(/\.\""\s""/g, '""');
-    name = name.replace(/""\. \.""/g, "");
-    name = name.replace(/"\. \."\s"/g, "");
-    name = name.replace(/"\. \."/g, "");
-    regex = /\[.*\s-\s.*\]/;
+    name = name.replace(/"{3}/g, '""'); // Replace """ with ""
+    name = name.replace(/\.\""\s""/g, '""'); // Replace "."" "" with ""
+    name = name.replace(/""\. \.""/g, ""); // Remove "". . .""
+    name = name.replace(/"\. \."\s"/g, ""); // Remove " . . "
+    name = name.replace(/"\. \."/g, ""); // Remove ". ."
+    regex = /\[.*\s-\s.*\]/; // Matches "[... - ...]"
     if (!regex.test(name)) {
-        regex = /(?<!\S)-+(?=\s{2,}|$)/; 
+        regex = /(?<!\S)-+(?=\s{2,}|$)/; // Matches "-" followed by 2 or more spaces or end of string, not preceded by a non-whitespace character
         if (!regex.test(name)) {
-            name = name.replace(/ -+(?!\s*\S)/, "");
-            name = name.replace(/ -+$/g, "");
-            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); 
+            name = name.replace(/ -+(?!\s*\S)/, ""); // Remove "-" not followed by a non-whitespace character
+            name = name.replace(/ -+$/g, ""); // Remove trailing "-"
+            name = name.replace(/\(\s*-\s*\)|\[\s*-\s*\]/g, ""); // Remove "-" inside "()" or "[]"
         } else {
-            regex = / -+(?=\s*\S)/;
+            regex = / -+(?=\s*\S)/; // Matches "-" followed by a whitespace character and then a non-whitespace character
             if (!regex.test(name)) {
-                name = name.replace(/(?<=\s)-(?=\s)/g, "");
+                name = name.replace(/(?<=\s)-(?=\s)/g, ""); // Remove "-" surrounded by whitespace characters
             }
-            name = name.replace(/-(?=\s*$)/, ""); 
+            name = name.replace(/-(?=\s*$)/, ""); // Remove trailing "-"
         }
     } else {
-        name = name.replace(/ -+(?!\s*\S)/, "");
-        name = name.replace(/ -+$/g, "");
-        name = name.replace(/\s-\s(?![\w\d])/g, "");
+        name = name.replace(/ -+(?!\s*\S)/, ""); // Remove "-" not followed by a non-whitespace character
+        name = name.replace(/ -+$/g, ""); // Remove trailing "-"
+        name = name.replace(/\s-\s(?![\w\d])/g, ""); // Remove "- " not followed by a word character or digit
     }
     name = name.trim();
     return { name, epochs, algorithm, types: modelType };

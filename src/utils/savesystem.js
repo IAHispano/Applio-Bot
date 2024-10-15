@@ -227,58 +227,59 @@ function extractAlgorithm(text, removeHop = false) {
   
 	return removeHop ? "N/A" : "N/A"; 
 }
-
 function extractType(content, tags) {
-	const rvcPatterns = [
-      /\b(?:RVC\s*)(V[12]|Kits\.AI)\b/gi,
-      /\([^)]*(RVC(?:\s*V[12])?|Kits\.AI)[^)]*\)/gi,
-      /\b(RVC[12]|Kits\.AI)\b/gi,
-      /\b(RVC\s*[12]|Kits\.AI)\b/gi,
-      /(\bRVC(?:_)V\d+\b)/gi,
-      /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi,
-    ];
-  
-    const findMatchAndClean = (pattern, replaceFn = null) => {
-      let mcontent = content;
-      const matches = mcontent.match(pattern);
-      if (matches) {
-        let result = matches.join(", ").replace(/\W+/gi, " ").replace(/\s+/g, " ").trim();
-        if (replaceFn) {
-          result = replaceFn(result);
-        }
-        const newContent = mcontent.replace(pattern, result);
-        return { result, newContent };
+
+  const rvcPatterns = [
+    /\b(?:RVC\s*)(V[12]|Kits\.AI)\b/gi,
+    /\([^)]*(RVC(?:\s*V[12])?|Kits\.AI)[^)]*\)/gi,
+    /\b(RVC[12]|Kits\.AI)\b/gi,
+    /\b(RVC\s*[12]|Kits\.AI)\b/gi,
+    /(\bRVC(?:_)V\d+\b)/gi,
+    /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi,
+    /\bRVC\b/gi, 
+  ];
+
+  const findMatchAndClean = (pattern, replaceFn = null) => {
+    let mcontent = content;
+    const matches = mcontent.match(pattern);
+    if (matches) {
+      let result = matches.join(", ").replace(/\W+/gi, " ").replace(/\s+/g, " ").trim();
+      if (replaceFn) {
+        result = replaceFn(result);
       }
-      return null;
-    };
-  
-    let result = null;
-  
-    for (const pattern of rvcPatterns) {
-      result = findMatchAndClean(pattern, (res) => {
-        return res
-          .replace(/\bRVC1\b/gi, "RVC V1")
-          .replace(/\bRVC2\b/gi, "RVC V2")
-          .replace(/\bRVC\s*1\b/gi, "RVC V1")
-          .replace(/\bRVC\s*2\b/gi, "RVC V2")
-          .replace(/(RVC)(\s*)(V\d+)/gi, (match, rvc, space, v) => rvc.toUpperCase() + " " + v.toUpperCase());
-      });
-      if (result) {
-        content = result.newContent;
+      const newContent = mcontent.replace(pattern, result);
+      return { result, newContent };
+    }
+    return null;
+  };
+
+  let result = null;
+
+  for (const pattern of rvcPatterns) {
+    result = findMatchAndClean(pattern, (res) => {
+      return res
+        .replace(/\bRVC1\b/gi, "RVC V1")
+        .replace(/\bRVC2\b/gi, "RVC V2")
+        .replace(/\bRVC\s*1\b/gi, "RVC V1")
+        .replace(/\bRVC\s*2\b/gi, "RVC V2")
+        .replace(/(RVC)(\s*)(V\d+)/gi, (match, rvc, space, v) => rvc.toUpperCase() + " " + v.toUpperCase());
+    });
+    if (result) {
+      content = result.newContent;
+      break;
+    }
+  }
+
+  if (!result && tags) {
+    for (const tag of tags) {
+      if (tagsMapping.Tags.RVC.includes(tag)) { 
+        result = { result: "RVC V2", content };
         break;
       }
     }
-  
-    if (!result && tags) {
-      for (const tag of tags) {
-        if (tagsMapping.Tags.RVC.includes(tag)) {
-          result = { result: "RVC V2", content };
-          break;
-        }
-      }
-    }
-  
-    return result || { result: "N/A", content };
+  }
+
+  return result || { result: "N/A", content };
 }
 
 function numberToReal(str) {
@@ -356,7 +357,9 @@ function extractEpochsAndAlgorithm(name, tags, content) {
     name = name.replace(/\brvc-2\b/gi, "RVC2"); // Replace "rvc-2" with "RVC2"
 
     let epochs = "N/A";
+    
     let algorithm = extractAlgorithm(name);
+
     let dioFound = false;
     if (algorithm === "N/A") {
         let dioRegex =
@@ -390,10 +393,12 @@ function extractEpochsAndAlgorithm(name, tags, content) {
         name = modifiedName;
     }
 
-    name = name.replace(
-        new RegExp(`\\s*\\(${modelType}\\)|\\s*${modelType}`, "gi"), // Remove model type from name (with or without parentheses)
-        "",
-    );
+    //name = name.replace(
+    ///    new RegExp(`\\s*\\(${modelType}\\)|\\s*${modelType}`, "gi"), // Remove model type from name (with or without parentheses)
+    //    "",
+    //);
+    
+
     const typePattern = /\b(RVC(?:\s*V\d+)?|Kits\.AI)\b/gi; // Matches "RVC", "RVC V1", "RVC V2", etc. or "Kits.AI"
     name = name.replace(typePattern, "").trim(); // Remove type patterns from name
     name = name.replace(/\b(RVC(?:\s*V\d+)?|Kits\.AI|\bV\d+\b)\b/gi, "").trim(); // Remove type patterns and "V1", "V2", etc. from name
@@ -412,11 +417,14 @@ function extractEpochsAndAlgorithm(name, tags, content) {
             break;
         }
     }
+    
 
     if (algorithm !== "N/A" && !dioFound) {
         name = name.replace(new RegExp(`\\b${algorithm}\\b`, "gi"), "");  // Remove algorithm from name
     }
+    
     name = formatEpochs(name);
+    
     if (algorithm == "N/A") {
         algorithm = "Rmvpe";
     }

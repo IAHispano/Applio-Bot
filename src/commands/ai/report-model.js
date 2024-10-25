@@ -58,7 +58,7 @@ module.exports = {
         ),
     )
     .setDMPermission(false),
-  async execute(interaction) {
+  async execute(interaction, client) {
     const model = interaction.options.getString("model");
     const link = interaction.options.getString("link");
     const reason = interaction.options.getString("reason");
@@ -75,20 +75,42 @@ module.exports = {
 
       .setColor("White")
       .setTimestamp();
-    const channel = interaction.guild.channels.cache.get(process.env.AI_HISPANO_REPORT_MODEL_CHANNEL_ID);
 
     const embed_exito = new EmbedBuilder()
       .setDescription(`Successfully submitted!`)
       .setColor("White")
       .setTimestamp();
 
-    await interaction
-      .reply({
-        embeds: [embed_exito],
-        ephemeral: true,
-      })
-      .then(() => {
-        channel.send({ embeds: [embed] });
-      });
+    const deleteModel = new ButtonBuilder()
+    .setLabel("🗑️ Delete")
+    .setStyle(ButtonStyle.Primary)
+    .setCustomId(`mdelete_${model}`);
+
+    const row = new ActionRowBuilder().addComponents(
+      deleteModel,
+    );
+    await interaction.reply({
+      embeds: [embed_exito],
+      ephemeral: true,
+    })
+    let content = { embeds: [embed], components: [row] };
+    await client.shard.broadcastEval(
+      (c, context) => {
+        const [content] = context;
+        try {
+          const channel = c.channels.cache.get(
+            process.env.AI_HISPANO_REPORT_MODEL_CHANNEL_ID,
+          );
+          if (channel) {
+            channel.send(content);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      {
+        context: [content],
+      },
+    );
   },
 };

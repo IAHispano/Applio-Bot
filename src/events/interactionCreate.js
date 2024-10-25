@@ -356,11 +356,19 @@ async function ButtonInt(interaction) {
 				await interaction.message.edit({
 					components: rows,
 				});
-
-				const { error } = await supabase
+				if (interaction.message.embeds && interaction.message.embeds[0].fields && interaction.message.embeds[0].fields.length > 2) {
+					const link = interaction.message.embeds[0].fields[1].value;
+					const { error } = await supabase
+					.from("models")
+					.delete()
+					.eq("link", `%${link}%`);
+				} else {
+					const { error } = await supabase
 					.from("models")
 					.delete()
 					.eq("id", model);
+				}
+				
 				collector.stop();
 			} else if (i.customId === "cancel") {
 				await i.update({ content: "Action canceled!", components: [] });

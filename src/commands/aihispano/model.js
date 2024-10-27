@@ -96,51 +96,51 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focused = interaction.options.getFocused();
 		const choices = [
-			{ name: "🤣 Meme", value: "🤣 Meme" },
-			{ name: "🎤 Artist", value: "🎤 Artist" },
-			{ name: "👀 Character", value: "👀 Character" },
-			{ name: "🎷 Instrument", value: "🎷 Instrument" },
-			{ name: "🪁 Anime", value: "🪁 Anime" },
-			{ name: "🛡️ TITAN-Medium", value: "🛡️ TITAN-Medium" },
-			{ name: "🔝 High-Quality", value: "🔝 High-Quality" },
-			{ name: "📑 TTS", value: "📑 TTS" },
-			{ name: "⚡ w-okada", value: "⚡ w-okada" },
+			"🤣 Meme",
+			"🎤 Artist",
+			"👀 Character",
+			"🎷 Instrument",
+			"🪁 Anime",
+			"🔝 High-Quality",
+			"📑 TTS",
+			"🗣️ Realtime",
 		];
-
-		const tags = interaction.options.getString('tags')?.split(',').map(t => t.trim()).filter(t => t !== "");
+	
+		const tags = normalizeEmojis(interaction.options.getString('tags')?.split(',').map(t => t.trim()).filter(t => t !== "") || []);
 		let suggestions = [];
 		let remaining = [...choices];
-		const focusedTags = focused.split(',').map(t => t.trim());
-
+		const focusedTags = normalizeEmojis(focused.split(',').map(t => t.trim()));
+	
 		const normEmoji = (text) => text.replace(/[\uFE0F\uFE0E]/g, '');
 		const isSelected = focusedTags.some(t => tags.includes(t));
-
+	
 		if (isSelected) {
-			remaining = remaining.filter(c => !focusedTags.includes(c.value));
+			remaining = remaining.filter(c => !focusedTags.includes(c));
 		} else {
 			remaining = remaining.filter(c => 
-				focusedTags.some(t => c.name.toLowerCase().includes(t.toLowerCase())) && 
-				!tags.includes(c.value) && 
-				!focusedTags.includes(c.value)
+				focusedTags.some(t => c.toLowerCase().includes(t.toLowerCase())) && 
+				!tags.includes(c) && 
+				!focusedTags.includes(c)
 			);
 		}
-
+	
 		if (tags.length > 0) {
 			suggestions.push({ name: '...', value: '...' });
 			suggestions = suggestions.concat(remaining.map(c => {
-				const alreadySelected = tags.some(t => normEmoji(t).toLowerCase() === normEmoji(c.value).toLowerCase());
+				const alreadySelected = tags.some(t => normEmoji(t).toLowerCase() === normEmoji(c).toLowerCase());
 				if (!alreadySelected) {
-					return { name: `${tags.join(', ')}${tags.length > 0 ? ', ' : ''}${c.name}`, value: `${tags.join(', ')}${tags.length > 0 ? ', ' : ''}${c.name}` };
+					const nvalue = `${tags.join(',')}${tags.length > 0 ? ',' : ''}${c}`;
+					return { name: nvalue, value: nvalue };
 				}
 				return null;
 			}).filter(c => c !== null));
 		} else {
-			suggestions = remaining.map(c => ({ name: c.name, value: c.value }));
+			suggestions = remaining.map(c => ({ name: c, value: c }));
 		}
-
+	
 		const uniqueSuggestions = [];
 		const seen = new Set();
-
+	
 		suggestions.forEach(s => {
 			if (!seen.has(normEmoji(s.value))) {
 				seen.add(normEmoji(s.value));
@@ -153,7 +153,6 @@ module.exports = {
 			const uniqueWords = new Set(words);
 			return uniqueWords.size === words.length; 
 		});
-
 		try {
 			await interaction.respond(filtered);
 		} catch(e) {}

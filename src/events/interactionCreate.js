@@ -414,7 +414,7 @@ async function ButtonInt(interaction) {
 				/> \*\*Tags:\*\* (.+)/,
 			);
 			const tagsString = tagsMatch ? tagsMatch[1] : "";
-			const extractedTags = tagsString.split(", ").map((tag) => tag.trim());
+			const extractedTags = tagsString.split(",").map((tag) => tag.trim());
 			const appliedTags = extractedTags
 				.map((tag) => {
 					const lowerCaseTag = tag.toLowerCase();
@@ -479,7 +479,7 @@ async function ButtonInt(interaction) {
 				/> \*\*Tags:\*\* (.+)/,
 			);
 			const tagsString = tagsMatch ? tagsMatch[1] : "";
-			const extractedTags = tagsString.split(", ").map((tag) => tag.trim());
+			const extractedTags = tagsString.split(",").map((tag) => tag.trim());
 			const appliedTags = extractedTags
 				.map((tag) => {
 					const lowerCaseTag = tag.toLowerCase();

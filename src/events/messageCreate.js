@@ -8,6 +8,7 @@ const {
 
 const client = require("../bot.js");
 const prefix = `<@${process.env.BOT_ID}>`;
+const { IsInBlacklist } = require("../utils/blacklist");
 
 module.exports = {
 	name: "messageCreate",
@@ -74,10 +75,26 @@ async function handleCommandMessage(message) {
 	const channel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
 
 	try {
+		const noperms = await handlePermissions(command, message);
+		if (noperms) return;
 		await executeCommand(command, message);
 	} catch (error) {
 		await handleCommandError(error, message, channel);
 	}
+}
+
+async function handlePermissions(command, message) {
+    const cmdName = command?.data?.name || "chat";
+
+    if (
+        IsInBlacklist(message.author.id, cmdName) ||
+        (command?.devOnly && !process.env.OWNER_ID.split(",").includes(message.author.id))
+    ) {
+        await message.reply("You cannot access this command.");
+        return true;
+    }
+
+    return false;
 }
 
 async function executeCommand(command, message) {

@@ -9,6 +9,7 @@ const {
 
 const client = require("../bot.js");
 const { createClient } = require("@supabase/supabase-js");
+const { IsInBlacklist } = require("../utils/blacklist");
 const supabase = createClient(
 	process.env.SUPABASE_URL,
 	process.env.SUPABASE_TOKEN,
@@ -529,10 +530,11 @@ async function ButtonInt(interaction) {
 
 async function handlePermissions(command, interaction) {
 	if (
-		command.devOnly &&
-		!process.env.OWNER_ID.split(",").includes(interaction.user.id)
+		IsInBlacklist(interaction.user.id, command.data.name) ||
+		(command.devOnly &&
+			!process.env.OWNER_ID.split(",").includes(interaction.user.id))
 	) {
-		interaction.reply("This command is restricted to developers.");
+		interaction.reply("You cannot access this command.");
 		return true;
 	}
 }

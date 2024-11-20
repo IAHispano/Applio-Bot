@@ -454,6 +454,7 @@ async function ButtonInt(interaction) {
 				ephemeral: true,
 			});
 		}
+		await interaction.deferUpdate(); 
 		try {
 			const embed = interaction.message.embeds[0].data;
 			const fields = embed.fields.reduce((acc, field) => {
@@ -512,7 +513,7 @@ async function ButtonInt(interaction) {
 					}),
 				);
 			});
-			await interaction.update({
+			await interaction.editReply({
 				content: `Thread: <#${thread.id}> | ${thread.name}`,
 				components: rows,
 			});
@@ -520,7 +521,7 @@ async function ButtonInt(interaction) {
 				content: `Model successfully created in thread <#${thread.id}>.`,
 			});
 		} catch {
-			await interaction.update({
+			await interaction.editReply({
 				content: "Error upload thread",
 				components: interaction.message.components,
 			});

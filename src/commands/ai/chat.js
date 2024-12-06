@@ -8,7 +8,7 @@ const SYSTEM_PROMPT =
 const MAX_PROMPT_LENGTH = 256;
 const MAX_CONTENT_LENGTH = 2000;
 const TEMPERATURE = 0.5;
-const MODEL = "llama-3.1-70b-versatile";
+const MODEL = "llama-3.3-70b-versatile";
 
 const { Profanity } = require("@2toad/profanity");
 const profanity = new Profanity({

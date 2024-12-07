@@ -84,17 +84,18 @@ async function handleCommandMessage(message) {
 }
 
 async function handlePermissions(command, message) {
-    const cmdName = command?.data?.name || "chat";
+	const cmdName = command?.data?.name || "chat";
 
-    if (
-        IsInBlacklist(message.author.id, cmdName) ||
-        (command?.devOnly && !process.env.OWNER_ID.split(",").includes(message.author.id))
-    ) {
-        await message.reply("You cannot access this command.");
-        return true;
-    }
+	if (
+		IsInBlacklist(message.author.id, cmdName) ||
+		(command?.devOnly &&
+			!process.env.OWNER_ID.split(",").includes(message.author.id))
+	) {
+		await message.reply("You cannot access this command.");
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 async function executeCommand(command, message) {

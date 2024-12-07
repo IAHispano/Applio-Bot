@@ -6,6 +6,7 @@
 		"biome": "biome format --write ."
 	},
 	"dependencies": {
+		"@2toad/profanity": "^3.0.1",
 		"@discordjs/rest": "^2.0.1",
 		"@discordjs/voice": "^0.16.0",
 		"@supabase/supabase-js": "^2.42.0",

@@ -159,7 +159,7 @@ module.exports = {
 				FormatResult.Data.context.Link,
 			);
 			if (verify.Result === "Founded") {
-			    return;
+				return;
 			}
 			const Steal = verify.Result === "Steal" ? verify.AuthorID : false;
 

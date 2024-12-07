@@ -10,7 +10,18 @@ const profanity = new Profanity({
 	grawlix: "*****",
 	grawlixChar: "$",
 });
-profanity.addWords(["strangulation", "gore", "blood", "dismemberment", "to quarter", "porn", "sex", "nude", "naked", "without clothes"]);
+profanity.addWords([
+	"strangulation",
+	"gore",
+	"blood",
+	"dismemberment",
+	"to quarter",
+	"porn",
+	"sex",
+	"nude",
+	"naked",
+	"without clothes",
+]);
 
 async function translatePrompt(prompt) {
 	try {

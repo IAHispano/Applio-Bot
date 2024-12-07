@@ -29,7 +29,9 @@ module.exports = {
 		) {
 			const embed_fail = new EmbedBuilder()
 				.setTitle(`Application not successfully submitted.`)
-				.setDescription(`You already have the role <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}>.`)
+				.setDescription(
+					`You already have the role <@&${process.env.AI_HISPANO_MODEL_MAKER_ROLE_ID}>.`,
+				)
 				.setColor("White")
 				.setTimestamp();
 			await interaction.reply({

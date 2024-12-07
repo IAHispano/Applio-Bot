@@ -28,18 +28,18 @@ const removeEmojis = (str) =>
 		"",
 	);
 const tagMap = {
-  English: "1288861445269885131",
-  Spanish: "1288861635296890982",
-  "Latin America": "1288861684466974781",
-  "Other languages": "1288861741865893908",
-  Instrument: "1288862084737794112",
-  "High-Quality": "1288862165327151135",
-  Meme: "1288861784681222214",
-  Character: "1288862011719024640",
-  Artist: "1288861820014170132",
-  Anime: "1288862120007434313",
-  TTS: "1288862198244052992",
-  Realtime: "1288862251184295963",
+	English: "1288861445269885131",
+	Spanish: "1288861635296890982",
+	"Latin America": "1288861684466974781",
+	"Other languages": "1288861741865893908",
+	Instrument: "1288862084737794112",
+	"High-Quality": "1288862165327151135",
+	Meme: "1288861784681222214",
+	Character: "1288862011719024640",
+	Artist: "1288861820014170132",
+	Anime: "1288862120007434313",
+	TTS: "1288862198244052992",
+	Realtime: "1288862251184295963",
 };
 async function createInteractionResponse(interaction, body) {
 	try {
@@ -357,19 +357,23 @@ async function ButtonInt(interaction) {
 				await interaction.message.edit({
 					components: rows,
 				});
-				if (interaction.message.embeds && interaction.message.embeds[0].fields && interaction.message.embeds[0].fields.length > 2) {
+				if (
+					interaction.message.embeds &&
+					interaction.message.embeds[0].fields &&
+					interaction.message.embeds[0].fields.length > 2
+				) {
 					const link = interaction.message.embeds[0].fields[1].value;
 					const { error } = await supabase
-					.from("models")
-					.delete()
-					.eq("link", `%${link}%`);
+						.from("models")
+						.delete()
+						.eq("link", `%${link}%`);
 				} else {
 					const { error } = await supabase
-					.from("models")
-					.delete()
-					.eq("id", model);
+						.from("models")
+						.delete()
+						.eq("id", model);
 				}
-				
+
 				collector.stop();
 			} else if (i.customId === "cancel") {
 				await i.update({ content: "Action canceled!", components: [] });
@@ -454,7 +458,7 @@ async function ButtonInt(interaction) {
 				ephemeral: true,
 			});
 		}
-		await interaction.deferUpdate(); 
+		await interaction.deferUpdate();
 		try {
 			const embed = interaction.message.embeds[0].data;
 			const fields = embed.fields.reduce((acc, field) => {

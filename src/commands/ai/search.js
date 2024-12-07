@@ -43,7 +43,10 @@ function createModelEmbed(model, user) {
 	const createdDate = model.created_at
 		? `<t:${Math.trunc(new Date(model.created_at).getTime() / 1000)}:d>`
 		: "Unknown";
-	const serverName = model.server_name !== "AI Hispano" ? model.server_name : "[AI Hispano](https://discord.gg/iahispano)";
+	const serverName =
+		model.server_name !== "AI Hispano"
+			? model.server_name
+			: "[AI Hispano](https://discord.gg/iahispano)";
 
 	return new EmbedBuilder()
 		.setTitle(model.name)
